@@ -1,0 +1,16 @@
+.completeSchemaContainer {
+  display: flex;
+  align-items: flex-end;
+  min-height: 300px;
+  height: fit-content;
+  justify-content: center;
+  width: 100%;
+  /* border: 1px solid black; */
+  /* gap: 5px; */
+  overflow: auto;
+  background-color: blanchedalmond;
+}
+
+.cableLength {
+  width: 30px;
+}

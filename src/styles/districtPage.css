@@ -1,0 +1,10 @@
+.districtPageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.districtPageContainer > div {
+  border: 1px solid black;
+  padding: 20px;
+}
