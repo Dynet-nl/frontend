@@ -12,6 +12,22 @@ import RightStraightFlats from '../dynamicSchemas/RightStraightFlats'
 import LeftFlatApart from '../dynamicSchemas/LeftFlatApart'
 import RightFlatApart from '../dynamicSchemas/RightFlatApart'
 
+const blockTypeComponents = {
+  leftWing: LeftFlatsStairs,
+  noStairs: FlatsNoStairs,
+  rightWing: RightFlatsStairs,
+  leftWingApart: LeftFlatApart,
+  rightWingApart: RightFlatApart,
+  leftWingNoBG: LeftFlatsNoBGStairs,
+  rightWingNoBG: RightFlatsNoBGStairs,
+  doubleNoBGsWing: DoubleNoBGs,
+  doubleNoRightBGWing: DoubleNoRightBG,
+  doubleNoLeftBGWing: DoubleNoLeftBG,
+  leftWingFlat: LeftStraightFlats,
+  rightWingFlat: RightStraightFlats,
+  // Add more mappings here as needed
+};
+
 const ConditionalFullSchema = ({
   form,
   building,
@@ -19,144 +35,22 @@ const ConditionalFullSchema = ({
   formFields,
   handleFlatDetails,
 }) => {
-  if (form.blockType == 'leftWing') {
+  const Component = blockTypeComponents[form.blockType];
+
+  if (Component) {
     return (
-      <LeftFlatsStairs
+      <Component
         form={form}
         building={building}
         parentIndex={parentIndex}
         formFields={formFields}
         handleFlatDetails={handleFlatDetails}
       />
-    )
-  }
-  if (form.blockType == 'noStairs') {
-    return (
-      <FlatsNoStairs
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-  if (form.blockType == 'rightWing') {
-    return (
-      <RightFlatsStairs
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
+    );
   }
 
-  if (form.blockType == 'leftWingApart') {
-    return (
-      <LeftFlatApart
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
+  // Optionally, return null or a default component if form.blockType doesn't match
+  return null;
+};
 
-  if (form.blockType == 'rightWingApart') {
-    return (
-      <RightFlatApart
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-
-  if (form.blockType == 'leftWingNoBG') {
-    return (
-      <LeftFlatsNoBGStairs
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-
-  if (form.blockType == 'rightWingNoBG') {
-    return (
-      <RightFlatsNoBGStairs
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-  if (form.blockType == 'doubleNoBGsWing') {
-    return (
-      <DoubleNoBGs
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-  if (form.blockType == 'doubleNoRightBGWing') {
-    return (
-      <DoubleNoRightBG
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-  if (form.blockType == 'doubleNoLeftBGWing') {
-    return (
-      <DoubleNoLeftBG
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-
-  if (form.blockType == 'leftWingFlat') {
-    return (
-      <LeftStraightFlats
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-
-  if (form.blockType == 'rightWingFlat') {
-    return (
-      <RightStraightFlats
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    )
-  }
-}
-
-export default ConditionalFullSchema
+export default ConditionalFullSchema;

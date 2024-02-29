@@ -9,6 +9,7 @@ import NotFound from './components/NotFound'
 import Unauthorized from './components/Unauthorized'
 import RequireAuth from './components/RequireAuth'
 import AdminPage from './pages/AdminPage'
+import CitiesPage from './pages/CitiesPage'
 
 function App() {
   return (
@@ -17,23 +18,15 @@ function App() {
         <Route element={<LoginPage />} path='/login' />
         <Route element={<Unauthorized />} path='/unauthorized' />
 
-        {/* any user with access token has access to this routes */}
         <Route element={<Layout />}>
-          <Route
-            element={
-              <RequireAuth
-                allowedRoles={[5150, 1991, 8687, 1948, 1959, 2023]}
-              />
-            }
-          >
+          <Route element={ <RequireAuth allowedRoles={[5150, 1991, 8687, 1948, 1959, 2023]} /> } >
             <Route element={<HomePage />} path='/' />
-            {/* <Route element={<DistrictPage />} path="/district" />
-            <Route element={<BuildingPage />} path="/building/:id" /> */}
           </Route>
 
-          {/* only admin has access to these routes */}
+          {}
           <Route element={<RequireAuth allowedRoles={[5150]} />}>
             <Route element={<AdminPage />} path='/admin' />
+            <Route element={<CitiesPage /> } path='/city' />
             <Route element={<DistrictPage />} path='/district' />
             <Route element={<BuildingPage />} path='/building/:id' />
           </Route>

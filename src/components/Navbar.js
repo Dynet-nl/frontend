@@ -19,6 +19,7 @@ const Navbar = () => {
     <nav>
       <Link to='/'>Home</Link>
       <Link to='/district'>District page</Link>
+      <Link to='/city'>Cities</Link>
       <Link to='/admin'>Admin page</Link>
 
       <button onClick={logout}>Sign Out</button>

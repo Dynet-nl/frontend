@@ -3,50 +3,47 @@ import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 const Users = () => {
-  const [users, setUsers] = useState()
-  const axiosPrivate = useAxiosPrivate()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const [users, setUsers] = useState([]);
+  const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    let isMounted = true
-    const controller = new AbortController()
+    const controller = new AbortController();
 
     const getUsers = async () => {
       try {
         const response = await axiosPrivate.get('/api/users', {
           signal: controller.signal,
-        })
-        console.log(response.data)
-        isMounted && setUsers(response.data)
+        });
+        setUsers(response.data);
       } catch (err) {
-        console.error(err)
-        navigate('/login', { state: { from: location }, replace: true })
+        console.error(err);
+        navigate('/login', { state: { from: location }, replace: true });
       }
-    }
+    };
 
     getUsers()
 
     return () => {
-      isMounted = false
-      controller.abort()
-    }
-  }, [])
+      controller.abort();
+    };
+  }, [axiosPrivate, navigate, location]); 
 
   return (
     <article>
       <h2>Users List</h2>
-      {users?.length ? (
+      {users.length > 0 ? (
         <ul>
-          {users.map((user, i) => (
-            <li key={i}>{user?.email}</li>
+          {users.map((user) => (
+            <li key={user.id}>{user.email}</li>
           ))}
         </ul>
       ) : (
         <p>No users to display</p>
       )}
     </article>
-  )
-}
+  );
+};
 
-export default Users
+export default Users;
