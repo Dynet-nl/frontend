@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import Button from '@mui/material/Button';
 
 const DistrictButtons = ({ districts, getBuildings, setCurrentDistrict }) => {
   const handleDistrictClick = (district) => {
@@ -9,14 +10,16 @@ const DistrictButtons = ({ districts, getBuildings, setCurrentDistrict }) => {
   return (
     <div>
       {districts.map((district) => (
-        <button
+        <Button
           key={district._id}
           onClick={() => handleDistrictClick(district)}
+          style={{ backgroundColor: 'green', color: 'white' }}
         >
           {district.name}
-        </button>
-      ))}
-    </div>
+        </Button>
+      ))
+      }
+    </div >
   );
 };
 

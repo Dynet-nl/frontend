@@ -150,15 +150,15 @@ const BuildingPage = () => {
 
     const { data } = isLayoutNew
       ? await axiosPrivate.post(
-          `/api/building/layout/${params.id}`,
-          formFields,
-          config,
-        )
+        `/api/building/layout/${params.id}`,
+        formFields,
+        config,
+      )
       : await axiosPrivate.put(
-          `/api/building/layout/${params.id}`,
-          formFields,
-          config,
-        )
+        `/api/building/layout/${params.id}`,
+        formFields,
+        config,
+      )
 
     console.log('response', data)
   }
@@ -462,24 +462,23 @@ const BuildingPage = () => {
         {formFields.map((form, index) => (
           <div
             key={index}
-            className={`${
-              form.blockType === 'leftWing' ||
-              form.blockType === 'rightWing' ||
-              form.blockType === 'leftWingNoBG' ||
-              form.blockType === 'rightWingNoBG' ||
-              form.blockType === 'leftWingFlat' ||
-              form.blockType === 'rightWingFlat'
+            className={`${form.blockType === 'leftWing' ||
+                form.blockType === 'rightWing' ||
+                form.blockType === 'leftWingNoBG' ||
+                form.blockType === 'rightWingNoBG' ||
+                form.blockType === 'leftWingFlat' ||
+                form.blockType === 'rightWingFlat'
                 ? 'wingContainer'
                 : ''
-            }
+              }
             ${form.blockType === 'noStairs' ? 'noStairsContainer' : ''}`}
-            // ${
-            //   form.blockType === 'doubleNoBGsWing' ||
-            //   form.blockType === 'doubleNoRightBGWing' ||
-            //   form.blockType === 'doubleNoLeftBGWing'
-            //     ? 'doubleWingContainer'
-            //     : ''
-            // }
+          // ${
+          //   form.blockType === 'doubleNoBGsWing' ||
+          //   form.blockType === 'doubleNoRightBGWing' ||
+          //   form.blockType === 'doubleNoLeftBGWing'
+          //     ? 'doubleWingContainer'
+          //     : ''
+          // }
           >
             <ConditionalFullSchema
               key={index}

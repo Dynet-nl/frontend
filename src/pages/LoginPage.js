@@ -31,9 +31,7 @@ const Login = () => {
     e.preventDefault()
 
     try {
-      const response = await axios.post(
-        '/auth',
-        // JSON.stringify({ email, password }),
+      const response = await axios.post('/auth',
         { email, password },
         {
           headers: { 'Content-Type': 'application/json' },
@@ -41,12 +39,17 @@ const Login = () => {
         },
       )
 
-      // console.log(JSON.stringify(response.data))
-      const accessToken = response?.data?.accessToken
       const roles = response?.data?.roles
+      const accessToken = response?.data?.accessToken
+
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('roles', JSON.stringify(roles))
+
       setAuth({ email, password, roles, accessToken })
+
       setEmail('')
       setPassword('')
+
       navigate(from, { replace: true })
     } catch (err) {
       if (!err?.response) {

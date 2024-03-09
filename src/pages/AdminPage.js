@@ -4,7 +4,6 @@ import Users from '../components/Users'
 const AdminPage = () => {
   return (
     <div>
-      AdminPage
       <Users />
     </div>
   )

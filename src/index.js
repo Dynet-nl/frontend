@@ -4,14 +4,30 @@ import './index.css'
 import App from './App'
 import { AuthProvider } from './context/AuthProvider'
 import { BrowserRouter } from 'react-router-dom'
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const theme = createTheme({
+  components: {
+    MuiButton: {
+      defaultProps: {
+        variant: 'contained',
+      },
+      styleOverrides: {
+        root: {
+          height: '30px',
+        },
+      },
+    },
+  },
+});
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  // <React.StrictMode>
   <BrowserRouter>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </BrowserRouter>,
-  // </React.StrictMode>,
-)
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ThemeProvider>
+  </BrowserRouter>
+);

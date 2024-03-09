@@ -1,0 +1,37 @@
+import React, { useState, useParams } from 'react';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+
+const AreaForm = ({ cityId, onAddArea }) => {
+    const [areaName, setAreaName] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Include cityId in the request payload
+            console.log("AreaForm - City id is ", cityId);
+            console.log("AreaForm - Properties Name is ", areaName);
+            await onAddArea({ name: areaName, cityId: cityId });
+            setAreaName('');
+        } catch (error) {
+            console.log('Error adding area:', error);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
+            <div style={{ marginBottom: '15px' }}>
+                <TextField
+                    id="areaName"
+                    label="Area Name"
+                    variant="outlined"
+                    value={areaName}
+                    onChange={(e) => setAreaName(e.target.value)}
+                />
+            </div>
+            <Button type="submit" style={{ marginTop: '20px', marginBottom: '20px' }}>Add Area</Button>
+        </form>
+    );
+};
+
+export default AreaForm;

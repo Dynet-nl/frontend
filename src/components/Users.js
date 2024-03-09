@@ -28,15 +28,15 @@ const Users = () => {
     return () => {
       controller.abort();
     };
-  }, [axiosPrivate, navigate, location]); 
+  }, [axiosPrivate, navigate, location]);
 
   return (
-    <article>
-      <h2>Users List</h2>
+    <article style={{ padding: '20px' }}>
+      <h1 style={{ marginBottom: '20px' }}>Users List</h1>
       {users.length > 0 ? (
-        <ul>
+        <ul style={{ paddingLeft: '20px', listStyleType: 'disc' }}>
           {users.map((user) => (
-            <li key={user.id}>{user.email}</li>
+            <li key={user._id} style={{ marginBottom: '10px' }}>{user.email}</li>
           ))}
         </ul>
       ) : (
@@ -44,6 +44,7 @@ const Users = () => {
       )}
     </article>
   );
+
 };
 
 export default Users;

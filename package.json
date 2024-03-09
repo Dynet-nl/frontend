@@ -14,7 +14,10 @@
     "react-router-dom": "^6.7.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@mui/material": "^5.8.4",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.9.0"
   },
   "scripts": {
     "start": "react-scripts start",
