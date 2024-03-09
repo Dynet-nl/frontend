@@ -67,7 +67,7 @@ const AreaPage = () => {
                         <div key={area._id} style={{ position: 'relative', width: '200px', height: '200px', border: '1px solid #ccc', padding: '10px', borderRadius: '5px', overflow: 'hidden' }}>
                             <button
                                 onClick={() => handleDeleteArea(area._id)}
-                                style={{ position: 'absolute', top: '5px', right: '5px', cursor: 'pointer' }}
+                                style={{ padding: '5px', position: 'absolute', top: '5px', right: '5px', cursor: 'pointer' }}
                             >
                                 X
                             </button>
