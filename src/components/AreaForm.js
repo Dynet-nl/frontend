@@ -8,9 +8,6 @@ const AreaForm = ({ cityId, onAddArea }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Include cityId in the request payload
-            console.log("AreaForm - City id is ", cityId);
-            console.log("AreaForm - Properties Name is ", areaName);
             await onAddArea({ name: areaName, cityId: cityId });
             setAreaName('');
         } catch (error) {

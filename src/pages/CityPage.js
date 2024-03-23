@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import CityForm from '../components/CityForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import Button from '@mui/material/Button';
 
 const CityPage = () => {
   const [cities, setCities] = useState([]);

@@ -1,0 +1,37 @@
+.buildingContainer {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.buildingHeader {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 24px;
+}
+
+.buildingType {
+  margin-bottom: 15px;
+  color: #666;
+  font-size: 18px;
+}
+
+.flatLink {
+  display: block;
+  margin: 5px 0;
+  padding: 10px;
+  background-color: #e7e7e7;
+  border-radius: 4px;
+  color: #000;
+  text-decoration: none;
+}
+
+.flatLink:hover {
+  background-color: #d7d7d7;
+}
+
+.flatInfo {
+  font-size: 16px;
+}

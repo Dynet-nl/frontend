@@ -5,6 +5,7 @@ import useAuth from './hooks/useAuth'
 import HomePage from './pages/HomePage'
 import DistrictPage from './pages/DistrictPage'
 import BuildingPage from './pages/BuildingPage'
+import ApartmentPage from './pages/ApartmentPage';
 import LoginPage from './pages/LoginPage'
 import Layout from './components/Layout'
 import NotFound from './components/NotFound'
@@ -44,6 +45,7 @@ function App() {
             <Route element={<CityPage />} path='/city' />
             <Route element={<AreaPage />} path='/area/:cityId' />
             <Route element={<DistrictPage />} path='/district/:areaId' />
+            <Route element={<ApartmentPage />} path='/apartment/:id' /> 
             <Route element={<BuildingPage />} path='/building/:id' />
           </Route>
         </Route>

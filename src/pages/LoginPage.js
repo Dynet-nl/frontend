@@ -3,6 +3,8 @@ import { useRef, useState, useEffect, useContext } from 'react'
 import useAuth from '../hooks/useAuth'
 import axios from 'axios'
 import '../styles/login.css'
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
@@ -74,35 +76,39 @@ const Login = () => {
       >
         {errMsg}
       </p>
-      <h1>Sign In</h1>
+
+      <h1 style={{ marginBottom: '20px' }}>Sign In</h1>
+
       <form className="login" onSubmit={handleSubmit}>
-        <label className="login" htmlFor="username">
-          Email:
-        </label>
-        <input
-          className="login"
+        <TextField
+          label="Email"
           type="email"
           id="username"
-          ref={userRef}
           autoComplete="off"
           onChange={(e) => setEmail(e.target.value)}
           value={email}
           required
+          variant="outlined"
+          fullWidth
+          inputRef={userRef}
+          style={{ marginBottom: '20px' }}
         />
 
-        <label className="login" htmlFor="password">
-          Password:
-        </label>
-        <input
-          className="login"
+        <TextField
+          label="Password"
           type="password"
           id="password"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
           required
+          variant="outlined"
+          fullWidth
+          style={{ marginBottom: '20px' }}
         />
-        <button>Sign In</button>
+
+        <Button type="submit" variant="contained" style={{ marginTop: '20px' }}>Sign In</Button>
       </form>
+
     </section>
   )
 }
