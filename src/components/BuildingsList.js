@@ -1,16 +1,8 @@
 import React from 'react';
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import '../styles/buildingsList.css';
 
 const BuildingsList = ({ buildings }) => {
-  useEffect(() => {
-    const savedPosition = sessionStorage.getItem('scrollPosition');
-    if (savedPosition) {
-      window.scrollTo(0, parseInt(savedPosition, 10));
-      sessionStorage.removeItem('scrollPosition');
-    }
-  }, []);
 
   const categorizeBuilding = (flats) => {
     const prefixCounts = flats.reduce((acc, flat) => {
@@ -32,59 +24,87 @@ const BuildingsList = ({ buildings }) => {
     return { types, typeString };
   };
 
-  const handleApartmentClick = () => {
-    sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+  const sortFlats = (a, b) => {
+    const isANumeric = !isNaN(a.toevoeging);
+    const isBNumeric = !isNaN(b.toevoeging);
+
+    if (isANumeric && isBNumeric) {
+      if (a.toevoeging === "H") return 1;
+      if (b.toevoeging === "H") return -1;
+      return parseInt(b.toevoeging, 10) - parseInt(a.toevoeging, 10);
+    }
+
+    if (!isANumeric && !isBNumeric) {
+      return b.toevoeging.localeCompare(a.toevoeging);
+    }
+
+    if (isANumeric) {
+      return -1;
+    }
+
+    return 1;
+  };
+
+  const renderFlatLink = (flat, flatIndex, types, building) => {
+    const flatType = types.find(type => flat.zoeksleutel.startsWith(type.prefix));
+
+    if (flatType && flatType.type === 'Laag bouw') {
+      return flatIndex === 0 ? (
+        <Link key={flatIndex} to={`/apartment/${flat._id}`} className="flatLink">
+          <div key={flatIndex} className="flatInfo">{building.address}</div>
+        </Link>
+      ) : null;
+    } else {
+      return (
+        <Link
+          key={flatIndex}
+          to={`/apartment/${flat._id}`}
+          className="flatLink"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div className="flatInfo">Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b></div>
+        </Link>
+      );
+    }
+  };
+
+  const renderBuildingFlats = (flats) => {
+    return flats.map((flat, index) => (
+      <div key={index} className="flat">
+        <div className="checkmarkContainer">
+          <span className={flat.FCStatusHAS === "2" ? "greenCheckmark" : "redCheckmark"}>
+            &#10004;
+          </span>
+        </div>
+      </div>
+    ));
   };
 
   return (
     <>
       {buildings.map((building, index) => {
         const { types, typeString } = categorizeBuilding(building.flats);
+        const sortedFlats = [...building.flats].sort(sortFlats);
+        const flatCount = sortedFlats.length;
 
         return (
           <div key={index} className="buildingContainer">
-            <Link key={index} to={`/building/${building._id}`}>
-              <div className="buildingHeader">{building.address}</div>
-            </Link>
+            <div className="buildingHeaderSection">
+              <Link to={`/building/${building._id}`}>
+                <div className="buildingHeader">{building.address}</div>
+              </Link>
+              <div className="flatCountBox">{flatCount}</div>
+            </div>
             <div className="buildingType"><b>{typeString}</b></div>
-            {building.flats
-              ?.sort((a, b) => {
-                const isANumeric = !isNaN(a.toevoeging);
-                const isBNumeric = !isNaN(b.toevoeging);
-
-                if (isANumeric && isBNumeric) {
-                  return parseInt(a.toevoeging, 10) - parseInt(b.toevoeging, 10);
-                }
-
-                if (!isANumeric && !isBNumeric) {
-                  return a.toevoeging.localeCompare(b.toevoeging);
-                }
-
-                return isANumeric ? -1 : 1;
-              })
-              .map((flat, flatIndex) => {
-                const flatType = types.find(type => flat.zoeksleutel.startsWith(type.prefix));
-
-                if (flatType && flatType.type === 'Laag bouw') {
-                  return flatIndex === 0 ? (
-                    <Link key={flatIndex} to={`/apartment/${flat._id}`} className="flatLink" onClick={handleApartmentClick}>
-                      <div key={flatIndex} className="flatInfo">{building.address}</div>
-                    </Link>
-                  ) : null;
-                } else {
-                  return (
-                    <Link
-                      key={flatIndex}
-                      to={`/apartment/${flat._id}`}
-                      className="flatLink"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="flatInfo">Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b></div>
-                    </Link>
-                  );
-                }
-              })}
+            <div className="flatsAndDrawingContainer">
+              <div className="sortedFlats">
+                {sortedFlats.map((flat, flatIndex) => renderFlatLink(flat, flatIndex, types, building))}
+              </div>
+              <div className="buildingDrawing">
+                {renderBuildingFlats(sortedFlats)}
+              </div>
+            </div>
           </div>
         );
       })}

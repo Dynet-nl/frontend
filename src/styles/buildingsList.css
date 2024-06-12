@@ -1,9 +1,30 @@
 .buildingContainer {
+  position: relative;
+  padding: 20px;
+  border: 1px solid #ddd;
   margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.buildingHeaderSection {
+  display: flex;
+  align-items: center;
+}
+
+.buildingHeader {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.flatCountBox {
+  background-color: #ff5722;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15%;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
 }
 
 .buildingHeader {
@@ -18,20 +39,62 @@
   font-size: 18px;
 }
 
+.buildingDrawing {
+  display: flex;
+  flex-wrap: wrap;
+  width: 70px;
+  background-color: #808080;
+  padding: 5px;
+}
+
+.flat {
+  width: 50px !important;
+  height: 50px !important;
+  border: 1px solid #ccc;
+  display: flex;
+  margin-bottom: 10px !important;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 .flatLink {
   display: block;
-  margin: 5px 0;
+  margin-bottom: 30px;
+  margin-right: 20px;
   padding: 10px;
   background-color: #e7e7e7;
   border-radius: 4px;
   color: #000;
   text-decoration: none;
+  text-align: center;
 }
 
 .flatLink:hover {
   background-color: #d7d7d7;
 }
 
-.flatInfo {
-  font-size: 16px;
+.checkmarkContainer {
+  padding: 5px;
+  display: inline-block;
+  border-radius: 50%;
+  background-color: #fff;
+}
+
+.flatsAndDrawingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.greenCheckmark {
+  color: green;
+}
+
+.redCheckmark {
+  color: red;
 }

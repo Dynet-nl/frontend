@@ -131,9 +131,11 @@ const ApartmentPage = () => {
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const checkmark = apartment.FCStatusHAS === "2" ? (
-    <span className="checkmark">&#10004;</span> // Unicode checkmark character
-  ) : null;
+  const checkmark = (
+    <span className={apartment.FCStatusHAS === "2" ? "greenCheckmark" : "redCheckmark"}>
+      &#10004;
+    </span>
+  );
 
   return (
     <div className="apartmentDetailsContainer">

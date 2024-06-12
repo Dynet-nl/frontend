@@ -25,7 +25,10 @@
     margin-top: 10px;
 }
 
-.checkmark {
-    font-size: 48px;
+.greenCheckmark {
     color: green;
+}
+
+.redCheckmark {
+    color: red;
 }
