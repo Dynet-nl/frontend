@@ -15,7 +15,7 @@ const AdminPage = () => {
     name: '',
     email: '',
     password: '',
-    role: ''
+    roles: []
   });
 
   const [roles, setRoles] = useState([]);
@@ -24,7 +24,7 @@ const AdminPage = () => {
     const fetchRoles = async () => {
       try {
         const response = await axiosPrivate.get('/api/users/roles');
-        const data = await response.data;
+        const data = response.data;
         setRoles(data);
       } catch (error) {
         console.error('Failed to fetch roles:', error);
@@ -39,6 +39,11 @@ const AdminPage = () => {
     setUserData({ ...userData, [name]: value });
   };
 
+  const handleRoleChange = (e) => {
+    const { value } = e.target;
+    setUserData({ ...userData, roles: [value] }); // Set roles as an array of role names
+  };
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -51,18 +56,19 @@ const AdminPage = () => {
       name: !userData.name,
       email: !userData.email || !validateEmail(userData.email),
       password: !userData.password,
-      role: !userData.role
+      role: !userData.roles.length
     };
 
     setErrors(newErrors);
 
     const allFieldsFilled = !Object.values(newErrors).some(error => error);
     if (allFieldsFilled) {
+      console.log("Submitting user data:", userData);
       try {
         const response = await axiosPrivate.post('/api/users', userData);
         console.log('User added:', response.data);
 
-        setUserData({ name: '', email: '', password: '', role: '' });
+        setUserData({ name: '', email: '', password: '', roles: [] });
       } catch (error) {
         console.error('Error adding user:', error.response ? error.response.data : error);
       }
@@ -113,15 +119,15 @@ const AdminPage = () => {
           <Select
             labelId="role-select-label"
             id="role-select"
-            value={userData.role}
+            value={userData.roles[0] || ''}
             label="Role"
-            name="role"
-            onChange={handleChange}
+            name="roles"
+            onChange={handleRoleChange}
           >
             <MenuItem value="" disabled>
               <em>Select a role</em>
             </MenuItem>
-            {roles.map((role, index) => (
+            {roles.map((role) => (
               <MenuItem key={role.value} value={role.role}>
                 {role.role}
               </MenuItem>
