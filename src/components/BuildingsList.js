@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import RoleBasedLink from './RoleBasedLink';
 import { Link } from 'react-router-dom';
 import '../styles/buildingsList.css';
 
 const BuildingsList = ({ buildings }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filterBuildings = (buildings, query) => {
+    if (!query) {
+      return buildings;
+    }
+    return buildings.filter((building) => 
+      building.address.toLowerCase().includes(query) || 
+      building.flats.some((flat) => flat.complexNaam.toLowerCase().includes(query))
+    );
+  };
+
+  const categorizedBuildings = filterBuildings(buildings, searchQuery);
 
   const categorizeBuilding = (flats) => {
     const prefixCounts = flats.reduce((acc, flat) => {
@@ -50,21 +68,15 @@ const BuildingsList = ({ buildings }) => {
 
     if (flatType && flatType.type === 'Laag bouw') {
       return flatIndex === 0 ? (
-        <Link key={flatIndex} to={`/apartment/${flat._id}`} className="flatLink">
+        <RoleBasedLink key={flatIndex} flatId={flat._id} className="flatLink">
           <div key={flatIndex} className="flatInfo">{building.address}</div>
-        </Link>
+        </RoleBasedLink>
       ) : null;
     } else {
       return (
-        <Link
-          key={flatIndex}
-          to={`/apartment/${flat._id}`}
-          className="flatLink"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <RoleBasedLink key={flatIndex} flatId={flat._id} className="flatLink">
           <div className="flatInfo">Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b></div>
-        </Link>
+        </RoleBasedLink>
       );
     }
   };
@@ -81,9 +93,33 @@ const BuildingsList = ({ buildings }) => {
     ));
   };
 
+  const calculateCompletionPercentage = (buildings) => {
+    let totalFlats = 0;
+    let completedFlats = 0;
+
+    buildings.forEach(building => {
+      totalFlats += building.flats.length;
+      completedFlats += building.flats.filter(flat => flat.FCStatusHAS === "2").length;
+    });
+
+    return totalFlats > 0 ? ((completedFlats / totalFlats) * 100).toFixed(2) : 0;
+  };
+
+  const completionPercentage = calculateCompletionPercentage(categorizedBuildings);
+
   return (
     <>
-      {buildings.map((building, index) => {
+      <input 
+        type="text" 
+        placeholder="Search by Complex Naam or Address" 
+        value={searchQuery} 
+        onChange={handleSearch} 
+        className="searchInput"
+      />
+      <div className="completionPercentage">
+        {`Completion Percentage: ${completionPercentage}%`}
+      </div>
+      {categorizedBuildings.map((building, index) => {
         const { types, typeString } = categorizeBuilding(building.flats);
         const sortedFlats = [...building.flats].sort(sortFlats);
         const flatCount = sortedFlats.length;

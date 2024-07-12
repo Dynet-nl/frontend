@@ -8,14 +8,14 @@ const AdminPage = () => {
     name: false,
     email: false,
     password: false,
-    role: false
+    role: false,
   });
 
   const [userData, setUserData] = useState({
     name: '',
     email: '',
     password: '',
-    roles: []
+    roles: [],
   });
 
   const [roles, setRoles] = useState([]);
@@ -56,18 +56,17 @@ const AdminPage = () => {
       name: !userData.name,
       email: !userData.email || !validateEmail(userData.email),
       password: !userData.password,
-      role: !userData.roles.length
+      role: !userData.roles.length,
     };
 
     setErrors(newErrors);
 
-    const allFieldsFilled = !Object.values(newErrors).some(error => error);
+    const allFieldsFilled = !Object.values(newErrors).some((error) => error);
     if (allFieldsFilled) {
       console.log("Submitting user data:", userData);
       try {
         const response = await axiosPrivate.post('/api/users', userData);
         console.log('User added:', response.data);
-
         setUserData({ name: '', email: '', password: '', roles: [] });
       } catch (error) {
         console.error('Error adding user:', error.response ? error.response.data : error);
