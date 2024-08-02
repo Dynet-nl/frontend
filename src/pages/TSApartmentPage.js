@@ -17,62 +17,44 @@ const TSPApartmentPage = () => {
     postcode: '',
     achternaam: '',
     tel1: '',
-    tel2: '',
     eMail: '',
     FCStatusHAS: '',
+    additionalNotes: '',
   });
 
   const [formData, setFormData] = useState({
-    telephone: '',
-    vveWocoName: '',
-    technischeSchouwerName: '',
-    readyForSchouwer: false,
-    signed: false,
-    calledAlready: false,
-    timesCalled: 0,
-    appointmentDate: '',
-    appointmentStartTime: '',
-    appointmentEndTime: '',
-    appointmentWeekNumber: '',
+    achternaam: '',
+    tel1: '',
+    eMail: '',
     additionalNotes: '',
-    smsSent: false,
   });
 
   useEffect(() => {
     const fetchApartment = async () => {
       try {
         const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
-        const flatData = data;
-        
         setApartment({
-          _id: flatData._id,
-          zoeksleutel: flatData.zoeksleutel,
-          complexNaam: flatData.complexNaam,
-          soortBouw: flatData.soortBouw,
-          adres: flatData.adres,
-          huisNummer: flatData.huisNummer,
-          toevoeging: flatData.toevoeging,
-          kamer: flatData.kamer,
-          postcode: flatData.postcode,
-          achternaam: flatData.achternaam,
-          tel1: flatData.tel1,
-          tel2: flatData.tel2,
-          eMail: flatData.eMail,
-          FCStatusHAS: flatData.FCStatusHAS,
+          _id: data._id,
+          zoeksleutel: data.zoeksleutel,
+          soortBouw: data.soortBouw,
+          adres: data.adres,
+          huisNummer: data.huisNummer,
+          toevoeging: data.toevoeging,
+          postcode: data.postcode,
+          achternaam: data.achternaam,
+          tel1: data.tel1,
+          eMail: data.eMail,
+          FCStatusHAS: data.FCStatusHAS,
+          additionalNotes: data.technischePlanning?.additionalNotes || '',
         });
-
-        if (flatData.technischePlanning) {
-          setFormData({
-            ...formData,
-            ...flatData.technischePlanning,
-            appointmentDate: flatData.technischePlanning.appointmentBooked?.date || '',
-            appointmentStartTime: flatData.technischePlanning.appointmentBooked?.startTime || '',
-            appointmentEndTime: flatData.technischePlanning.appointmentBooked?.endTime || '',
-            appointmentWeekNumber: flatData.technischePlanning.appointmentBooked?.weekNumber || '',
-          });
-        }
+        setFormData({
+          achternaam: data.achternaam,
+          tel1: data.tel1,
+          eMail: data.eMail,
+          additionalNotes: data.technischePlanning?.additionalNotes || '',
+        });
       } catch (error) {
-        console.error('Error fetching flat data', error);
+        console.error('Error fetching apartment data', error);
       }
     };
 
@@ -80,10 +62,10 @@ const TSPApartmentPage = () => {
   }, [params.id]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     });
   };
 
@@ -92,14 +74,15 @@ const TSPApartmentPage = () => {
     try {
       const updatedData = {
         ...formData,
-        appointmentBooked: {
-          date: formData.appointmentDate,
-          startTime: formData.appointmentStartTime,
-          endTime: formData.appointmentEndTime,
-          weekNumber: formData.appointmentWeekNumber,
+        technischePlanning: {
+          additionalNotes: formData.additionalNotes,
         },
       };
-      await axiosPrivate.put(`/api/apartment/${params.id}`, { technischePlanning: updatedData });
+      await axiosPrivate.put(`/api/apartment/${params.id}`, updatedData);
+      setApartment((prevApartment) => ({
+        ...prevApartment,
+        ...formData,
+      }));
       alert('Data saved successfully!');
     } catch (error) {
       console.error('Error saving data', error);
@@ -129,116 +112,43 @@ const TSPApartmentPage = () => {
       <div className="ts-columns">
         <div className="ts-leftColumn">
           {Object.entries(apartment).map(([key, value]) => {
-            if (!value) return null;
-
-            let formattedValue = value;
-            if (key === 'HASDatum' || key.includes('Datum')) {
-              formattedValue = new Date(value).toLocaleDateString();
-            }
-
+            if (!value || key === '_id' || key === 'zoeksleutel' || key === 'soortBouw' || key === 'huisNummer' || key === 'toevoeging' || key === 'postcode' || key === 'FCStatusHAS') return null;
             return (
-              <p key={key}><b>{formatFieldName(key)}:</b> {formattedValue}</p>
+              <p key={key}><b>{formatFieldName(key)}:</b> {value}</p>
             );
           })}
         </div>
         <div className="ts-rightColumn">
           <form onSubmit={handleSubmit}>
             <div className="ts-formGroup">
+              <label>Name:</label>
+              <select
+                name="achternaam"
+                value={formData.achternaam}
+                onChange={handleChange}
+              >
+                <option value="VVE">VVE</option>
+                <option value="WOCO">WOCO</option>
+                <option value="Punt Beherder">Punt Beherder</option>
+                <option value="VGE">VGE</option>
+                <option value="Huurder">Huurder</option>
+              </select>
+            </div>
+            <div className="ts-formGroup">
               <label>Telephone:</label>
               <input
                 type="text"
-                name="telephone"
-                value={formData.telephone}
+                name="tel1"
+                value={formData.tel1}
                 onChange={handleChange}
               />
             </div>
             <div className="ts-formGroup">
-              <label>Name of VVE/WOCO:</label>
+              <label>Email:</label>
               <input
-                type="text"
-                name="vveWocoName"
-                value={formData.vveWocoName}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Technische Schouwer Name:</label>
-              <input
-                type="text"
-                name="technischeSchouwerName"
-                value={formData.technischeSchouwerName}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Ready for Schouwer:</label>
-              <input
-                type="checkbox"
-                name="readyForSchouwer"
-                checked={formData.readyForSchouwer}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Signed:</label>
-              <input
-                type="checkbox"
-                name="signed"
-                checked={formData.signed}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Called Already:</label>
-              <input
-                type="checkbox"
-                name="calledAlready"
-                checked={formData.calledAlready}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Times Called:</label>
-              <input
-                type="number"
-                name="timesCalled"
-                value={formData.timesCalled}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment Date:</label>
-              <input
-                type="date"
-                name="appointmentDate"
-                value={formData.appointmentDate}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment Start Time:</label>
-              <input
-                type="time"
-                name="appointmentStartTime"
-                value={formData.appointmentStartTime}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment End Time:</label>
-              <input
-                type="time"
-                name="appointmentEndTime"
-                value={formData.appointmentEndTime}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment Week Number:</label>
-              <input
-                type="number"
-                name="appointmentWeekNumber"
-                value={formData.appointmentWeekNumber}
+                type="email"
+                name="eMail"
+                value={formData.eMail}
                 onChange={handleChange}
               />
             </div>
@@ -247,15 +157,6 @@ const TSPApartmentPage = () => {
               <textarea
                 name="additionalNotes"
                 value={formData.additionalNotes}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>SMS Sent:</label>
-              <input
-                type="checkbox"
-                name="smsSent"
-                checked={formData.smsSent}
                 onChange={handleChange}
               />
             </div>

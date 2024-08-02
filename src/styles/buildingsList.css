@@ -6,6 +6,26 @@
   border-radius: 10px;
 }
 
+.filterButtons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.filterButtons button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.filterButtons button:hover {
+  background-color: #0056b3;
+}
+
 .buildingHeaderSection {
   display: flex;
   align-items: center;

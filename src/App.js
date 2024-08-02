@@ -9,6 +9,7 @@ import CityPage from './pages/CityPage';
 import AreaPage from './pages/AreaPage';
 import AdminApartmentPage from './pages/AdminApartmentPage';
 import TSPApartmentPage from './pages/TSApartmentPage';
+import TSApartmentSchedulePage from './pages/TSApartmentSchedulePage'; // Import the new page
 import LoginPage from './pages/LoginPage';
 import Layout from './components/Layout';
 import NotFound from './components/NotFound';
@@ -40,6 +41,7 @@ function App() {
 
           <Route element={<RequireAuth allowedRoles={[1991]} />}>
             <Route element={<TSPApartmentPage />} path='/planning-apartment/:id' />
+            <Route element={<TSApartmentSchedulePage />} path='/planning-apartment-schedule/:id' /> 
           </Route>
 
           <Route element={<RequireAuth allowedRoles={[5150, 1991, 8687, 1948, 1959, 2023]} />}>

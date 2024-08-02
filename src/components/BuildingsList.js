@@ -1,23 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import RoleBasedLink from './RoleBasedLink';
 import { Link } from 'react-router-dom';
 import '../styles/buildingsList.css';
 
 const BuildingsList = ({ buildings }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('all'); // State for filtering criteria
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
   };
 
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+  };
+
   const filterBuildings = (buildings, query) => {
-    if (!query) {
-      return buildings;
+    let filteredBuildings = buildings;
+    if (query) {
+      filteredBuildings = buildings.filter((building) => 
+        building.address.toLowerCase().includes(query) || 
+        building.flats.some((flat) => flat.complexNaam.toLowerCase().includes(query))
+      );
     }
-    return buildings.filter((building) => 
-      building.address.toLowerCase().includes(query) || 
-      building.flats.some((flat) => flat.complexNaam.toLowerCase().includes(query))
-    );
+
+    switch (filter) {
+      case 'fileUrl':
+        return filteredBuildings.filter(building => building.fileUrl);
+      case 'laagBouw':
+        return filteredBuildings.filter(building => 
+          building.flats.length === 1 && categorizeBuilding(building.flats).types.some(type => type.type === 'Laag bouw')
+        );
+      case 'HB':
+        return filteredBuildings.filter(building => 
+          building.flats.length > 2 && categorizeBuilding(building.flats).types.some(type => type.type !== 'Laag bouw' && type.type !== 'Duplex')
+        );
+      case 'appointment':
+        return filteredBuildings.filter(building => building.appointmentDate || building.appointmentStartTime || building.appointmentEndTime);
+      default:
+        return filteredBuildings;
+    }
   };
 
   const categorizedBuildings = filterBuildings(buildings, searchQuery);
@@ -35,7 +57,7 @@ const BuildingsList = ({ buildings }) => {
     const types = Object.entries(prefixCounts).map(([prefix, { count, complexNaam }]) => {
       if (count === 1) return { type: 'Laag bouw', prefix };
       if (count === 2) return { type: 'Duplex', prefix };
-      return { type: complexNaam, prefix };
+      return { type: 'HB', prefix }; // Changed to 'HB' for more than 2 flats
     });
 
     const typeString = types.map(t => t.type).join(', ');
@@ -109,13 +131,22 @@ const BuildingsList = ({ buildings }) => {
 
   return (
     <>
-      <input 
-        type="text" 
-        placeholder="Search by Complex Naam or Address" 
-        value={searchQuery} 
-        onChange={handleSearch} 
-        className="searchInput"
-      />
+      <div className="searchContainer">
+        <input 
+          type="text" 
+          placeholder="Search by Complex Naam or Address" 
+          value={searchQuery} 
+          onChange={handleSearch} 
+          className="searchInput"
+        />
+        <div className="filterButtons">
+          <button onClick={() => handleFilterChange('fileUrl')}>With File URL</button>
+          <button onClick={() => handleFilterChange('laagBouw')}>Laag Bouw</button>
+          <button onClick={() => handleFilterChange('HB')}>HB</button>
+          <button onClick={() => handleFilterChange('appointment')}>With Appointment</button>
+          <button onClick={() => handleFilterChange('all')}>All</button>
+        </div>
+      </div>
       <div className="completionPercentage">
         {`Completion Percentage: ${completionPercentage}%`}
       </div>
@@ -131,6 +162,9 @@ const BuildingsList = ({ buildings }) => {
                 <div className="buildingHeader">{building.address}</div>
               </Link>
               <div className="flatCountBox">{flatCount}</div>
+              <Link to={`/planning-apartment-schedule/${building._id}`}>
+                <button className="viewAllApartmentsButton">View All Apartments</button>
+              </Link>
             </div>
             <div className="buildingType"><b>{typeString}</b></div>
             <div className="flatsAndDrawingContainer">

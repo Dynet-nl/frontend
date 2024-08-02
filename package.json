@@ -20,7 +20,8 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
     "ics": "^2.33.1",
-    "file-saver": "^2.0.5"
+    "file-saver": "^2.0.5",
+    "react-beautiful-dnd": "^13.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

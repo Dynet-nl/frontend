@@ -17,13 +17,13 @@ const TSApartmentSchedulePage = () => {
     fileUrl: '', // Added to hold the file URL
   });
   const [selectedFile, setSelectedFile] = useState(null); // State for file
+  const [uploadProgress, setUploadProgress] = useState(0); // State for upload progress
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBuilding = async () => {
       try {
         const { data } = await axiosPrivate.get(`/api/building/${id}`);
-        console.log('Fetched building data:', data); // Debugging line
         setBuilding(data);
 
         const initialFormData = data.flats.reduce((acc, flat) => {
@@ -35,7 +35,6 @@ const TSApartmentSchedulePage = () => {
           };
           return acc;
         }, {});
-        console.log('Initial form data:', initialFormData); // Debugging line
         setFormData(initialFormData);
 
         setAppointmentData({
@@ -119,30 +118,47 @@ const TSApartmentSchedulePage = () => {
     }
   };
 
-  const handleAppointmentSubmit = async (e) => {
-    e.preventDefault();
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
     try {
       const data = new FormData();
-      data.append('appointmentDate', appointmentData.appointmentDate);
-      data.append('appointmentStartTime', appointmentData.appointmentStartTime);
-      data.append('appointmentEndTime', appointmentData.appointmentEndTime);
-      data.append('appointmentWeekNumber', appointmentData.appointmentWeekNumber);
-
-      if (selectedFile) {
-        data.append('file', selectedFile);
-      }
+      data.append('file', selectedFile);
 
       const response = await axiosPrivate.put(`/api/building/appointment/${id}`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        },
       });
 
-      // Update the appointmentData with the file URL from the response
       setAppointmentData((prevAppointmentData) => ({
         ...prevAppointmentData,
         fileUrl: response.data.fileUrl,
       }));
+
+      alert('File uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading file', error);
+      alert('Error uploading file');
+    }
+  };
+
+  const handleAppointmentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = {
+        ...appointmentData,
+        fileUrl: appointmentData.fileUrl,
+      };
+
+      await axiosPrivate.put(`/api/building/appointment/${id}`, data);
 
       alert('Appointment data saved successfully!');
     } catch (error) {
@@ -161,7 +177,7 @@ const TSApartmentSchedulePage = () => {
           {building.flats.map((flat) => (
             <div key={flat._id} className="ts-apartmentDetails">
               <h3>{flat.adres} {flat.huisNummer}{flat.toevoeging}</h3>
-              <form onSubmit={(e) => handleSubmit(e, flat._id)}>
+              <form onSubmit={(e) => handleSubmit(e, flat._id)} className="ts-form">
                 <div className="ts-formGroup">
                   <label>Telephone:</label>
                   <input
@@ -169,6 +185,7 @@ const TSApartmentSchedulePage = () => {
                     name="telephone"
                     value={formData[flat._id]?.telephone || ''}
                     onChange={(e) => handleChange(e, flat._id)}
+                    className="ts-input"
                   />
                 </div>
                 <div className="ts-formGroup">
@@ -178,6 +195,7 @@ const TSApartmentSchedulePage = () => {
                     name="eMail"
                     value={formData[flat._id]?.eMail || ''}
                     onChange={(e) => handleChange(e, flat._id)}
+                    className="ts-input"
                   />
                 </div>
                 <div className="ts-formGroup">
@@ -186,11 +204,12 @@ const TSApartmentSchedulePage = () => {
                     name="additionalNotes"
                     value={formData[flat._id]?.additionalNotes || ''}
                     onChange={(e) => handleChange(e, flat._id)}
+                    className="ts-textarea"
                   />
                 </div>
                 {formData[flat._id]?.fileUrl && (
                   <div className="ts-formGroup">
-                    <a href={formData[flat._id].fileUrl} download>Download File</a>
+                    <a href={formData[flat._id].fileUrl} download className="ts-downloadLink">Download File</a>
                   </div>
                 )}
                 <button type="submit" className="ts-saveButton">Save</button>
@@ -200,7 +219,7 @@ const TSApartmentSchedulePage = () => {
         </div>
         <div className="ts-rightColumn">
           <h3>Building Appointment Details</h3>
-          <form onSubmit={handleAppointmentSubmit}>
+          <form onSubmit={handleAppointmentSubmit} className="ts-form">
             <div className="ts-formGroup">
               <label>Appointment Date:</label>
               <input
@@ -208,6 +227,7 @@ const TSApartmentSchedulePage = () => {
                 name="appointmentDate"
                 value={appointmentData.appointmentDate}
                 onChange={handleAppointmentChange}
+                className="ts-input"
               />
             </div>
             <div className="ts-formGroup">
@@ -217,6 +237,7 @@ const TSApartmentSchedulePage = () => {
                 name="appointmentStartTime"
                 value={appointmentData.appointmentStartTime}
                 onChange={handleAppointmentChange}
+                className="ts-input"
               />
             </div>
             <div className="ts-formGroup">
@@ -226,6 +247,7 @@ const TSApartmentSchedulePage = () => {
                 name="appointmentEndTime"
                 value={appointmentData.appointmentEndTime}
                 onChange={handleAppointmentChange}
+                className="ts-input"
               />
             </div>
             <div className="ts-formGroup">
@@ -235,6 +257,7 @@ const TSApartmentSchedulePage = () => {
                 name="appointmentWeekNumber"
                 value={appointmentData.appointmentWeekNumber}
                 readOnly
+                className="ts-input"
               />
             </div>
             <div className="ts-formGroup">
@@ -243,11 +266,19 @@ const TSApartmentSchedulePage = () => {
                 type="file"
                 name="file"
                 onChange={handleFileChange}
+                className="ts-input"
               />
+              <button type="button" onClick={handleFileUpload} className="ts-uploadButton">Upload</button>
+              {uploadProgress > 0 && (
+                <div className="ts-progress">
+                  <div className="ts-progressBar" style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+              )}
             </div>
             {appointmentData.fileUrl && (
               <div className="ts-formGroup">
-                <a href={appointmentData.fileUrl} download>Download File</a>
+                <a href={appointmentData.fileUrl} download className="ts-downloadLink">Download File</a>
+                <p>Uploaded to: {appointmentData.fileUrl}</p>
               </div>
             )}
             <button type="submit" className="ts-saveButton">Save Appointment</button>

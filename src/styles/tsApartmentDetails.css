@@ -1,70 +1,87 @@
 .ts-apartmentDetailsContainer {
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.ts-apartmentTitle {
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center;
 }
 
 .ts-columns {
   display: flex;
   justify-content: space-between;
-  width: 100%;
 }
 
 .ts-leftColumn, .ts-rightColumn {
-  width: 48%;
+  flex: 1;
+  padding: 10px;
 }
 
-.ts-leftColumn p {
-  margin: 5px 0;
+.ts-leftColumn {
+  margin-right: 20px;
 }
 
-.ts-leftColumn b {
-  display: inline-block;
-  width: 150px;
+.ts-apartmentDetails {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.ts-form {
+  display: flex;
+  flex-direction: column;
 }
 
 .ts-formGroup {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
-.ts-formGroup label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.ts-formGroup input[type="text"],
-.ts-formGroup input[type="number"],
-.ts-formGroup input[type="date"],
-.ts-formGroup input[type="time"],
-.ts-formGroup textarea {
+.ts-input, .ts-textarea {
   width: 100%;
   padding: 8px;
+  box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box;
 }
 
-.ts-saveButton {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #007BFF;
+.ts-textarea {
+  height: 80px;
+  resize: vertical;
+}
+
+.ts-saveButton, .ts-uploadButton {
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.ts-saveButton:hover {
+.ts-saveButton:hover, .ts-uploadButton:hover {
   background-color: #0056b3;
+}
+
+.ts-downloadLink {
+  color: #007bff;
+  text-decoration: none;
+  display: block;
+  margin-top: 10px;
+}
+
+.ts-downloadLink:hover {
+  text-decoration: underline;
+}
+
+.ts-progress {
+  width: 100%;
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 10px;
+  height: 20px;
+}
+
+.ts-progressBar {
+  height: 100%;
+  background-color: #007bff;
+  border-radius: 4px;
 }
