@@ -1,172 +1,114 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css';
 
 const TSApartmentSchedulePage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
 
   const [building, setBuilding] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [selectedApartments, setSelectedApartments] = useState([]); // State to track selected apartments
   const [appointmentData, setAppointmentData] = useState({
     appointmentDate: '',
     appointmentStartTime: '',
     appointmentEndTime: '',
-    appointmentWeekNumber: '',
-    fileUrl: '', // Added to hold the file URL
-  });
-  const [selectedFile, setSelectedFile] = useState(null); // State for file
-  const [uploadProgress, setUploadProgress] = useState(0); // State for upload progress
-  const [loading, setLoading] = useState(true);
+  }); // Store common appointment data for all selected flats
+  const [flatAppointments, setFlatAppointments] = useState({}); // Store individual appointment data for each flat
+
+  // Helper function to format the date in "YYYY-MM-DD"
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (`0${date.getMonth() + 1}`).slice(-2); // Add leading zero if needed
+    const day = (`0${date.getDate()}`).slice(-2); // Add leading zero if needed
+    return `${year}-${month}-${day}`;
+  };
+
+  // Fetch the building and apartment data, including appointment information
+  const fetchBuilding = async () => {
+    try {
+      const { data } = await axiosPrivate.get(`/api/building/${id}`);
+      setBuilding(data);
+
+      // Set appointment data for flats with appointments
+      const initialFlatAppointments = {};
+      data.flats.forEach((flat) => {
+        if (flat.technischePlanning?.appointmentBooked?.date) {
+          initialFlatAppointments[flat._id] = {
+            appointmentDate: formatDate(flat.technischePlanning.appointmentBooked.date),
+            appointmentStartTime: flat.technischePlanning.appointmentBooked.startTime,
+            appointmentEndTime: flat.technischePlanning.appointmentBooked.endTime,
+          };
+        }
+      });
+
+      setFlatAppointments(initialFlatAppointments);
+
+      // Automatically select apartments that already have appointments
+      const apartmentsWithAppointments = data.flats
+        .filter(flat => flat.technischePlanning?.appointmentBooked?.date)
+        .map(flat => flat._id);
+        
+      setSelectedApartments(apartmentsWithAppointments);
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching building data', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchBuilding = async () => {
-      try {
-        const { data } = await axiosPrivate.get(`/api/building/${id}`);
-        setBuilding(data);
-
-        const initialFormData = data.flats.reduce((acc, flat) => {
-          acc[flat._id] = {
-            telephone: flat.tel1 || '',
-            eMail: flat.eMail || '',
-            additionalNotes: flat.technischePlanning?.additionalNotes || '',
-            fileUrl: flat.fileUrl || '', // Added to hold the file URL
-          };
-          return acc;
-        }, {});
-        setFormData(initialFormData);
-
-        setAppointmentData({
-          appointmentDate: data.appointmentDate || '',
-          appointmentStartTime: data.appointmentStartTime || '',
-          appointmentEndTime: data.appointmentEndTime || '',
-          appointmentWeekNumber: data.appointmentWeekNumber || '',
-          fileUrl: data.fileUrl || '', // Added to hold the file URL
-        });
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching building data', error);
-      }
-    };
-
     fetchBuilding();
   }, [id, axiosPrivate]);
 
-  const handleChange = (e, flatId) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [flatId]: {
-        ...formData[flatId],
-        [name]: value,
-      },
-    });
-  };
-
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  const getWeekNumber = (dateString) => {
-    const date = new Date(dateString);
-    const firstJan = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor((date - firstJan) / (24 * 60 * 60 * 1000));
-    return Math.ceil((date.getDay() + 1 + days) / 7);
+  const handleApartmentSelection = (flatId) => {
+    setSelectedApartments((prevSelected) =>
+      prevSelected.includes(flatId)
+        ? prevSelected.filter((id) => id !== flatId)
+        : [...prevSelected, flatId]
+    );
   };
 
   const handleAppointmentChange = (e) => {
     const { name, value } = e.target;
-    const updatedAppointmentData = { ...appointmentData, [name]: value };
-
-    if (name === 'appointmentDate') {
-      const weekNumber = getWeekNumber(value);
-      updatedAppointmentData.appointmentWeekNumber = weekNumber;
-    }
-
-    setAppointmentData(updatedAppointmentData);
-  };
-
-  const handleSubmit = async (e, flatId) => {
-    e.preventDefault();
-    try {
-      const data = new FormData();
-      data.append('telephone', formData[flatId].telephone);
-      data.append('eMail', formData[flatId].eMail);
-      data.append('additionalNotes', formData[flatId].additionalNotes);
-
-      const response = await axiosPrivate.put(`/api/apartment/${flatId}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Update the formData with the file URL from the response
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [flatId]: {
-          ...prevFormData[flatId],
-          fileUrl: response.data.fileUrl,
-        },
-      }));
-
-      alert('Data saved successfully!');
-    } catch (error) {
-      console.error('Error saving data', error);
-      alert('Error saving data');
-    }
-  };
-
-  const handleFileUpload = async () => {
-    if (!selectedFile) {
-      alert('Please select a file to upload.');
-      return;
-    }
-
-    try {
-      const data = new FormData();
-      data.append('file', selectedFile);
-
-      const response = await axiosPrivate.put(`/api/building/appointment/${id}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        },
-      });
-
-      setAppointmentData((prevAppointmentData) => ({
-        ...prevAppointmentData,
-        fileUrl: response.data.fileUrl,
-      }));
-
-      alert('File uploaded successfully!');
-    } catch (error) {
-      console.error('Error uploading file', error);
-      alert('Error uploading file');
-    }
+    setAppointmentData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleAppointmentSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = {
-        ...appointmentData,
-        fileUrl: appointmentData.fileUrl,
-      };
+      // Apply the appointment to the selected apartments
+      await Promise.all(
+        selectedApartments.map((flatId) =>
+          axiosPrivate.put(`/api/apartment/${flatId}`, {
+            technischePlanning: {
+              appointmentBooked: {
+                date: appointmentData.appointmentDate,
+                startTime: appointmentData.appointmentStartTime,
+                endTime: appointmentData.appointmentEndTime,
+              },
+            },
+          })
+        )
+      );
 
-      await axiosPrivate.put(`/api/building/appointment/${id}`, data);
+      // Refetch building data to reflect the new appointments
+      await fetchBuilding();
 
-      alert('Appointment data saved successfully!');
+      alert('Appointment data saved for selected apartments successfully!');
     } catch (error) {
-      console.error('Error saving appointment data', error);
-      alert('Error saving appointment data');
+      console.error('Error saving appointment data:', error.response?.data || error.message);
+      alert(`Error saving appointment: ${error.response?.data?.message || error.message}`);
     }
   };
-
+    
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -174,51 +116,56 @@ const TSApartmentSchedulePage = () => {
       <h2>Apartment Schedule for {building.address}</h2>
       <div className="ts-columns">
         <div className="ts-leftColumn">
+          <h3>Select Apartments for Appointment</h3>
           {building.flats.map((flat) => (
             <div key={flat._id} className="ts-apartmentDetails">
-              <h3>{flat.adres} {flat.huisNummer}{flat.toevoeging}</h3>
-              <form onSubmit={(e) => handleSubmit(e, flat._id)} className="ts-form">
-                <div className="ts-formGroup">
-                  <label>Telephone:</label>
-                  <input
-                    type="text"
-                    name="telephone"
-                    value={formData[flat._id]?.telephone || ''}
-                    onChange={(e) => handleChange(e, flat._id)}
-                    className="ts-input"
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>Email:</label>
-                  <input
-                    type="email"
-                    name="eMail"
-                    value={formData[flat._id]?.eMail || ''}
-                    onChange={(e) => handleChange(e, flat._id)}
-                    className="ts-input"
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>Additional Notes:</label>
-                  <textarea
-                    name="additionalNotes"
-                    value={formData[flat._id]?.additionalNotes || ''}
-                    onChange={(e) => handleChange(e, flat._id)}
-                    className="ts-textarea"
-                  />
-                </div>
-                {formData[flat._id]?.fileUrl && (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedApartments.includes(flat._id)}
+                  onChange={() => handleApartmentSelection(flat._id)}
+                />
+                {flat.adres} {flat.huisNummer}{flat.toevoeging}
+              </label>
+              {selectedApartments.includes(flat._id) && flatAppointments[flat._id] && (
+                <div className="appointmentDetails">
                   <div className="ts-formGroup">
-                    <a href={formData[flat._id].fileUrl} download className="ts-downloadLink">Download File</a>
+                    <label>Appointment Date:</label>
+                    <input
+                      type="date"
+                      name="appointmentDate"
+                      value={flatAppointments[flat._id].appointmentDate || ''}
+                      readOnly
+                      className="ts-input"
+                    />
                   </div>
-                )}
-                <button type="submit" className="ts-saveButton">Save</button>
-              </form>
+                  <div className="ts-formGroup">
+                    <label>Appointment Start Time:</label>
+                    <input
+                      type="time"
+                      name="appointmentStartTime"
+                      value={flatAppointments[flat._id].appointmentStartTime || ''}
+                      readOnly
+                      className="ts-input"
+                    />
+                  </div>
+                  <div className="ts-formGroup">
+                    <label>Appointment End Time:</label>
+                    <input
+                      type="time"
+                      name="appointmentEndTime"
+                      value={flatAppointments[flat._id].appointmentEndTime || ''}
+                      readOnly
+                      className="ts-input"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
         <div className="ts-rightColumn">
-          <h3>Building Appointment Details</h3>
+          <h3>Set Appointment Details</h3>
           <form onSubmit={handleAppointmentSubmit} className="ts-form">
             <div className="ts-formGroup">
               <label>Appointment Date:</label>
@@ -250,37 +197,6 @@ const TSApartmentSchedulePage = () => {
                 className="ts-input"
               />
             </div>
-            <div className="ts-formGroup">
-              <label>Appointment Week Number:</label>
-              <input
-                type="number"
-                name="appointmentWeekNumber"
-                value={appointmentData.appointmentWeekNumber}
-                readOnly
-                className="ts-input"
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Upload File:</label>
-              <input
-                type="file"
-                name="file"
-                onChange={handleFileChange}
-                className="ts-input"
-              />
-              <button type="button" onClick={handleFileUpload} className="ts-uploadButton">Upload</button>
-              {uploadProgress > 0 && (
-                <div className="ts-progress">
-                  <div className="ts-progressBar" style={{ width: `${uploadProgress}%` }}></div>
-                </div>
-              )}
-            </div>
-            {appointmentData.fileUrl && (
-              <div className="ts-formGroup">
-                <a href={appointmentData.fileUrl} download className="ts-downloadLink">Download File</a>
-                <p>Uploaded to: {appointmentData.fileUrl}</p>
-              </div>
-            )}
             <button type="submit" className="ts-saveButton">Save Appointment</button>
           </form>
         </div>

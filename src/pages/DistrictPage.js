@@ -21,15 +21,8 @@ const DistrictPage = () => {
   const getBuildings = async (id) => {
     setIsLoading(true);
     try {
-      const cachedBuildings = sessionStorage.getItem(`buildingsData_${id}`);
-      let buildingsData;
-      if (cachedBuildings) {
-        buildingsData = JSON.parse(cachedBuildings);
-      } else {
-        const response = await axiosPrivate.get(`/api/district/${id}`);
-        buildingsData = response.data.buildings;
-        sessionStorage.setItem(`buildingsData_${id}`, JSON.stringify(buildingsData));
-      }
+      const response = await axiosPrivate.get(`/api/district/${id}`);
+      const buildingsData = response.data.buildings;
       setBuildings(buildingsData);
     } catch (error) {
       console.error('Error fetching buildings:', error);

@@ -2,47 +2,23 @@ import React, { useState } from 'react';
 import RoleBasedLink from './RoleBasedLink';
 import { Link } from 'react-router-dom';
 import '../styles/buildingsList.css';
+import pencilIcon from '../assets/pencil_edit.png'; // Import the pencil icon image
 
 const BuildingsList = ({ buildings }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState('all'); // State for filtering criteria
+  const [filter, setFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const buildingsPerPage = 20;
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
+    setCurrentPage(1);
   };
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
+    setCurrentPage(1);
   };
-
-  const filterBuildings = (buildings, query) => {
-    let filteredBuildings = buildings;
-    if (query) {
-      filteredBuildings = buildings.filter((building) => 
-        building.address.toLowerCase().includes(query) || 
-        building.flats.some((flat) => flat.complexNaam.toLowerCase().includes(query))
-      );
-    }
-
-    switch (filter) {
-      case 'fileUrl':
-        return filteredBuildings.filter(building => building.fileUrl);
-      case 'laagBouw':
-        return filteredBuildings.filter(building => 
-          building.flats.length === 1 && categorizeBuilding(building.flats).types.some(type => type.type === 'Laag bouw')
-        );
-      case 'HB':
-        return filteredBuildings.filter(building => 
-          building.flats.length > 2 && categorizeBuilding(building.flats).types.some(type => type.type !== 'Laag bouw' && type.type !== 'Duplex')
-        );
-      case 'appointment':
-        return filteredBuildings.filter(building => building.appointmentDate || building.appointmentStartTime || building.appointmentEndTime);
-      default:
-        return filteredBuildings;
-    }
-  };
-
-  const categorizedBuildings = filterBuildings(buildings, searchQuery);
 
   const categorizeBuilding = (flats) => {
     const prefixCounts = flats.reduce((acc, flat) => {
@@ -57,12 +33,44 @@ const BuildingsList = ({ buildings }) => {
     const types = Object.entries(prefixCounts).map(([prefix, { count, complexNaam }]) => {
       if (count === 1) return { type: 'Laag bouw', prefix };
       if (count === 2) return { type: 'Duplex', prefix };
-      return { type: 'HB', prefix }; // Changed to 'HB' for more than 2 flats
+      return { type: 'HB', prefix };
     });
 
     const typeString = types.map(t => t.type).join(', ');
     return { types, typeString };
   };
+
+  const filterBuildings = (buildings, query) => {
+    let filteredBuildings = buildings;
+    if (query) {
+      filteredBuildings = buildings.filter((building) =>
+        building.address.toLowerCase().includes(query) ||
+        building.flats.some((flat) => flat.complexNaam.toLowerCase().includes(query))
+      );
+    }
+
+    switch (filter) {
+      case 'fileUrl':
+        return filteredBuildings.filter(building => building.fileUrl);
+      case 'laagBouw':
+        return filteredBuildings.filter(building =>
+          categorizeBuilding(building.flats).types.some(type => type.type === 'Laag bouw')
+        );
+      case 'HB':
+        return filteredBuildings.filter(building =>
+          categorizeBuilding(building.flats).types.some(type => type.type === 'HB')
+        );
+      case 'appointment':
+        return filteredBuildings.filter(building =>
+          building.flats.some(flat => flat.technischePlanning?.appointmentBooked?.date)
+        );
+      default:
+        return filteredBuildings;
+    }
+  };
+
+  const categorizedBuildings = filterBuildings(buildings, searchQuery); // Filtered and categorized buildings
+  const totalResults = categorizedBuildings.length; // Count of results
 
   const sortFlats = (a, b) => {
     const isANumeric = !isNaN(a.toevoeging);
@@ -88,31 +96,25 @@ const BuildingsList = ({ buildings }) => {
   const renderFlatLink = (flat, flatIndex, types, building) => {
     const flatType = types.find(type => flat.zoeksleutel.startsWith(type.prefix));
 
+    // Check if the flat has an appointment
+    const hasAppointment = flat.technischePlanning?.appointmentBooked?.date;
+
+    // Apply CSS class based on appointment status
+    const flatClassName = hasAppointment ? 'flatLink flatWithAppointment' : 'flatLink';
+
     if (flatType && flatType.type === 'Laag bouw') {
       return flatIndex === 0 ? (
-        <RoleBasedLink key={flatIndex} flatId={flat._id} className="flatLink">
+        <RoleBasedLink key={flatIndex} flatId={flat._id} className={flatClassName}>
           <div key={flatIndex} className="flatInfo">{building.address}</div>
         </RoleBasedLink>
       ) : null;
     } else {
       return (
-        <RoleBasedLink key={flatIndex} flatId={flat._id} className="flatLink">
-          <div className="flatInfo">Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b></div>
+        <RoleBasedLink key={flatIndex} flatId={flat._id} className={flatClassName}>
+          <div className="flatInfo" style={{ backgroundColor: hasAppointment ? 'lightgreen' : 'inherit' }}>Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b></div>
         </RoleBasedLink>
       );
     }
-  };
-
-  const renderBuildingFlats = (flats) => {
-    return flats.map((flat, index) => (
-      <div key={index} className="flat">
-        <div className="checkmarkContainer">
-          <span className={flat.FCStatusHAS === "2" ? "greenCheckmark" : "redCheckmark"}>
-            &#10004;
-          </span>
-        </div>
-      </div>
-    ));
   };
 
   const calculateCompletionPercentage = (buildings) => {
@@ -129,14 +131,25 @@ const BuildingsList = ({ buildings }) => {
 
   const completionPercentage = calculateCompletionPercentage(categorizedBuildings);
 
+  // Pagination logic
+  const totalPages = Math.ceil(categorizedBuildings.length / buildingsPerPage);
+  const startIndex = (currentPage - 1) * buildingsPerPage;
+  const currentBuildings = categorizedBuildings.slice(startIndex, startIndex + buildingsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <>
       <div className="searchContainer">
-        <input 
-          type="text" 
-          placeholder="Search by Complex Naam or Address" 
-          value={searchQuery} 
-          onChange={handleSearch} 
+        <input
+          type="text"
+          placeholder="Search by Complex Naam or Address"
+          value={searchQuery}
+          onChange={handleSearch}
           className="searchInput"
         />
         <div className="filterButtons">
@@ -146,38 +159,70 @@ const BuildingsList = ({ buildings }) => {
           <button onClick={() => handleFilterChange('appointment')}>With Appointment</button>
           <button onClick={() => handleFilterChange('all')}>All</button>
         </div>
+        {/* Add a section to show the count of results */}
+        <div className="resultsCount">
+          <strong>{totalResults}</strong> results found
+        </div>
       </div>
+
       <div className="completionPercentage">
         {`Completion Percentage: ${completionPercentage}%`}
       </div>
-      {categorizedBuildings.map((building, index) => {
-        const { types, typeString } = categorizeBuilding(building.flats);
-        const sortedFlats = [...building.flats].sort(sortFlats);
-        const flatCount = sortedFlats.length;
 
-        return (
-          <div key={index} className="buildingContainer">
-            <div className="buildingHeaderSection">
-              <Link to={`/building/${building._id}`}>
-                <div className="buildingHeader">{building.address}</div>
-              </Link>
-              <div className="flatCountBox">{flatCount}</div>
-              <Link to={`/planning-apartment-schedule/${building._id}`}>
-                <button className="viewAllApartmentsButton">View All Apartments</button>
-              </Link>
-            </div>
-            <div className="buildingType"><b>{typeString}</b></div>
-            <div className="flatsAndDrawingContainer">
-              <div className="sortedFlats">
+      <div className="buildingsList">
+        {currentBuildings.map((building, index) => {
+          const { types, typeString } = categorizeBuilding(building.flats);
+          const sortedFlats = [...building.flats].sort(sortFlats);
+          const flatCount = sortedFlats.length;
+
+          // Check if HB type exists and get the HB number if applicable
+          const hbType = types.find(type => type.type === 'HB');
+          const displayText = hbType
+            ? `HB: ${hbType.prefix}` // Display HB number if the building has an HB type
+            : building.address;      // Display address if it's Laagbouw or Duplex
+
+          return (
+            <div key={index} className="buildingContainer">
+              <div className="buildingHeaderSection">
+                <Link to={`/building/${building._id}`}>
+                  <div className="buildingHeader">{displayText}</div>
+                </Link>
+                <div className="flatCountBox">{flatCount}</div>
+                
+                {/* Show pencil icon only for non-Laag-bouw buildings */}
+                {types.some(type => type.type !== 'Laag bouw') && (
+                  <Link to={`/planning-apartment-schedule/${building._id}`}>
+                    <img src={pencilIcon} alt="Edit" className="editIcon" />
+                  </Link>
+                )}
+              </div>
+              <div className="buildingType"><b>{typeString}</b></div>
+              <div className="flatsWrapper">
                 {sortedFlats.map((flat, flatIndex) => renderFlatLink(flat, flatIndex, types, building))}
               </div>
-              <div className="buildingDrawing">
-                {renderBuildingFlats(sortedFlats)}
-              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="pagination">
+        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+          Previous
+        </button>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageChange(index + 1)}
+            className={currentPage === index + 1 ? 'activePage' : ''}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+          Next
+        </button>
+      </div>
     </>
   );
 };

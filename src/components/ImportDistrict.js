@@ -1,261 +1,89 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import '../styles/tsApartmentDetails.css';
+import React from 'react'
+import { useState } from 'react'
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
+import Button from '@mui/material/Button';
 
-const TSApartmentSchedulePage = () => {
-  const { id } = useParams();
-  const axiosPrivate = useAxiosPrivate();
+const ImportDistrict = ({ areaId, setNewDistrictUploaded }) => {
+  const axiosPrivate = useAxiosPrivate()
+  const [selectedFile, setSelectedFile] = useState([])
+  const [currentDistrict, setCurrentDistrict] = useState('')
 
-  const [building, setBuilding] = useState(null);
-  const [formData, setFormData] = useState({});
-  const [appointmentData, setAppointmentData] = useState({
-    appointmentDate: '',
-    appointmentStartTime: '',
-    appointmentEndTime: '',
-    appointmentWeekNumber: '',
-    fileUrl: '', // Added to hold the file URL
-  });
-  const [selectedFile, setSelectedFile] = useState(null); // State for file
-  const [loading, setLoading] = useState(true);
+  const send = async (file, districtName) => {
+    // setNewDistrictUploaded(false) // think of a better way, when we upload two files one after another, we should get them in the list of districts
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('currentDistrict', districtName)
+    formData.append('areaId', areaId);
 
-  useEffect(() => {
-    const fetchBuilding = async () => {
-      try {
-        const { data } = await axiosPrivate.get(`/api/building/${id}`);
-        console.log('Fetched building data:', data); // Debugging line
-        setBuilding(data);
+    console.log('file', file)
 
-        const initialFormData = data.flats.reduce((acc, flat) => {
-          acc[flat._id] = {
-            telephone: flat.tel1 || '',
-            eMail: flat.eMail || '',
-            additionalNotes: flat.technischePlanning?.additionalNotes || '',
-            fileUrl: flat.fileUrl || '', // Added to hold the file URL
-          };
-          return acc;
-        }, {});
-        console.log('Initial form data:', initialFormData); // Debugging line
-        setFormData(initialFormData);
-
-        setAppointmentData({
-          appointmentDate: data.appointmentDate || '',
-          appointmentStartTime: data.appointmentStartTime || '',
-          appointmentEndTime: data.appointmentEndTime || '',
-          appointmentWeekNumber: data.appointmentWeekNumber || '',
-          fileUrl: data.fileUrl || '', // Added to hold the file URL
-        });
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching building data', error);
-      }
-    };
-
-    fetchBuilding();
-  }, [id, axiosPrivate]);
-
-  const handleChange = (e, flatId) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [flatId]: {
-        ...formData[flatId],
-        [name]: value,
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
-    });
-  };
-
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  const getWeekNumber = (dateString) => {
-    const date = new Date(dateString);
-    const firstJan = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor((date - firstJan) / (24 * 60 * 60 * 1000));
-    return Math.ceil((date.getDay() + 1 + days) / 7);
-  };
-
-  const handleAppointmentChange = (e) => {
-    const { name, value } = e.target;
-    const updatedAppointmentData = { ...appointmentData, [name]: value };
-
-    if (name === 'appointmentDate') {
-      const weekNumber = getWeekNumber(value);
-      updatedAppointmentData.appointmentWeekNumber = weekNumber;
     }
+    const { data } = await axiosPrivate.post('/api/district', formData, config)
+    setNewDistrictUploaded((prev) => prev + 1)
+    console.log('post data', data)
+  }
 
-    setAppointmentData(updatedAppointmentData);
-  };
+  const sendToUpdate = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
 
-  const handleSubmit = async (e, flatId) => {
-    e.preventDefault();
-    try {
-      const data = new FormData();
-      data.append('telephone', formData[flatId].telephone);
-      data.append('eMail', formData[flatId].eMail);
-      data.append('additionalNotes', formData[flatId].additionalNotes);
-
-      const response = await axiosPrivate.put(`/api/apartment/${flatId}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Update the formData with the file URL from the response
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [flatId]: {
-          ...prevFormData[flatId],
-          fileUrl: response.data.fileUrl,
-        },
-      }));
-
-      alert('Data saved successfully!');
-    } catch (error) {
-      console.error('Error saving data', error);
-      alert('Error saving data');
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     }
-  };
-
-  const handleAppointmentSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const data = new FormData();
-      data.append('appointmentDate', appointmentData.appointmentDate);
-      data.append('appointmentStartTime', appointmentData.appointmentStartTime);
-      data.append('appointmentEndTime', appointmentData.appointmentEndTime);
-      data.append('appointmentWeekNumber', appointmentData.appointmentWeekNumber);
-
-      if (selectedFile) {
-        data.append('file', selectedFile);
-      }
-
-      const response = await axiosPrivate.put(`/api/building/appointment/${id}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Update the appointmentData with the file URL from the response
-      setAppointmentData((prevAppointmentData) => ({
-        ...prevAppointmentData,
-        fileUrl: response.data.fileUrl,
-      }));
-
-      alert('Appointment data saved successfully!');
-    } catch (error) {
-      console.error('Error saving appointment data', error);
-      alert('Error saving appointment data');
-    }
-  };
-
-  if (loading) return <div>Loading...</div>;
+    const { data } = await axiosPrivate.put('/api/district', formData, config)
+    console.log('put data', data)
+  }
 
   return (
-    <div className="ts-apartmentDetailsContainer">
-      <h2>Apartment Schedule for {building.address}</h2>
-      <div className="ts-columns">
-        <div className="ts-leftColumn">
-          {building.flats.map((flat) => (
-            <div key={flat._id} className="ts-apartmentDetails">
-              <h3>{flat.adres} {flat.huisNummer}{flat.toevoeging}</h3>
-              <form onSubmit={(e) => handleSubmit(e, flat._id)}>
-                <div className="ts-formGroup">
-                  <label>Telephone:</label>
-                  <input
-                    type="text"
-                    name="telephone"
-                    value={formData[flat._id]?.telephone || ''}
-                    onChange={(e) => handleChange(e, flat._id)}
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>Email:</label>
-                  <input
-                    type="email"
-                    name="eMail"
-                    value={formData[flat._id]?.eMail || ''}
-                    onChange={(e) => handleChange(e, flat._id)}
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>Additional Notes:</label>
-                  <textarea
-                    name="additionalNotes"
-                    value={formData[flat._id]?.additionalNotes || ''}
-                    onChange={(e) => handleChange(e, flat._id)}
-                  />
-                </div>
-                {formData[flat._id]?.fileUrl && (
-                  <div className="ts-formGroup">
-                    <a href={formData[flat._id].fileUrl} download>Download File</a>
-                  </div>
-                )}
-                <button type="submit" className="ts-saveButton">Save</button>
-              </form>
-            </div>
-          ))}
+    <>
+      <div style={{ padding: '20px', marginBottom: '30px' }}>
+        <h2 style={{ marginBottom: '20px' }}>Create District</h2>
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="import" style={{ marginRight: '10px' }}>Import Excel File </label>
+          <input
+            id="import"
+            name="import"
+            type="file"
+            onChange={(e) => setSelectedFile(e.target.files[0])}
+            style={{ marginRight: '10px' }}
+          />
         </div>
-        <div className="ts-rightColumn">
-          <h3>Building Appointment Details</h3>
-          <form onSubmit={handleAppointmentSubmit}>
-            <div className="ts-formGroup">
-              <label>Appointment Date:</label>
-              <input
-                type="date"
-                name="appointmentDate"
-                value={appointmentData.appointmentDate}
-                onChange={handleAppointmentChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment Start Time:</label>
-              <input
-                type="time"
-                name="appointmentStartTime"
-                value={appointmentData.appointmentStartTime}
-                onChange={handleAppointmentChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment End Time:</label>
-              <input
-                type="time"
-                name="appointmentEndTime"
-                value={appointmentData.appointmentEndTime}
-                onChange={handleAppointmentChange}
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Appointment Week Number:</label>
-              <input
-                type="number"
-                name="appointmentWeekNumber"
-                value={appointmentData.appointmentWeekNumber}
-                readOnly
-              />
-            </div>
-            <div className="ts-formGroup">
-              <label>Upload File:</label>
-              <input
-                type="file"
-                name="file"
-                onChange={handleFileChange}
-              />
-            </div>
-            {appointmentData.fileUrl && (
-              <div className="ts-formGroup">
-                <a href={appointmentData.fileUrl} download>Download File</a>
-              </div>
-            )}
-            <button type="submit" className="ts-saveButton">Save Appointment</button>
-          </form>
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="currentDistrict" style={{ marginRight: '10px' }}>Enter District Name </label>
+          <input
+            name="currentDistrict"
+            value={currentDistrict}
+            onChange={(e) => setCurrentDistrict(e.target.value)}
+            style={{ marginRight: '10px', padding: '5px' }}
+          ></input>
         </div>
+        <Button onClick={() => send(selectedFile, currentDistrict)} style={{ padding: '5px 15px' }}>
+          Create Data
+        </Button>
       </div>
-    </div>
-  );
-};
 
-export default TSApartmentSchedulePage;
+      <div style={{ padding: '20px' }}>
+        <h2 style={{ marginBottom: '20px' }}>Update District</h2>
+        <div style={{ marginBottom: '20px' }}>
+          <label htmlFor="update" style={{ marginRight: '10px' }}>Import Excel File </label>
+          <input
+            id="update"
+            name="update"
+            type="file"
+            onChange={(e) => setSelectedFile(e.target.files[0])}
+            style={{ marginRight: '10px' }}
+          />
+        </div>
+        <Button onClick={() => sendToUpdate(selectedFile)} style={{ padding: '5px 15px' }}>Update Data</Button>
+      </div>
+    </>
+  )
+}
+
+export default ImportDistrict
