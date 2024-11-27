@@ -1,43 +1,78 @@
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Button from '@mui/material/Button';
+import { BounceLoader } from 'react-spinners';
 
-const ImportDistrict = ({ areaId, setNewDistrictUploaded }) => {
+const ImportDistrict = ({ areaId, setNewDistrictUploaded, onDistrictCreated }) => {
   const axiosPrivate = useAxiosPrivate()
   const [selectedFile, setSelectedFile] = useState([])
   const [currentDistrict, setCurrentDistrict] = useState('')
+  const [isImporting, setIsImporting] = useState(false)
 
   const send = async (file, districtName) => {
-    // setNewDistrictUploaded(false) // think of a better way, when we upload two files one after another, we should get them in the list of districts
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('currentDistrict', districtName)
-    formData.append('areaId', areaId);
-
-    console.log('file', file)
-
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    if (!file || !districtName) {
+      alert('Please select a file and enter a district name')
+      return
     }
-    const { data } = await axiosPrivate.post('/api/district', formData, config)
-    setNewDistrictUploaded((prev) => prev + 1)
-    console.log('post data', data)
+
+    setIsImporting(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('currentDistrict', districtName)
+      formData.append('areaId', areaId);
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+      
+      const { data } = await axiosPrivate.post('/api/district', formData, config)
+      setNewDistrictUploaded(prev => prev + 1)
+      
+      // Clear the form
+      setSelectedFile([])
+      setCurrentDistrict('')
+      
+      // Notify parent component
+      if (onDistrictCreated) {
+        onDistrictCreated()
+      }
+    } catch (error) {
+      console.error('Import error:', error)
+      alert('Error importing district')
+    } finally {
+      setIsImporting(false)
+    }
   }
 
   const sendToUpdate = async (file) => {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    if (!file) {
+      alert('Please select a file')
+      return
     }
-    const { data } = await axiosPrivate.put('/api/district', formData, config)
-    console.log('put data', data)
+
+    setIsImporting(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+      const { data } = await axiosPrivate.put('/api/district', formData, config)
+      setSelectedFile([])
+      if (onDistrictCreated) {
+        onDistrictCreated()
+      }
+    } catch (error) {
+      console.error('Update error:', error)
+      alert('Error updating district')
+    } finally {
+      setIsImporting(false)
+    }
   }
 
   return (
@@ -52,6 +87,7 @@ const ImportDistrict = ({ areaId, setNewDistrictUploaded }) => {
             type="file"
             onChange={(e) => setSelectedFile(e.target.files[0])}
             style={{ marginRight: '10px' }}
+            disabled={isImporting}
           />
         </div>
         <div style={{ marginBottom: '20px' }}>
@@ -61,13 +97,20 @@ const ImportDistrict = ({ areaId, setNewDistrictUploaded }) => {
             value={currentDistrict}
             onChange={(e) => setCurrentDistrict(e.target.value)}
             style={{ marginRight: '10px', padding: '5px' }}
-          ></input>
+            disabled={isImporting}
+          />
         </div>
-        <Button onClick={() => send(selectedFile, currentDistrict)} style={{ padding: '5px 15px' }}>
-          Create Data
-        </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Button 
+            onClick={() => send(selectedFile, currentDistrict)} 
+            style={{ padding: '5px 15px' }}
+            disabled={isImporting}
+          >
+            Create Data
+          </Button>
+          {isImporting && <BounceLoader size={24} color="#3498db" />}
+        </div>
       </div>
-
       <div style={{ padding: '20px' }}>
         <h2 style={{ marginBottom: '20px' }}>Update District</h2>
         <div style={{ marginBottom: '20px' }}>
@@ -78,9 +121,19 @@ const ImportDistrict = ({ areaId, setNewDistrictUploaded }) => {
             type="file"
             onChange={(e) => setSelectedFile(e.target.files[0])}
             style={{ marginRight: '10px' }}
+            disabled={isImporting}
           />
         </div>
-        <Button onClick={() => sendToUpdate(selectedFile)} style={{ padding: '5px 15px' }}>Update Data</Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Button 
+            onClick={() => sendToUpdate(selectedFile)} 
+            style={{ padding: '5px 15px' }}
+            disabled={isImporting}
+          >
+            Update Data
+          </Button>
+          {isImporting && <BounceLoader size={24} color="#3498db" />}
+        </div>
       </div>
     </>
   )

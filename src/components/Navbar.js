@@ -5,8 +5,11 @@ import '../styles/nav.css'
 import Button from '@mui/material/Button';
 
 const Navbar = () => {
-  const { setAuth } = useAuth()
+  const { auth, setAuth } = useAuth()
   const navigate = useNavigate()
+
+  // Check if user has TechnischePlanning role (1991)
+  const hasTechnischePlanningRole = auth?.roles?.includes(1991)
 
   const logout = async () => {
     navigate('/login')
@@ -22,8 +25,10 @@ const Navbar = () => {
     <nav>
       <Link style={{ fontSize: 20 }} to='/'>Home</Link>
       <Link style={{ fontSize: 20 }} to='/city'>Cities</Link>
+      {hasTechnischePlanningRole && (
+        <Link style={{ fontSize: 20 }} to='/agenda'>Agenda</Link>
+      )}
       <Link style={{ fontSize: 20 }} to='/admin'>Admin page</Link>
-
       <Button onClick={logout}>Sign Out</Button>
     </nav>
   )

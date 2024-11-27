@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RoleBasedLink from './RoleBasedLink';
 import { Link } from 'react-router-dom';
 import '../styles/buildingsList.css';
-import pencilIcon from '../assets/pencil_edit.png'; // Import the pencil icon image
+import pencilIcon from '../assets/pencil_edit.png';
 
 const BuildingsList = ({ buildings }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,7 +21,11 @@ const BuildingsList = ({ buildings }) => {
   };
 
   const categorizeBuilding = (flats) => {
+    // Make sure flats exist and have zoeksleutel before processing
+    if (!flats || flats.length === 0) return { types: [], typeString: '' };
+
     const prefixCounts = flats.reduce((acc, flat) => {
+      if (!flat.zoeksleutel) return acc;
       const [prefix] = flat.zoeksleutel.split('_');
       if (!acc[prefix]) {
         acc[prefix] = { count: 0, complexNaam: flat.complexNaam };
@@ -42,10 +46,16 @@ const BuildingsList = ({ buildings }) => {
 
   const filterBuildings = (buildings, query) => {
     let filteredBuildings = buildings;
+    
+    // First check if buildings and flats exist
+    if (!buildings) return [];
+    
     if (query) {
       filteredBuildings = buildings.filter((building) =>
         building.address.toLowerCase().includes(query) ||
-        building.flats.some((flat) => flat.complexNaam.toLowerCase().includes(query))
+        (building.flats && building.flats.some((flat) => 
+          flat.complexNaam && flat.complexNaam.toLowerCase().includes(query)
+        ))
       );
     }
 
@@ -54,25 +64,32 @@ const BuildingsList = ({ buildings }) => {
         return filteredBuildings.filter(building => building.fileUrl);
       case 'laagBouw':
         return filteredBuildings.filter(building =>
-          categorizeBuilding(building.flats).types.some(type => type.type === 'Laag bouw')
+          building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'Laag bouw')
         );
       case 'HB':
         return filteredBuildings.filter(building =>
-          categorizeBuilding(building.flats).types.some(type => type.type === 'HB')
+          building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'HB')
+        );
+      case 'duplex':
+        return filteredBuildings.filter(building =>
+          building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'Duplex')
         );
       case 'appointment':
         return filteredBuildings.filter(building =>
-          building.flats.some(flat => flat.technischePlanning?.appointmentBooked?.date)
+          building.flats && building.flats.some(flat =>
+            flat.technischePlanning &&
+            flat.technischePlanning.appointmentBooked &&
+            flat.technischePlanning.appointmentBooked.date
+          )
         );
       default:
         return filteredBuildings;
     }
   };
 
-  const categorizedBuildings = filterBuildings(buildings, searchQuery); // Filtered and categorized buildings
-  const totalResults = categorizedBuildings.length; // Count of results
-
   const sortFlats = (a, b) => {
+    if (!a.toevoeging || !b.toevoeging) return 0;
+
     const isANumeric = !isNaN(a.toevoeging);
     const isBNumeric = !isNaN(b.toevoeging);
 
@@ -86,20 +103,20 @@ const BuildingsList = ({ buildings }) => {
       return b.toevoeging.localeCompare(a.toevoeging);
     }
 
-    if (isANumeric) {
-      return -1;
-    }
-
+    if (isANumeric) return -1;
     return 1;
   };
 
   const renderFlatLink = (flat, flatIndex, types, building) => {
-    const flatType = types.find(type => flat.zoeksleutel.startsWith(type.prefix));
+    if (!flat) return null;
 
-    // Check if the flat has an appointment
-    const hasAppointment = flat.technischePlanning?.appointmentBooked?.date;
+    const flatType = types.find(type => flat.zoeksleutel && flat.zoeksleutel.startsWith(type.prefix));
 
-    // Apply CSS class based on appointment status
+    // Check if the flat has an appointment using the new model structure
+    const hasAppointment = flat.technischePlanning &&
+      flat.technischePlanning.appointmentBooked &&
+      flat.technischePlanning.appointmentBooked.date;
+
     const flatClassName = hasAppointment ? 'flatLink flatWithAppointment' : 'flatLink';
 
     if (flatType && flatType.type === 'Laag bouw') {
@@ -111,24 +128,38 @@ const BuildingsList = ({ buildings }) => {
     } else {
       return (
         <RoleBasedLink key={flatIndex} flatId={flat._id} className={flatClassName}>
-          <div className="flatInfo" style={{ backgroundColor: hasAppointment ? 'lightgreen' : 'inherit' }}>Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b></div>
+          <div className="flatInfo" style={{ backgroundColor: hasAppointment ? 'lightgreen' : 'inherit' }}>
+            Apartment: {flat.complexNaam} -- <b>{flat.toevoeging}</b>
+          </div>
         </RoleBasedLink>
       );
     }
   };
 
   const calculateCompletionPercentage = (buildings) => {
+    if (!buildings || buildings.length === 0) return 0;
+
     let totalFlats = 0;
     let completedFlats = 0;
 
     buildings.forEach(building => {
-      totalFlats += building.flats.length;
-      completedFlats += building.flats.filter(flat => flat.FCStatusHAS === "2").length;
+      if (building.flats) {
+        totalFlats += building.flats.length;
+        // Update to use hasMonteur status instead of FCStatusHAS if that's where completion status is stored now
+        completedFlats += building.flats.filter(flat =>
+          flat.hasMonteur &&
+          flat.hasMonteur.installation &&
+          flat.hasMonteur.installation.status === 'completed'
+        ).length;
+      }
     });
 
     return totalFlats > 0 ? ((completedFlats / totalFlats) * 100).toFixed(2) : 0;
   };
 
+  // Make sure buildings exists before processing
+  const categorizedBuildings = buildings ? filterBuildings(buildings, searchQuery) : [];
+  const totalResults = categorizedBuildings.length;
   const completionPercentage = calculateCompletionPercentage(categorizedBuildings);
 
   // Pagination logic
@@ -156,6 +187,7 @@ const BuildingsList = ({ buildings }) => {
           <button onClick={() => handleFilterChange('fileUrl')}>With File URL</button>
           <button onClick={() => handleFilterChange('laagBouw')}>Laag Bouw</button>
           <button onClick={() => handleFilterChange('HB')}>HB</button>
+          <button onClick={() => handleFilterChange('duplex')}>Duplex</button>
           <button onClick={() => handleFilterChange('appointment')}>With Appointment</button>
           <button onClick={() => handleFilterChange('all')}>All</button>
         </div>
@@ -181,20 +213,23 @@ const BuildingsList = ({ buildings }) => {
             ? `HB: ${hbType.prefix}` // Display HB number if the building has an HB type
             : building.address;      // Display address if it's Laagbouw or Duplex
 
-          return (
-            <div key={index} className="buildingContainer">
-              <div className="buildingHeaderSection">
-                <Link to={`/building/${building._id}`}>
-                  <div className="buildingHeader">{displayText}</div>
-                </Link>
-                <div className="flatCountBox">{flatCount}</div>
-                
-                {/* Show pencil icon only for non-Laag-bouw buildings */}
-                {types.some(type => type.type !== 'Laag bouw') && (
-                  <Link to={`/planning-apartment-schedule/${building._id}`}>
-                    <img src={pencilIcon} alt="Edit" className="editIcon" />
+            return (
+              <div key={index} className="buildingContainer">
+                <div className="buildingHeaderSection">
+                  <Link to={`/building/${building._id}`}>
+                    <div className="buildingHeader">
+                      {/* Change this part */}
+                      {building.flats && building.flats[0]?.complexNaam 
+                        ? building.flats[0].complexNaam
+                        : building.address // Fallback to address if no complexNaam exists
+                      }
+                    </div>
                   </Link>
-                )}
+                  <div className="flatCountBox">{flatCount}</div>
+
+                <Link to={`/planning-apartment-schedule/${building._id}`}>
+                  <img src={pencilIcon} alt="Edit" className="editIcon" />
+                </Link>
               </div>
               <div className="buildingType"><b>{typeString}</b></div>
               <div className="flatsWrapper">

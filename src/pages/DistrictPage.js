@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/districtPage.css';
@@ -11,14 +11,13 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 const DistrictPage = () => {
   const axiosPrivate = useAxiosPrivate();
   const { areaId } = useParams();
-
   const [isLoading, setIsLoading] = useState(false);
   const [districts, setDistricts] = useState([]);
   const [currentDistrict, setCurrentDistrict] = useState({});
   const [buildings, setBuildings] = useState([]);
   const [newDistrictUploaded, setNewDistrictUploaded] = useState(0);
 
-  const getBuildings = async (id) => {
+  const getBuildings = useCallback(async (id) => {
     setIsLoading(true);
     try {
       const response = await axiosPrivate.get(`/api/district/${id}`);
@@ -29,44 +28,49 @@ const DistrictPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [axiosPrivate]);
 
-  const fetchDistricts = async () => {
+  const fetchDistricts = useCallback(async () => {
     try {
       const response = await axiosPrivate.get(`/api/district/area/${areaId}`);
       const districtData = response.data;
       setDistricts(districtData);
-      setCurrentDistrict(districtData[0] || {});
+      
+      // If there's no current district selected or it's a refresh, select the first one
+      if (!currentDistrict?._id || districtData[0]?._id !== currentDistrict._id) {
+        setCurrentDistrict(districtData[0] || {});
+      }
     } catch (error) {
       console.error('Error fetching districts:', error);
     }
-  };
+  }, [axiosPrivate, areaId, currentDistrict?._id]);
+
+  // Handle district creation/update
+  const handleDistrictChange = useCallback(async () => {
+    await fetchDistricts();
+    if (currentDistrict?._id) {
+      await getBuildings(currentDistrict._id);
+    }
+  }, [fetchDistricts, getBuildings, currentDistrict?._id]);
 
   useEffect(() => {
     if (areaId) {
       fetchDistricts();
     }
-  }, [axiosPrivate, areaId]);
+  }, [areaId, fetchDistricts]);
 
   useEffect(() => {
-    const getDistrict = async () => {
-      if (districts.length > 0) {
-        await getBuildings(districts[0]._id);
-      }
-    };
-
-    getDistrict();
-  }, [districts]);
+    if (currentDistrict?._id) {
+      getBuildings(currentDistrict._id);
+    }
+  }, [currentDistrict?._id, getBuildings]);
 
   const onDragEnd = async (result) => {
     if (!result.destination) return;
-
     const items = Array.from(districts);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-
     setDistricts(items);
-
     try {
       await axiosPrivate.post('/api/district/reorder', {
         districts: items.map((district, index) => ({
@@ -87,7 +91,12 @@ const DistrictPage = () => {
         </div>
       )}
       <h1 style={{ marginBottom: '20px' }}>Districts Page</h1>
-      <ImportDistrict areaId={areaId} setNewDistrictUploaded={setNewDistrictUploaded} style={{ marginBottom: '20px' }} />
+      <ImportDistrict 
+        areaId={areaId} 
+        setNewDistrictUploaded={setNewDistrictUploaded} 
+        onDistrictCreated={handleDistrictChange}
+        style={{ marginBottom: '20px' }} 
+      />
       <div style={{ marginTop: '20px' }}>
         <h2 style={{ marginBottom: '15px' }}>Current District Name: {currentDistrict.name}</h2>
         <DragDropContext onDragEnd={onDragEnd}>
