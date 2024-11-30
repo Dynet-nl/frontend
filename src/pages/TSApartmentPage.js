@@ -164,7 +164,7 @@ const TSPApartmentPage = () => {
       await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, {
         appointmentBooked: appointmentData
       });
-      
+
       const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
       if (data.technischePlanning?.appointmentBooked) {
         setFlat(prev => ({
@@ -183,19 +183,19 @@ const TSPApartmentPage = () => {
       alert('Error saving appointment. Please try again.');
     }
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, formData);
       console.log('Updated TechnischePlanning:', response.data);
-  
+
       setFlat((prevFlat) => ({
         ...prevFlat,
         technischePlanning: response.data.technischePlanning,
         updatedAt: new Date().toISOString() // Update the timestamp
       }));
-  
+
       setIsEditingPlanning(false);
       alert('Planning details saved successfully!');
     } catch (error) {
@@ -466,7 +466,9 @@ const TSPApartmentPage = () => {
       <div className="ts-columns">
         <div className="ts-leftColumn">
           <div className="ts-detailsGrid">
-          <h3>Flat Details</h3>
+            <div className="ts-planningHeader">
+              <h3>Flat Details</h3>
+            </div>
             <div className="ts-detailItem">
               <p><b>Address:</b> {flat.adres} {flat.huisNummer}{flat.toevoeging}</p>
               <p><b>Postcode:</b> {flat.postcode}</p>

@@ -103,13 +103,18 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
-.ts-planningHeader h3 {
+.ts-planningHeader h3, 
+.ts-detailsGrid .ts-planningHeader h3,
+.ts-planningDetails .ts-planningHeader h3,
+.ts-appointmentDetails .ts-planningHeader h3 {
   margin: 0;
   color: #059669;
   font-size: 1.25rem;
   font-weight: 600;
+  flex-grow: 1;
 }
 
 /* Planning details and Appointment details sections */
@@ -314,10 +319,12 @@
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  min-width: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
+  margin-left: auto;
 }
 
 .ts-editButton:hover {
