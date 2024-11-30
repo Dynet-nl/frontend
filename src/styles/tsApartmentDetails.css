@@ -69,22 +69,47 @@
   flex-direction: column;
   gap: 2rem;
   padding: 1.5rem;
-  background-color: #f8fafc;
+  background-color: #f0f9ff;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #bae6fd;
+}
+
+.ts-detailItem {
+  margin-top: -1rem;
 }
 
 .ts-detailItem p {
-  margin: 0.75rem 0;
-  line-height: 1.6;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #bae6fd;
   color: #4b5563;
+  line-height: 1.6;
   font-size: 1rem;
 }
 
-.ts-detailItem p b {
-  color: #1e293b;
+.ts-detailItem p:last-child {
+  border-bottom: none;
+}
+
+.ts-detailItem p strong {
+  color: #0369a1;
   font-weight: 600;
   margin-right: 0.5rem;
+}
+
+/* Section headers */
+.ts-planningHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ts-planningHeader h3 {
+  margin: 0;
+  color: #059669;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 /* Planning details and Appointment details sections */
@@ -103,31 +128,16 @@
   font-weight: 600;
 }
 
-/* Planning and Appointment headers */
-.ts-planningHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.ts-planningHeader h3 {
-  margin: 0;
-  color: #059669; /* Changed from blue to green */
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
 /* Status section */
 .ts-statusSection {
-  border-top: 2px solid #e2e8f0;
+  border-top: 2px solid #bae6fd;
   padding-top: 1.5rem;
   margin-top: 1.5rem;
 }
 
 .ts-statusSection h4 {
   margin-bottom: 1.25rem;
-  color: #1e293b;
+  color: #059669;
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -265,15 +275,26 @@
 .ts-timestamps {
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: #f8fafc;
+  background-color: #f0f9ff;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #bae6fd;
 }
 
 .ts-timestamps p {
   margin: 0.5rem 0;
-  color: #64748b;
-  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #bae6fd;
+  color: #4b5563;
+}
+
+.ts-timestamps p:last-child {
+  border-bottom: none;
+}
+
+.ts-timestamps p strong {
+  color: #0369a1;
+  font-weight: 600;
+  margin-right: 0.5rem;
 }
 
 /* Icon styles */

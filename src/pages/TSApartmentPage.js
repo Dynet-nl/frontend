@@ -172,7 +172,8 @@ const TSPApartmentPage = () => {
           technischePlanning: {
             ...prev.technischePlanning,
             appointmentBooked: data.technischePlanning.appointmentBooked
-          }
+          },
+          updatedAt: new Date().toISOString() // Update the timestamp
         }));
       }
       setIsEditingAppointment(false);
@@ -182,18 +183,19 @@ const TSPApartmentPage = () => {
       alert('Error saving appointment. Please try again.');
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, formData);
       console.log('Updated TechnischePlanning:', response.data);
-
+  
       setFlat((prevFlat) => ({
         ...prevFlat,
         technischePlanning: response.data.technischePlanning,
+        updatedAt: new Date().toISOString() // Update the timestamp
       }));
-
+  
       setIsEditingPlanning(false);
       alert('Planning details saved successfully!');
     } catch (error) {
@@ -201,7 +203,6 @@ const TSPApartmentPage = () => {
       alert('Error saving planning details');
     }
   };
-
   const renderAppointmentDetails = () => {
     if (!isTechnischePlanning) return null;
 
@@ -313,7 +314,7 @@ const TSPApartmentPage = () => {
 
   const renderPlanningDetails = () => {
     if (!isTechnischePlanning) return null;
-  
+
     return (
       <div className="ts-planningDetails">
         <div className="ts-planningHeader">
@@ -353,7 +354,7 @@ const TSPApartmentPage = () => {
             )}
           </button>
         </div>
-  
+
         {isEditingPlanning ? (
           <form onSubmit={handleSubmit}>
             <div className="ts-formGroup">
@@ -371,7 +372,7 @@ const TSPApartmentPage = () => {
                 <option value="Huurder">Huurder</option>
               </select>
             </div>
-  
+
             <div className="ts-formGroup">
               <label>Telephone:</label>
               <input
@@ -381,7 +382,7 @@ const TSPApartmentPage = () => {
                 onChange={handleChange}
               />
             </div>
-  
+
             <div className="ts-formGroup">
               <label>Technische Schouwer:</label>
               <input
@@ -391,7 +392,7 @@ const TSPApartmentPage = () => {
                 onChange={handleChange}
               />
             </div>
-  
+
             <div className="ts-formGroup">
               <label>
                 <input
@@ -403,7 +404,7 @@ const TSPApartmentPage = () => {
                 Ready for Schouwer
               </label>
             </div>
-  
+
             <div className="ts-formGroup">
               <label>
                 <input
@@ -415,7 +416,7 @@ const TSPApartmentPage = () => {
                 Signed
               </label>
             </div>
-  
+
             <div className="ts-formGroup">
               <label>Times Called:</label>
               <input
@@ -426,7 +427,7 @@ const TSPApartmentPage = () => {
                 min="0"
               />
             </div>
-  
+
             <div className="ts-formGroup">
               <label>Additional Notes:</label>
               <textarea
@@ -435,7 +436,7 @@ const TSPApartmentPage = () => {
                 onChange={handleChange}
               />
             </div>
-  
+
             <button type="submit" className="ts-saveButton">Save</button>
           </form>
         ) : (
@@ -452,7 +453,7 @@ const TSPApartmentPage = () => {
       </div>
     );
   };
-  
+
   return (
     <div className="ts-apartmentDetailsContainer">
       <h2 className="ts-apartmentTitle">
@@ -464,8 +465,8 @@ const TSPApartmentPage = () => {
 
       <div className="ts-columns">
         <div className="ts-leftColumn">
-          <h3>Flat Details</h3>
           <div className="ts-detailsGrid">
+          <h3>Flat Details</h3>
             <div className="ts-detailItem">
               <p><b>Address:</b> {flat.adres} {flat.huisNummer}{flat.toevoeging}</p>
               <p><b>Postcode:</b> {flat.postcode}</p>
