@@ -1,105 +1,156 @@
+/* Base container styles */
 .ts-apartmentDetailsContainer {
-  padding: 20px;
-  max-width: 1200px;
+  padding: 2rem;
+  max-width: 1400px;
   margin: 0 auto;
+  background-color: #f5f7fa;
+  min-height: 100vh;
 }
 
+/* Title section */
 .ts-apartmentTitle {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #eee;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  font-size: 1.75rem;
+  color: #2d3748;
 }
 
 .greenCheckmark {
-  color: #28a745;
-  font-size: 24px;
+  color: #10b981;
+  font-size: 1.75rem;
+  transition: transform 0.2s ease;
+}
+
+.greenCheckmark:hover {
+  transform: scale(1.1);
 }
 
 .redCheckmark {
-  color: #dc3545;
-  font-size: 24px;
+  color: #ef4444;
+  font-size: 1.75rem;
+  transition: transform 0.2s ease;
 }
 
+.redCheckmark:hover {
+  transform: scale(1.1);
+}
+
+/* Column layout */
 .ts-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+  align-items: start;
 }
 
+/* Card styles */
 .ts-leftColumn, .ts-rightColumn {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.ts-leftColumn:hover, .ts-rightColumn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Details grid */
 .ts-detailsGrid {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  gap: 2rem;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .ts-detailItem p {
-  margin: 0.5rem 0;
-  line-height: 1.5;
+  margin: 0.75rem 0;
+  line-height: 1.6;
+  color: #4b5563;
+  font-size: 1rem;
 }
 
+.ts-detailItem p b {
+  color: #1e293b;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* Planning details section */
+.ts-planningDetails {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: #f0f9ff;
+  border-radius: 12px;
+  border: 1px solid #bae6fd;
+}
+
+.ts-planningDetails h4 {
+  color: #0369a1;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Status section */
 .ts-statusSection {
-  border-top: 1px solid #dee2e6;
-  padding-top: 1rem;
+  border-top: 2px solid #e2e8f0;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .ts-statusSection h4 {
-  margin-bottom: 1rem;
-  color: #495057;
+  margin-bottom: 1.25rem;
+  color: #1e293b;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .ts-statusGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .ts-statusItem {
-  padding: 0.75rem;
-  background-color: #e9ecef;
-  border-radius: 4px;
+  padding: 1rem;
+  background-color: #f1f5f9;
+  border-radius: 8px;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
 }
 
 .ts-statusItem.completed {
-  background-color: #28a745;
+  background-color: #10b981;
   color: white;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+  border: none;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
-.ts-timestamps {
-  font-size: 0.9rem;
-  color: #6c757d;
-  border-top: 1px solid #dee2e6;
-  padding-top: 1rem;
-}
-
-.ts-timestamps p {
-  margin: 0.25rem 0;
-}
-
+/* Form styles */
 .ts-formGroup {
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
 .ts-formGroup label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #1e293b;
 }
 
 .ts-formGroup input[type="text"],
@@ -109,60 +160,185 @@
 .ts-formGroup select,
 .ts-formGroup textarea {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #f8fafc;
+}
+
+.ts-formGroup input:focus,
+.ts-formGroup select:focus,
+.ts-formGroup textarea:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .ts-formGroup textarea {
-  min-height: 100px;
+  min-height: 120px;
   resize: vertical;
 }
 
 .ts-formGroup input[type="checkbox"] {
-  margin-right: 8px;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  accent-color: #3b82f6;
 }
 
+/* Button styles */
 .ts-saveButton {
-  background-color: #007bff;
+  background-color: #3b82f6;
   color: white;
-  padding: 10px 20px;
+  padding: 0.875rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .ts-saveButton:hover {
-  background-color: #0056b3;
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.ts-saveButton:active {
+  transform: translateY(0);
 }
 
 .ts-saveButton:disabled {
-  background-color: #ccc;
+  background-color: #94a3b8;
   cursor: not-allowed;
 }
 
-.ts-input {
-  width: 100%;
+/* Appointment info styles */
+.ts-appointmentInfo {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: #ecfdf5;
+  border-radius: 12px;
+  border: 1px solid #6ee7b7;
+}
+
+.ts-appointmentInfo h4 {
+  margin: 0 0 1rem 0;
+  color: #047857;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.ts-appointmentInfo p {
+  margin: 0.5rem 0;
+  color: #065f46;
+  font-size: 0.95rem;
+}
+
+/* Timestamps section */
+.ts-timestamps {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.ts-timestamps p {
+  margin: 0.5rem 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* Icon styles */
+.ts-icon {
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.ts-editButton {
+  background: none;
+  border: none;
+  cursor: pointer;
   padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 10px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
 }
 
-.ts-form {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #dee2e6;
+.ts-editButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-@media (max-width: 768px) {
+.ts-editButton .ts-icon {
+  margin: 0;
+  color: #64748b;
+}
+
+.ts-saveButton .ts-icon {
+  font-size: 16px;
+  margin: 0;
+}
+
+.ts-planningHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ts-planningHeader h4 {
+  margin: 0;
+}
+
+/* Editable fields container */
+.ts-editableFields {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Planning info (non-editable state) */
+.ts-planningInfo p {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ts-planningInfo p:last-child {
+  border-bottom: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
   .ts-columns {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
   
+  .ts-apartmentDetailsContainer {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
   .ts-statusGrid {
     grid-template-columns: 1fr;
   }
@@ -173,24 +349,31 @@
   .ts-formGroup input[type="time"],
   .ts-formGroup select,
   .ts-formGroup textarea {
-    font-size: 16px; /* Better for mobile touch */
+    font-size: 16px;
+    padding: 0.875rem;
+  }
+  
+  .ts-apartmentTitle {
+    font-size: 1.5rem;
+    padding: 1rem;
   }
 }
 
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply animations */
+.ts-detailsGrid,
+.ts-planningDetails,
 .ts-appointmentInfo {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #e3f2fd;
-  border-radius: 4px;
-  border-left: 4px solid #2196f3;
-}
-
-.ts-appointmentInfo h4 {
-  margin: 0 0 0.5rem 0;
-  color: #1976d2;
-}
-
-.ts-appointmentInfo p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
+  animation: fadeIn 0.3s ease-out;
 }
