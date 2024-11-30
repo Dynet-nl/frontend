@@ -11,6 +11,7 @@ const TSPApartmentPage = () => {
 
   const isTechnischePlanning = auth?.roles?.includes(1991);
   const [isEditingPlanning, setIsEditingPlanning] = useState(false);
+  const [isEditingAppointment, setIsEditingAppointment] = useState(false);
 
   const [flat, setFlat] = useState({
     _id: '',
@@ -59,15 +60,21 @@ const TSPApartmentPage = () => {
   useEffect(() => {
     const fetchApartment = async () => {
       try {
-        // Fetch the apartment details from the backend
         const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
         console.log('Full flat data:', data);
 
-        // Extract appointment data from technischePlanning, if available
         const appointmentData = data.technischePlanning?.appointmentBooked;
         console.log('Appointment data:', appointmentData);
 
-        // Update the flat state with all necessary details
+        if (appointmentData) {
+          setAppointmentData({
+            date: new Date(appointmentData.date).toISOString().split('T')[0],
+            startTime: appointmentData.startTime,
+            endTime: appointmentData.endTime,
+            weekNumber: appointmentData.weekNumber
+          });
+        }
+
         setFlat({
           _id: data._id,
           zoeksleutel: data.zoeksleutel,
@@ -84,10 +91,9 @@ const TSPApartmentPage = () => {
           hasHASMonteur: data.hasMonteur?.installation?.status === 'completed',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
-          technischePlanning: data.technischePlanning || null, // Ensure technischePlanning is included
+          technischePlanning: data.technischePlanning || null,
         });
 
-        // If the user has permission and technischePlanning exists, populate the form data
         if (isTechnischePlanning && data.technischePlanning) {
           setFormData({
             vveWocoName: data.technischePlanning.vveWocoName || '',
@@ -156,29 +162,24 @@ const TSPApartmentPage = () => {
     e.preventDefault();
     try {
       await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, {
-        appointmentBooked: {
-          date: appointmentData.date,
-          startTime: appointmentData.startTime,
-          endTime: appointmentData.endTime,
-          weekNumber: appointmentData.weekNumber
-        }
+        appointmentBooked: appointmentData
       });
+      
       const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
       if (data.technischePlanning?.appointmentBooked) {
-        setFormData(prev => ({
+        setFlat(prev => ({
           ...prev,
-          appointmentBooked: {
-            date: new Date(data.technischePlanning.appointmentBooked.date).toISOString().split('T')[0],
-            startTime: data.technischePlanning.appointmentBooked.startTime,
-            endTime: data.technischePlanning.appointmentBooked.endTime,
-            weekNumber: data.technischePlanning.appointmentBooked.weekNumber
+          technischePlanning: {
+            ...prev.technischePlanning,
+            appointmentBooked: data.technischePlanning.appointmentBooked
           }
         }));
       }
-      alert('Appointments saved successfully!');
+      setIsEditingAppointment(false);
+      alert('Appointment saved successfully!');
     } catch (error) {
-      console.error('Error saving appointments:', error);
-      alert('Error saving appointments. Please try again.');
+      console.error('Error saving appointment:', error);
+      alert('Error saving appointment. Please try again.');
     }
   };
 
@@ -188,20 +189,126 @@ const TSPApartmentPage = () => {
       const response = await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, formData);
       console.log('Updated TechnischePlanning:', response.data);
 
-      // Update the flat state with the latest data
       setFlat((prevFlat) => ({
         ...prevFlat,
         technischePlanning: response.data.technischePlanning,
       }));
 
-      // Close the editing section
       setIsEditingPlanning(false);
-
       alert('Planning details saved successfully!');
     } catch (error) {
       console.error('Error saving planning details:', error);
       alert('Error saving planning details');
     }
+  };
+
+  const renderAppointmentDetails = () => {
+    if (!isTechnischePlanning) return null;
+
+    return (
+      <div className="ts-appointmentDetails">
+        <div className="ts-planningHeader">
+          <h3>Current Appointment</h3>
+          <button
+            className="ts-editButton"
+            onClick={() => setIsEditingAppointment(!isEditingAppointment)}
+            aria-label={isEditingAppointment ? "Close editing" : "Edit appointment"}
+          >
+            {isEditingAppointment ? (
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {isEditingAppointment ? (
+          <form onSubmit={handleAppointmentSubmit} className="ts-form">
+            <div className="ts-formGroup">
+              <label>Appointment Date:</label>
+              <input
+                type="date"
+                name="date"
+                value={appointmentData.date}
+                onChange={handleAppointmentChange}
+                className="ts-input"
+                required
+              />
+            </div>
+            <div className="ts-formGroup">
+              <label>Start Time:</label>
+              <input
+                type="time"
+                name="startTime"
+                value={appointmentData.startTime}
+                onChange={handleAppointmentChange}
+                className="ts-input"
+                required
+              />
+            </div>
+            <div className="ts-formGroup">
+              <label>End Time:</label>
+              <input
+                type="time"
+                name="endTime"
+                value={appointmentData.endTime}
+                onChange={handleAppointmentChange}
+                className="ts-input"
+                required
+              />
+            </div>
+            <div className="ts-formGroup">
+              <label>Week Number:</label>
+              <input
+                type="number"
+                name="weekNumber"
+                value={appointmentData.weekNumber || ''}
+                readOnly
+                className="ts-input"
+              />
+            </div>
+            <button type="submit" className="ts-saveButton">
+              Save Appointment
+            </button>
+          </form>
+        ) : (
+          <div className="ts-appointmentInfo">
+            {flat.technischePlanning?.appointmentBooked?.date ? (
+              <>
+                <p><strong>Date:</strong> {new Date(flat.technischePlanning.appointmentBooked.date).toLocaleDateString()}</p>
+                <p><strong>Time:</strong> {flat.technischePlanning.appointmentBooked.startTime} - {flat.technischePlanning.appointmentBooked.endTime}</p>
+                <p><strong>Week:</strong> {flat.technischePlanning.appointmentBooked.weekNumber}</p>
+              </>
+            ) : (
+              <p>No appointment scheduled</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const renderPlanningDetails = () => {
@@ -217,7 +324,6 @@ const TSPApartmentPage = () => {
             aria-label={isEditingPlanning ? "Close editing" : "Edit planning details"}
           >
             {isEditingPlanning ? (
-              // X Icon
               <svg
                 viewBox="0 0 24 24"
                 width="24"
@@ -232,7 +338,6 @@ const TSPApartmentPage = () => {
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             ) : (
-              // Pencil Icon
               <svg
                 viewBox="0 0 24 24"
                 width="24"
@@ -367,15 +472,6 @@ const TSPApartmentPage = () => {
               <p><b>Type:</b> {flat.soortBouw}</p>
               <p><b>Complex Name:</b> {flat.complexNaam || 'N/A'}</p>
               <p><b>Search Key:</b> {flat.zoeksleutel || 'N/A'}</p>
-
-              {flat.technischePlanning?.appointmentBooked?.date && (
-                <div className="ts-appointmentInfo">
-                  <h4>Current Appointment</h4>
-                  <p><b>Date:</b> {new Date(flat.technischePlanning.appointmentBooked.date).toLocaleDateString()}</p>
-                  <p><b>Time:</b> {flat.technischePlanning.appointmentBooked.startTime} - {flat.technischePlanning.appointmentBooked.endTime}</p>
-                  <p><b>Week:</b> {flat.technischePlanning.appointmentBooked.weekNumber}</p>
-                </div>
-              )}
             </div>
 
             <div className="ts-statusSection">
@@ -405,60 +501,7 @@ const TSPApartmentPage = () => {
 
         <div className="ts-rightColumn">
           {renderPlanningDetails()}
-
-          {isTechnischePlanning && (
-            <>
-              <h3>Set Appointment Details</h3>
-              <form onSubmit={handleAppointmentSubmit} className="ts-form">
-                <div className="ts-formGroup">
-                  <label>Appointment Date:</label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={appointmentData.date}
-                    onChange={handleAppointmentChange}
-                    className="ts-input"
-                    required
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>Start Time:</label>
-                  <input
-                    type="time"
-                    name="startTime"
-                    value={appointmentData.startTime}
-                    onChange={handleAppointmentChange}
-                    className="ts-input"
-                    required
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>End Time:</label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    value={appointmentData.endTime}
-                    onChange={handleAppointmentChange}
-                    className="ts-input"
-                    required
-                  />
-                </div>
-                <div className="ts-formGroup">
-                  <label>Week Number:</label>
-                  <input
-                    type="number"
-                    name="weekNumber"
-                    value={appointmentData.weekNumber || ''}
-                    readOnly
-                    className="ts-input"
-                  />
-                </div>
-                <button type="submit" className="ts-saveButton">
-                  Save Appointment
-                </button>
-              </form>
-            </>
-          )}
+          {renderAppointmentDetails()}
         </div>
       </div>
     </div>

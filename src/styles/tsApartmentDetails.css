@@ -87,8 +87,8 @@
   margin-right: 0.5rem;
 }
 
-/* Planning details section */
-.ts-planningDetails {
+/* Planning details and Appointment details sections */
+.ts-planningDetails, .ts-appointmentDetails {
   margin-top: 1.5rem;
   padding: 1.5rem;
   background-color: #f0f9ff;
@@ -96,9 +96,24 @@
   border: 1px solid #bae6fd;
 }
 
-.ts-planningDetails h4 {
+.ts-planningDetails h4, .ts-appointmentDetails h4 {
   color: #0369a1;
   margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Planning and Appointment headers */
+.ts-planningHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ts-planningHeader h3 {
+  margin: 0;
+  color: #059669; /* Changed from blue to green */
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -222,25 +237,28 @@
 }
 
 /* Appointment info styles */
-.ts-appointmentInfo {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  background-color: #ecfdf5;
-  border-radius: 12px;
-  border: 1px solid #6ee7b7;
+.ts-appointmentDetails .ts-appointmentInfo {
+  margin-top: 0;
+  padding: 0;
+  background-color: transparent;
+  border: none;
 }
 
-.ts-appointmentInfo h4 {
-  margin: 0 0 1rem 0;
-  color: #047857;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.ts-appointmentInfo p {
+.ts-appointmentDetails .ts-appointmentInfo p {
   margin: 0.5rem 0;
-  color: #065f46;
-  font-size: 0.95rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #bae6fd;
+  color: #4b5563;
+}
+
+.ts-appointmentDetails .ts-appointmentInfo p:last-child {
+  border-bottom: none;
+}
+
+.ts-appointmentDetails .ts-appointmentInfo p strong {
+  color: #0369a1;
+  font-weight: 600;
+  margin-right: 0.5rem;
 }
 
 /* Timestamps section */
@@ -295,35 +313,22 @@
   margin: 0;
 }
 
-.ts-planningHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.ts-planningHeader h4 {
-  margin: 0;
-}
-
-/* Editable fields container */
-.ts-editableFields {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
 /* Planning info (non-editable state) */
 .ts-planningInfo p {
   margin: 0.5rem 0;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #bae6fd;
+  color: #4b5563;
 }
 
 .ts-planningInfo p:last-child {
   border-bottom: none;
+}
+
+.ts-planningInfo p strong {
+  color: #0369a1;
+  font-weight: 600;
+  margin-right: 0.5rem;
 }
 
 /* Responsive design */
@@ -374,6 +379,6 @@
 /* Apply animations */
 .ts-detailsGrid,
 .ts-planningDetails,
-.ts-appointmentInfo {
+.ts-appointmentDetails {
   animation: fadeIn 0.3s ease-out;
 }
