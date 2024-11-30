@@ -1,87 +1,196 @@
 .ts-apartmentDetailsContainer {
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ts-apartmentTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
+.greenCheckmark {
+  color: #28a745;
+  font-size: 24px;
+}
+
+.redCheckmark {
+  color: #dc3545;
+  font-size: 24px;
 }
 
 .ts-columns {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
 }
 
 .ts-leftColumn, .ts-rightColumn {
-  flex: 1;
-  padding: 10px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.ts-leftColumn {
-  margin-right: 20px;
-}
-
-.ts-apartmentDetails {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-.ts-form {
+.ts-detailsGrid {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.ts-detailItem p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.ts-statusSection {
+  border-top: 1px solid #dee2e6;
+  padding-top: 1rem;
+}
+
+.ts-statusSection h4 {
+  margin-bottom: 1rem;
+  color: #495057;
+}
+
+.ts-statusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.ts-statusItem {
+  padding: 0.75rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.ts-statusItem.completed {
+  background-color: #28a745;
+  color: white;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.ts-timestamps {
+  font-size: 0.9rem;
+  color: #6c757d;
+  border-top: 1px solid #dee2e6;
+  padding-top: 1rem;
+}
+
+.ts-timestamps p {
+  margin: 0.25rem 0;
 }
 
 .ts-formGroup {
   margin-bottom: 15px;
 }
 
-.ts-input, .ts-textarea {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.ts-formGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
 }
 
-.ts-textarea {
-  height: 80px;
+.ts-formGroup input[type="text"],
+.ts-formGroup input[type="number"],
+.ts-formGroup input[type="date"],
+.ts-formGroup input[type="time"],
+.ts-formGroup select,
+.ts-formGroup textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.ts-formGroup textarea {
+  min-height: 100px;
   resize: vertical;
 }
 
-.ts-saveButton, .ts-uploadButton {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.ts-formGroup input[type="checkbox"] {
+  margin-right: 8px;
 }
 
-.ts-saveButton:hover, .ts-uploadButton:hover {
+.ts-saveButton {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.ts-saveButton:hover {
   background-color: #0056b3;
 }
 
-.ts-downloadLink {
-  color: #007bff;
-  text-decoration: none;
-  display: block;
-  margin-top: 10px;
+.ts-saveButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-.ts-downloadLink:hover {
-  text-decoration: underline;
-}
-
-.ts-progress {
+.ts-input {
   width: 100%;
-  background-color: #f3f3f3;
-  border: 1px solid #ccc;
+  padding: 8px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  margin-top: 10px;
-  height: 20px;
+  margin-bottom: 10px;
 }
 
-.ts-progressBar {
-  height: 100%;
-  background-color: #007bff;
+.ts-form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+  .ts-columns {
+    grid-template-columns: 1fr;
+  }
+  
+  .ts-statusGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ts-formGroup input[type="text"],
+  .ts-formGroup input[type="number"],
+  .ts-formGroup input[type="date"],
+  .ts-formGroup input[type="time"],
+  .ts-formGroup select,
+  .ts-formGroup textarea {
+    font-size: 16px; /* Better for mobile touch */
+  }
+}
+
+.ts-appointmentInfo {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #e3f2fd;
   border-radius: 4px;
+  border-left: 4px solid #2196f3;
+}
+
+.ts-appointmentInfo h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1976d2;
+}
+
+.ts-appointmentInfo p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
 }
