@@ -75,6 +75,7 @@ const AdminApartmentPage = () => {
       try {
         const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
         const flatData = data;
+        console.log('Full flat data:', data);
 
         setApartment({
           _id: flatData._id,

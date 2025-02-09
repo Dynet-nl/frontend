@@ -36,6 +36,7 @@ const RoleBasedLink = ({ children, flatId, className }) => {
       case roles.Admin:
         return `/admin-apartment/${flatId}`;
       case roles.TechnischePlanning:
+      case roles.HASPlanning: // Allow hasplanning to access planning-apartment
         return `/planning-apartment/${flatId}`;
       default:
         return `/apartment/${flatId}`;
