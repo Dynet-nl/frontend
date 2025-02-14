@@ -4,15 +4,12 @@ import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/tsApartmentDetails.css';
 
-const ApartmentPage = () => {
+const TSPApartmentPage = () => {
   const params = useParams();
   const axiosPrivate = useAxiosPrivate();
   const { auth } = useAuth();
 
-  const hasHASPlanningRole = auth?.roles?.includes(1959);
-  const hasTechnischePlanningRole = auth?.roles?.includes(1991);
-  const canViewPlanning = hasHASPlanningRole || hasTechnischePlanningRole;
-
+  const isTechnischePlanning = auth?.roles?.includes(1991);
   const [isEditingPlanning, setIsEditingPlanning] = useState(false);
   const [isEditingAppointment, setIsEditingAppointment] = useState(false);
 
@@ -24,7 +21,7 @@ const ApartmentPage = () => {
     huisNummer: '',
     toevoeging: '',
     postcode: '',
-    fcStatusHas: '',
+    FCStatusHAS: '',
     complexNaam: '',
     hasTechnischeSchouwer: false,
     hasWerkvoorbereider: false,
@@ -32,13 +29,6 @@ const ApartmentPage = () => {
     hasHASMonteur: false,
     createdAt: null,
     updatedAt: null,
-    team: '',
-    ipVezelWaarde: 0,
-    odf: 0,
-    odfPositie: 0,
-    civielStatus: '',
-    laswerkAP: '',
-    laswerkDP: '',
     technischePlanning: null
   });
 
@@ -93,25 +83,18 @@ const ApartmentPage = () => {
           huisNummer: data.huisNummer,
           toevoeging: data.toevoeging,
           postcode: data.postcode,
-          fcStatusHas: data.fcStatusHas,
+          FCStatusHAS: data.FCStatusHAS,
           complexNaam: data.complexNaam,
           hasTechnischeSchouwer: data.technischeSchouwer?.inspection?.status === 'completed',
           hasWerkvoorbereider: !!(data.werkvoorbereider?.planning?.materials?.length ||
-              data.werkvoorbereider?.planning?.estimatedDuration),
+            data.werkvoorbereider?.planning?.estimatedDuration),
           hasHASMonteur: data.hasMonteur?.installation?.status === 'completed',
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
-          team: data.team,
-          IPVezelwaarde: parseFloat(data.ipVezelwaarde) || 0,
-          odf: parseFloat(data.odf) || 0,
-          odfPositie: parseFloat(data.odfPositie, 10) || 0,
-          civielStatus: data.civielStatus,
-          laswerkAP: data.laswerkAP,
-          laswerkDP: data.laswerkDP,
           technischePlanning: data.technischePlanning || null,
         });
 
-        if (canViewPlanning && data.technischePlanning) {
+        if (data.technischePlanning) {
           setFormData({
             vveWocoName: data.technischePlanning.vveWocoName || '',
             telephone: data.technischePlanning.telephone || '',
@@ -136,7 +119,7 @@ const ApartmentPage = () => {
     };
 
     fetchApartment();
-  }, [params.id, axiosPrivate, canViewPlanning]);
+  }, [params.id, axiosPrivate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -221,48 +204,46 @@ const ApartmentPage = () => {
     }
   };
   const renderAppointmentDetails = () => {
-    if (!canViewPlanning) return null;
+    if (!isTechnischePlanning) return null;
 
     return (
       <div className="ts-appointmentDetails">
         <div className="ts-planningHeader">
           <h3>Current Appointment</h3>
-          {hasTechnischePlanningRole && (
-            <button
-              className="ts-editButton"
-              onClick={() => setIsEditingAppointment(!isEditingAppointment)}
-              aria-label={isEditingAppointment ? "Close editing" : "Edit appointment"}
-            >
-              {isEditingAppointment ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              ) : (
-                <svg
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                </svg>
-              )}
-            </button>
-          )}
+          <button
+            className="ts-editButton"
+            onClick={() => setIsEditingAppointment(!isEditingAppointment)}
+            aria-label={isEditingAppointment ? "Close editing" : "Edit appointment"}
+          >
+            {isEditingAppointment ? (
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            )}
+          </button>
         </div>
 
         {isEditingAppointment ? (
@@ -332,48 +313,46 @@ const ApartmentPage = () => {
   };
 
   const renderPlanningDetails = () => {
-    if (!canViewPlanning) return null;
+    if (!isTechnischePlanning) return null;
 
     return (
       <div className="ts-planningDetails">
         <div className="ts-planningHeader">
           <h3>Planning Details</h3>
-          {hasTechnischePlanningRole && (
-            <button
-              className="ts-editButton"
-              onClick={() => setIsEditingPlanning(!isEditingPlanning)}
-              aria-label={isEditingPlanning ? "Close editing" : "Edit planning details"}
-            >
-              {isEditingPlanning ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              ) : (
-                <svg
-                  viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                </svg>
-              )}
-            </button>
-          )}
+          <button
+            className="ts-editButton"
+            onClick={() => setIsEditingPlanning(!isEditingPlanning)}
+            aria-label={isEditingPlanning ? "Close editing" : "Edit planning details"}
+          >
+            {isEditingPlanning ? (
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+              </svg>
+            )}
+          </button>
         </div>
 
         {isEditingPlanning ? (
@@ -479,7 +458,7 @@ const ApartmentPage = () => {
     <div className="ts-apartmentDetailsContainer">
       <h2 className="ts-apartmentTitle">
         {flat.adres} {flat.huisNummer}{flat.toevoeging}
-        <span className={flat.fcStatusHas === "2" ? "greenCheckmark" : "redCheckmark"}>
+        <span className={flat.FCStatusHAS === "2" ? "greenCheckmark" : "redCheckmark"}>
           &#10004;
         </span>
       </h2>
@@ -496,23 +475,6 @@ const ApartmentPage = () => {
               <p><b>Type:</b> {flat.soortBouw}</p>
               <p><b>Complex Name:</b> {flat.complexNaam || 'N/A'}</p>
               <p><b>Search Key:</b> {flat.zoeksleutel || 'N/A'}</p>
-              {hasHASPlanningRole && (
-                <>
-                  <p>
-                    <b>Status HAS:</b>
-                    <span className={flat.fcStatusHas === "2" ? "greenCheckmark" : "redCheckmark"}>
-                      &#10004;
-                    </span>
-                  </p>
-                  <p><b>Team:</b> {flat.team || 'N/A'}</p>
-                  <p><b>IP Vezelwaarde:</b> {flat.IPVezelwaarde || 'N/A'}</p>
-                  <p><b>Civiel Status:</b> {flat.civielStatus || 'N/A'}</p>
-                  <p><b>Laswerk AP:</b> {flat.laswerkAP || 'N/A'}</p>
-                  <p><b>Laswerk DP:</b> {flat.laswerkDP || 'N/A'}</p>
-                  <p><b>ODF:</b> {flat.odf || 'N/A'}</p>
-                  <p><b>ODF Positie:</b> {flat.odfPositie || 'N/A'}</p>
-                </>
-              )}
             </div>
 
             <div className="ts-statusSection">
@@ -549,4 +511,4 @@ const ApartmentPage = () => {
   );
 };
 
-export default ApartmentPage;
+export default TSPApartmentPage;
