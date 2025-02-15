@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Link, useParams} from 'react-router-dom';
 import AreaForm from '../components/AreaForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 
 const AreaPage = () => {
-    const { cityId } = useParams();
+    const {cityId} = useParams();
     const [areas, setAreas] = useState([]);
     const axiosPrivate = useAxiosPrivate();
 
@@ -57,24 +56,42 @@ const AreaPage = () => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div style={{padding: '20px'}}>
             <h1>Add New Area</h1>
-            <AreaForm cityId={cityId} onAddArea={handleAddArea} />
+            <AreaForm cityId={cityId} onAddArea={handleAddArea}/>
             <div>
-                <h2 style={{ marginBottom: '20px' }}>Existing Areas</h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                <h2 style={{marginBottom: '20px'}}>Existing Areas</h2>
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
                     {areas.map((area) => (
-                        <div key={area._id} style={{ position: 'relative', width: '200px', height: '200px', border: '1px solid #ccc', padding: '10px', borderRadius: '5px', overflow: 'hidden' }}>
+                        <div key={area._id} style={{
+                            position: 'relative',
+                            width: '200px',
+                            height: '200px',
+                            border: '1px solid #ccc',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            overflow: 'hidden'
+                        }}>
                             <button
                                 onClick={() => handleDeleteArea(area._id)}
-                                style={{ padding: '5px', position: 'absolute', top: '5px', right: '5px', cursor: 'pointer' }}
+                                style={{
+                                    padding: '5px',
+                                    position: 'absolute',
+                                    top: '5px',
+                                    right: '5px',
+                                    cursor: 'pointer'
+                                }}
                             >
                                 X
                             </button>
-                            <Link to={`/district/${area._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <div style={{ fontWeight: 'bold', textAlign: 'center', paddingTop: '90px' }}>{area.name}</div>
-                                <br />
-                                <div style={{ textAlign: 'center' }}>Districts: {area.numberOfDistricts}</div>
+                            <Link to={`/district/${area._id}`} style={{textDecoration: 'none', color: 'inherit'}}>
+                                <div style={{
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
+                                    paddingTop: '90px'
+                                }}>{area.name}</div>
+                                <br/>
+                                <div style={{textAlign: 'center'}}>Districts: {area.numberOfDistricts}</div>
                             </Link>
                         </div>
                     ))}

@@ -13,44 +13,44 @@ import LeftFlatApart from '../dynamicSchemas/LeftFlatApart'
 import RightFlatApart from '../dynamicSchemas/RightFlatApart'
 
 const blockTypeComponents = {
-  leftWing: LeftFlatsStairs,
-  noStairs: FlatsNoStairs,
-  rightWing: RightFlatsStairs,
-  leftWingApart: LeftFlatApart,
-  rightWingApart: RightFlatApart,
-  leftWingNoBG: LeftFlatsNoBGStairs,
-  rightWingNoBG: RightFlatsNoBGStairs,
-  doubleNoBGsWing: DoubleNoBGs,
-  doubleNoRightBGWing: DoubleNoRightBG,
-  doubleNoLeftBGWing: DoubleNoLeftBG,
-  leftWingFlat: LeftStraightFlats,
-  rightWingFlat: RightStraightFlats,
-  // Add more mappings here as needed
+    leftWing: LeftFlatsStairs,
+    noStairs: FlatsNoStairs,
+    rightWing: RightFlatsStairs,
+    leftWingApart: LeftFlatApart,
+    rightWingApart: RightFlatApart,
+    leftWingNoBG: LeftFlatsNoBGStairs,
+    rightWingNoBG: RightFlatsNoBGStairs,
+    doubleNoBGsWing: DoubleNoBGs,
+    doubleNoRightBGWing: DoubleNoRightBG,
+    doubleNoLeftBGWing: DoubleNoLeftBG,
+    leftWingFlat: LeftStraightFlats,
+    rightWingFlat: RightStraightFlats,
+    // Add more mappings here as needed
 };
 
 const ConditionalFullSchema = ({
-  form,
-  building,
-  parentIndex,
-  formFields,
-  handleFlatDetails,
-}) => {
-  const Component = blockTypeComponents[form.blockType];
+                                   form,
+                                   building,
+                                   parentIndex,
+                                   formFields,
+                                   handleFlatDetails,
+                               }) => {
+    const Component = blockTypeComponents[form.blockType];
 
-  if (Component) {
-    return (
-      <Component
-        form={form}
-        building={building}
-        parentIndex={parentIndex}
-        formFields={formFields}
-        handleFlatDetails={handleFlatDetails}
-      />
-    );
-  }
+    if (Component) {
+        return (
+            <Component
+                form={form}
+                building={building}
+                parentIndex={parentIndex}
+                formFields={formFields}
+                handleFlatDetails={handleFlatDetails}
+            />
+        );
+    }
 
-  // Optionally, return null or a default component if form.blockType doesn't match
-  return null;
+    // Optionally, return null or a default component if form.blockType doesn't match
+    return null;
 };
 
 export default ConditionalFullSchema;

@@ -1,223 +1,223 @@
 /* Building list uses flexbox to wrap and align items consistently */
 .buildingsList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px; /* Space between each building card */
-  margin-top: 20px; /* Adds spacing from the filter section */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between each building card */
+    margin-top: 20px; /* Adds spacing from the filter section */
 }
 
 /* Ensure each building card has a consistent height */
 .buildingContainer {
-  flex: 1 1 300px; /* Allows the cards to grow and shrink with a minimum width of 300px */
-  max-width: 350px; /* Maximum width for each building card */
-  min-width: 300px; /* Minimum width for each building card */
-  max-height: 350px; /* Fix the height to ensure consistency */
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    flex: 1 1 300px; /* Allows the cards to grow and shrink with a minimum width of 300px */
+    max-width: 350px; /* Maximum width for each building card */
+    min-width: 300px; /* Minimum width for each building card */
+    max-height: 350px; /* Fix the height to ensure consistency */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Allow scrolling within the flats section if the content exceeds available space */
 .flatsWrapper {
-  max-height: 150px; /* Limit the height of the flats section */
-  overflow-y: auto; /* Add scrolling for overflow */
-  padding-right: 5px; /* To ensure space for the scrollbar */
+    max-height: 150px; /* Limit the height of the flats section */
+    overflow-y: auto; /* Add scrolling for overflow */
+    padding-right: 5px; /* To ensure space for the scrollbar */
 }
 
 .flatsWrapper::-webkit-scrollbar {
-  width: 5px;
+    width: 5px;
 }
 
 .flatsWrapper::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 5px;
+    background-color: #ccc;
+    border-radius: 5px;
 }
 
 /* Hover effect for the building card */
 .buildingContainer:hover {
-  transform: translateY(-5px); /* Slight lift on hover */
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Elevates shadow on hover */
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Elevates shadow on hover */
 }
 
 /* Filter buttons section */
 .filterButtons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 /* Individual button styling for filters */
 .filterButtons button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .filterButtons button:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 /* Header section inside each building container */
 .buildingHeaderSection {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* Building header/title styling */
 .buildingHeader {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
 }
 
 /* Flat count styling */
 .flatCountBox {
-  background-color: #ff5722;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 15%;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
+    background-color: #ff5722;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15%;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
 }
 
 /* Styling for the type of building */
 .buildingType {
-  margin-bottom: 16px;
-  margin-top: 16px;
-  color: #666;
-  font-size: 17px;
-  display: flex;
-  justify-content: space-between;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    margin-bottom: 16px;
+    margin-top: 16px;
+    color: #666;
+    font-size: 17px;
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Styling for each flat */
 .flat {
-  width: 50px;
-  height: 50px;
-  border: 1px solid #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 5px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: background-color 0.3s;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 /* Hover effect for each flat */
 .flat:hover {
-  background-color: #e1e1e1; /* Slight hover effect for flats */
+    background-color: #e1e1e1; /* Slight hover effect for flats */
 }
 
 /* Styling for the flat link */
 .flatLink {
-  display: block;
-  margin-bottom: 30px;
-  margin-right: 20px;
-  padding: 10px;
-  background-color: #e7e7e7;
-  border-radius: 4px;
-  color: #000;
-  text-decoration: none;
-  text-align: center;
+    display: block;
+    margin-bottom: 30px;
+    margin-right: 20px;
+    padding: 10px;
+    background-color: #e7e7e7;
+    border-radius: 4px;
+    color: #000;
+    text-decoration: none;
+    text-align: center;
 }
 
 /* Hover effect for flat link */
 .flatLink:hover {
-  background-color: #d7d7d7;
+    background-color: #d7d7d7;
 }
 
 /* Container for the checkmark on each flat */
 .checkmarkContainer {
-  padding: 5px;
-  display: inline-block;
-  border-radius: 50%;
-  background-color: #fff;
+    padding: 5px;
+    display: inline-block;
+    border-radius: 50%;
+    background-color: #fff;
 }
 
 /* Styling for a green checkmark */
 .greenCheckmark {
-  color: green;
+    color: green;
 }
 
 /* Styling for a red checkmark */
 .redCheckmark {
-  color: red;
+    color: red;
 }
 
 /* Styling for the search input */
 .searchInput {
-  margin-top: 10px;
-  padding: 8px;
-  width: calc(100% - 20px);
-  font-size: 16px;
+    margin-top: 10px;
+    padding: 8px;
+    width: calc(100% - 20px);
+    font-size: 16px;
 }
 
 /* Styling for the completion percentage section */
 .completionPercentage {
-  margin: 20px;
-  font-size: 24px;
-  font-weight: bold;
-  text-align: start;
+    margin: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: start;
 }
 
 /* Pagination section styling */
 .pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 10px;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
 }
 
 .pagination button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .pagination button:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 .pagination .activePage {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 .flatWithAppointment {
-  background-color: #d4edda; /* Light green background */
-  border: 2px solid #28a745; /* Green border */
-  padding: 10px;
+    background-color: #d4edda; /* Light green background */
+    border: 2px solid #28a745; /* Green border */
+    padding: 10px;
 }
 
 .editIcon {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  margin-left: 10px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
 .resultsCount {
-  margin-top: 10px;
-  font-size: 16px;
-  color: #333;
+    margin-top: 10px;
+    font-size: 16px;
+    color: #333;
 }

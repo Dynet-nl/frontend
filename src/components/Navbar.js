@@ -1,37 +1,68 @@
 import React from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+
+const ROLES_LIST = {
+    Admin: 5150,
+    TechnischePlanning: 1991, // TP
+    TechnischeSchouwer: 8687, // TS
+    Werkvoorbereider: 1948, // Wrk
+    HASPlanning: 1959, // HASP
+    HASMonteur: 2023, // HASM
+};
 
 const Navbar = () => {
-  const { auth, setAuth } = useAuth()
-  const navigate = useNavigate()
+    const {auth, setAuth} = useAuth()
+    const navigate = useNavigate()
 
-  // Check if user has TechnischePlanning role (1991)
-  const hasTechnischePlanningRole = auth?.roles?.includes(1991)
+    // Role checks
+    const isAdmin = auth?.roles?.includes(5150)
+    const hasTechnischePlanningRole = auth?.roles?.includes(1991)
+    const hasHASPlanningRole = auth?.roles?.includes(1959)
+    const hasTechnischeSchouwerRole = auth?.roles?.includes(8687)
+    const hasHASMonteurRole = auth?.roles?.includes(2023)
 
-  const logout = async () => {
-    navigate('/login')
-    setAuth({})
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('roles')
-    // create endpoint to handle two things:
-    // deletes refreshToken from DB
-    // erases refreshToken from httpOnly cookie
-  }
+    // Check if user should see HAS Agenda
+    const canSeeHASAgenda = isAdmin || hasHASPlanningRole || hasTechnischeSchouwerRole || hasHASMonteurRole
+    // Check if user should see Planning Agenda
+    const canSeePlanningAgenda = isAdmin || hasTechnischePlanningRole
 
-  return (
-    <nav>
-      <Link style={{ fontSize: 20 }} to='/'>Home</Link>
-      <Link style={{ fontSize: 20 }} to='/city'>Cities</Link>
-      {hasTechnischePlanningRole && (
-        <Link style={{ fontSize: 20 }} to='/agenda'>Agenda</Link>
-      )}
-      <Link style={{ fontSize: 20 }} to='/admin'>Admin page</Link>
-      <Button onClick={logout}>Sign Out</Button>
-    </nav>
-  )
+    const getRoleName = (roleId) => {
+        const roleName = Object.entries(ROLES_LIST).find(([_, value]) => value === roleId)?.[0]
+        return roleName || 'User'
+    }
+
+    const currentRoles = auth?.roles?.map(roleId => getRoleName(roleId)).join(', ') || 'Guest'
+
+    const logout = async () => {
+        navigate('/login')
+        setAuth({})
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('roles')
+    }
+
+    return (
+        <nav>
+            <Link style={{fontSize: 20}} to='/'>Home</Link>
+            <Link style={{fontSize: 20}} to='/city'>Cities</Link>
+            {canSeePlanningAgenda && (
+                <Link style={{fontSize: 20}} to='/agenda'>Planning Agenda</Link>
+            )}
+            {canSeeHASAgenda && (
+                <Link style={{fontSize: 20}} to='/has-agenda'>HAS Agenda</Link>
+            )}
+            {isAdmin && (
+                <Link style={{fontSize: 20}} to='/admin'>Admin page</Link>
+            )}
+            <Typography variant="h6" component="div">
+                Role: {currentRoles}
+            </Typography>
+            <Button onClick={logout}>Sign Out</Button>
+        </nav>
+    )
 }
 
 export default Navbar

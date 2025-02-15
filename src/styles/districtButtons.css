@@ -2,9 +2,9 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-  }
-  
-  .draggableDistrict {
+}
+
+.draggableDistrict {
     display: flex;
     align-items: center;
     margin: 5px;
@@ -13,9 +13,9 @@
     border: 1px solid #ddd;
     border-radius: 5px;
     cursor: move;
-  }
-  
-  .districtContent {
+}
+
+.districtContent {
     display: flex;
     align-items: center;
-  }
+}

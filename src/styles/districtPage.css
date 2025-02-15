@@ -1,18 +1,18 @@
 .districtPageContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .districtPageContainer > div {
-  border: 1px solid black;
-  padding: 20px;
+    border: 1px solid black;
+    padding: 20px;
 }
 
 .draggableDistrict {
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }

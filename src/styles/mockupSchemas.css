@@ -5,114 +5,114 @@
 } */
 
 .schemasContainer {
-  border: 1px solid black;
-  height: fit-content;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
-  overflow-x: auto;
-  /* overflow-y: hidden; */
+    border: 1px solid black;
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    overflow-x: auto;
+    /* overflow-y: hidden; */
 }
 
 .wingContainer {
-  display: flex;
-  flex-direction: column;
-  width: 96px;
-  /* background-color: beige; */
+    display: flex;
+    flex-direction: column;
+    width: 96px;
+    /* background-color: beige; */
 }
 
 .noStairsContainer {
-  display: flex;
-  flex-direction: column;
-  width: 62px;
-  /* background-color: bisque; */
+    display: flex;
+    flex-direction: column;
+    width: 62px;
+    /* background-color: bisque; */
 }
 
 .doubleWingContainer {
-  display: flex;
-  flex-direction: column;
-  width: 158px;
-  /* background-color: blanchedalmond; */
+    display: flex;
+    flex-direction: column;
+    width: 158px;
+    /* background-color: blanchedalmond; */
 }
 
 .block {
-  display: flex;
-  flex-direction: column;
-  /* border: 1px solid rgb(79, 79, 79); */
-  width: 100%;
-  /* height: 100%; */
-  position: relative;
+    display: flex;
+    flex-direction: column;
+    /* border: 1px solid rgb(79, 79, 79); */
+    width: 100%;
+    /* height: 100%; */
+    position: relative;
 }
 
 .basement {
-  width: 100%;
-  height: 50px;
-  /* background-image: linear-gradient(to left, gray, green); */
-  background-size: cover;
-  background-image: url('../img/basement.png');
-  /* background-color: brown; */
-  /* border: 1px solid transparent; */
+    width: 100%;
+    height: 50px;
+    /* background-image: linear-gradient(to left, gray, green); */
+    background-size: cover;
+    background-image: url('../img/basement.png');
+    /* background-color: brown; */
+    /* border: 1px solid transparent; */
 }
 
 .mainPart {
-  display: flex;
-  width: 100%;
-  height: fit-content;
+    display: flex;
+    width: 100%;
+    height: fit-content;
 }
 
 .mainPartReversed {
-  flex-direction: row-reverse;
+    flex-direction: row-reverse;
 }
 
 .grow {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 .stairs {
-  width: 34px;
-  background-image: linear-gradient(yellow, red);
+    width: 34px;
+    background-image: linear-gradient(yellow, red);
 }
 
 .flatsContainer {
-  display: flex;
-  flex-direction: column-reverse;
-  width: 62px;
-  height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    width: 62px;
+    height: 100%;
 }
 
 .flat {
-  width: 100%;
-  height: 75px;
-  background-image: linear-gradient(rgb(251, 249, 246), rgb(185, 185, 185));
-  position: relative;
-  border: 1px whitesmoke solid;
+    width: 100%;
+    height: 75px;
+    background-image: linear-gradient(rgb(251, 249, 246), rgb(185, 185, 185));
+    position: relative;
+    border: 1px whitesmoke solid;
 }
 
 /* Lines for LeftWing start */
 .leftWingLineShort {
-  position: absolute;
-  bottom: 25px;
-  left: 50px;
-  height: 75px;
-  border: 1px solid black;
+    position: absolute;
+    bottom: 25px;
+    left: 50px;
+    height: 75px;
+    border: 1px solid black;
 }
 
 .leftWingLineRotated {
-  position: absolute;
-  bottom: 23px;
-  left: 57px;
-  height: 30px;
-  border: 1px solid black;
-  transform: rotate(28deg);
+    position: absolute;
+    bottom: 23px;
+    left: 57px;
+    height: 30px;
+    border: 1px solid black;
+    transform: rotate(28deg);
 }
 
 .leftFlatEntranceLine {
-  position: absolute;
-  width: 20px;
-  top: 8px;
-  left: 45px;
-  border: 1px solid black;
+    position: absolute;
+    width: 20px;
+    top: 8px;
+    left: 45px;
+    border: 1px solid black;
 }
 
 /* .leftFlatLineStairsBG {
@@ -124,46 +124,47 @@
 } */
 
 .leftFlatLineStairs {
-  position: absolute;
-  bottom: -1px;
-  right: -6px;
-  border: 1px solid black;
-  height: 75px;
+    position: absolute;
+    bottom: -1px;
+    right: -6px;
+    border: 1px solid black;
+    height: 75px;
 }
 
 .leftFlatLineStairsLast {
-  position: absolute;
-  bottom: -1px;
-  right: -6px;
-  border: 1px solid black;
-  height: 66px;
+    position: absolute;
+    bottom: -1px;
+    right: -6px;
+    border: 1px solid black;
+    height: 66px;
 }
+
 /* Lines for LeftWing end */
 
 /* Lines for RightWing start */
 .rightWingLineShort {
-  position: absolute;
-  bottom: 25px;
-  right: 50px;
-  height: 75px;
-  border: 1px solid black;
+    position: absolute;
+    bottom: 25px;
+    right: 50px;
+    height: 75px;
+    border: 1px solid black;
 }
 
 .rightWingLineRotated {
-  position: absolute;
-  bottom: 23px;
-  right: 57px;
-  height: 30px;
-  border: 1px solid black;
-  transform: rotate(-28deg);
+    position: absolute;
+    bottom: 23px;
+    right: 57px;
+    height: 30px;
+    border: 1px solid black;
+    transform: rotate(-28deg);
 }
 
 .rightFlatEntranceLine {
-  position: absolute;
-  width: 20px;
-  top: 8px;
-  right: 45px;
-  border: 1px solid black;
+    position: absolute;
+    width: 20px;
+    top: 8px;
+    right: 45px;
+    border: 1px solid black;
 }
 
 /* .rightFlatLineStairsBG {
@@ -175,30 +176,31 @@
 } */
 
 .rightFlatLineStairs {
-  position: absolute;
-  bottom: -1px;
-  left: -6px;
-  border: 1px solid black;
-  height: 75px;
+    position: absolute;
+    bottom: -1px;
+    left: -6px;
+    border: 1px solid black;
+    height: 75px;
 }
 
 .rightFlatLineStairsLast {
-  position: absolute;
-  bottom: -1px;
-  left: -6px;
-  border: 1px solid black;
-  height: 66px;
+    position: absolute;
+    bottom: -1px;
+    left: -6px;
+    border: 1px solid black;
+    height: 66px;
 }
+
 /* Lines for RightWing end */
 
 /* Lines LeftWingNoBG start */
 
 .leftFlatLineStairsStart {
-  position: absolute;
-  bottom: -25px;
-  right: -6px;
-  border: 1px solid black;
-  height: 100px;
+    position: absolute;
+    bottom: -25px;
+    right: -6px;
+    border: 1px solid black;
+    height: 100px;
 }
 
 /* Lines LeftWingNoBG end */
@@ -206,182 +208,190 @@
 /* Lines RightWingNoBG start */
 
 .rightFlatLineStairsStart {
-  position: absolute;
-  bottom: -25px;
-  left: -6px;
-  border: 1px solid black;
-  height: 100px;
+    position: absolute;
+    bottom: -25px;
+    left: -6px;
+    border: 1px solid black;
+    height: 100px;
 }
 
 /* Lines RightWingNoBG end */
 
 /* Lines LeftWingApart start */
 .leftFlatSeparateLine {
-  position: absolute;
-  height: 50px;
-  border: 1px solid black;
-  bottom: -25px;
-  left: 31px;
+    position: absolute;
+    height: 50px;
+    border: 1px solid black;
+    bottom: -25px;
+    left: 31px;
 }
+
 /* Lines LeftWingApart end */
 
 /* Lines RightWingApart start */
 .rightFlatSeparateLine {
-  position: absolute;
-  height: 50px;
-  border: 1px solid black;
-  bottom: -25px;
-  right: 31px;
+    position: absolute;
+    height: 50px;
+    border: 1px solid black;
+    bottom: -25px;
+    right: 31px;
 }
+
 /* Lines RightWingApart end */
 
 /* Lines NoStairs start */
 .noStairsLineAllFlats {
-  position: absolute;
-  bottom: -25px;
-  height: 75px;
-  border: 1px solid black;
-  left: 29px;
+    position: absolute;
+    bottom: -25px;
+    height: 75px;
+    border: 1px solid black;
+    left: 29px;
 }
 
 .noStairsLineHighestFlat {
-  position: absolute;
-  bottom: -25px;
-  height: 86px;
-  border: 1px solid black;
-  left: 29px;
+    position: absolute;
+    bottom: -25px;
+    height: 86px;
+    border: 1px solid black;
+    left: 29px;
 }
+
 /* Lines NoStairs end */
 
 /* Lines LeftWingFlat start */
 
 .leftStraightFlatBasementLine {
-  position: absolute;
-  bottom: -25px;
-  height: 25px;
-  border: 1px solid black;
-  right: 5px;
+    position: absolute;
+    bottom: -25px;
+    height: 25px;
+    border: 1px solid black;
+    right: 5px;
 }
 
 .leftStraightFlatVerticalLine {
-  position: absolute;
-  bottom: -1px;
-  height: 75px;
-  border: 1px solid black;
-  right: 5px;
+    position: absolute;
+    bottom: -1px;
+    height: 75px;
+    border: 1px solid black;
+    right: 5px;
 }
 
 .leftStraightFlatVerticalLineLast {
-  position: absolute;
-  bottom: -1px;
-  height: 66px;
-  border: 1px solid black;
-  right: 5px;
+    position: absolute;
+    bottom: -1px;
+    height: 66px;
+    border: 1px solid black;
+    right: 5px;
 }
+
 /* Lines LeftWingFlat end */
 
 /* Lines RightWingFlat start */
 
 .rightStraightFlatBasementLine {
-  position: absolute;
-  bottom: -25px;
-  height: 25px;
-  border: 1px solid black;
-  left: 5px;
+    position: absolute;
+    bottom: -25px;
+    height: 25px;
+    border: 1px solid black;
+    left: 5px;
 }
 
 .rightStraightFlatVerticalLine {
-  position: absolute;
-  bottom: -1px;
-  height: 75px;
-  border: 1px solid black;
-  left: 5px;
+    position: absolute;
+    bottom: -1px;
+    height: 75px;
+    border: 1px solid black;
+    left: 5px;
 }
 
 .rightStraightFlatVerticalLineLast {
-  position: absolute;
-  bottom: -1px;
-  height: 66px;
-  border: 1px solid black;
-  left: 5px;
+    position: absolute;
+    bottom: -1px;
+    height: 66px;
+    border: 1px solid black;
+    left: 5px;
 }
+
 /* Lines RightWingFlat end */
 
 /* Lines DoubleNoBGsWing start */
 .emptyFlat {
-  width: 100%;
-  height: 75px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)),
+    width: 100%;
+    height: 75px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)),
     radial-gradient(
-      ellipse at -40% -50%,
-      rgba(0, 0, 0, 0.4) 50%,
-      rgba(0, 0, 0, 0.7) 50%
+            ellipse at -40% -50%,
+            rgba(0, 0, 0, 0.4) 50%,
+            rgba(0, 0, 0, 0.7) 50%
     );
 
-  /* background-size: cover;
-  background-position: center;
-  background-image: url('../img/emptyFlat.png'); */
-  position: relative;
-  border: 1px solid transparent;
+    /* background-size: cover;
+    background-position: center;
+    background-image: url('../img/emptyFlat.png'); */
+    position: relative;
+    border: 1px solid transparent;
 }
 
 .doubleSideBGLine {
-  position: absolute;
-  bottom: -25px;
-  height: 75px;
-  border: 1px solid black;
-  right: -19.5px;
+    position: absolute;
+    bottom: -25px;
+    height: 75px;
+    border: 1px solid black;
+    right: -19.5px;
 }
 
 .doubleSideAllLine {
-  position: absolute;
-  bottom: 0;
-  height: 75px;
-  border: 1px solid black;
-  right: -19.5px;
+    position: absolute;
+    bottom: 0;
+    height: 75px;
+    border: 1px solid black;
+    right: -19.5px;
 }
 
 .doubleSideTopLine {
-  position: absolute;
-  bottom: 0;
-  height: 42px;
-  border: 1px solid black;
-  right: -19.5px;
+    position: absolute;
+    bottom: 0;
+    height: 42px;
+    border: 1px solid black;
+    right: -19.5px;
 }
 
 .doubleSideEntranceLineLeft {
-  position: absolute;
-  width: 32px;
-  top: 8px;
-  right: -18px;
-  border: 1px solid black;
+    position: absolute;
+    width: 32px;
+    top: 8px;
+    right: -18px;
+    border: 1px solid black;
 }
 
 .doubleSideEntranceLineRight {
-  position: absolute;
-  width: 32px;
-  top: 8px;
-  left: -17px;
-  border: 1px solid black;
+    position: absolute;
+    width: 32px;
+    top: 8px;
+    left: -17px;
+    border: 1px solid black;
 }
+
 /* Lines DoubleNoBGsWing end */
 
 /* Lines DoubleNoRightBGWing start */
 .doubleSideNoBGLeftEntrance {
-  position: absolute;
-  height: 75px;
-  bottom: -25px;
-  left: 30px;
-  border: 1px solid black;
+    position: absolute;
+    height: 75px;
+    bottom: -25px;
+    left: 30px;
+    border: 1px solid black;
 }
+
 /* Lines DoubleNoRightBGWing end */
 
 /* Lines DoubleNoLeftBGWing start */
 .doubleSideNoBGRightEntrance {
-  position: absolute;
-  height: 75px;
-  bottom: -25px;
-  left: 30px;
-  border: 1px solid black;
+    position: absolute;
+    height: 75px;
+    bottom: -25px;
+    left: 30px;
+    border: 1px solid black;
 }
+
 /* Lines DoubleNoLeftBGWing end */
