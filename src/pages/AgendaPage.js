@@ -25,19 +25,45 @@ const localizer = dateFnsLocalizer({
 const AgendaPage = () => {
     const axiosPrivate = useAxiosPrivate();
     const [events, setEvents] = useState([]); // Events state
+    const [originalEvents, setOriginalEvents] = useState([]); // Original events for filtering
     const [loading, setLoading] = useState(false); // Events loading state
     const [currentRange, setCurrentRange] = useState({start: null, end: null}); // Current calendar view range
+    const [technischeSchouwers, setTechnischeSchouwers] = useState([]); // List of Technische Schouwers
+    const [selectedSchouwer, setSelectedSchouwer] = useState(''); // Selected Schouwer for filtering
+
+    // Fetch Technische Schouwers with specific role code
+    const fetchTechnischeSchouwers = async () => {
+        try {
+            const response = await axiosPrivate.get('/api/users');
+            const users = response.data;
+
+            // Filter users with TechnischeSchouwer role (8687)
+            const schouwers = users.filter(user => {
+                return user.roles &&
+                    typeof user.roles === 'object' &&
+                    user.roles.TechnischeSchouwer === 8687;
+            });
+
+            console.log('Found Technische Schouwers:', schouwers);
+            setTechnischeSchouwers(schouwers);
+        } catch (error) {
+            console.error('Error fetching technische schouwers:', error);
+        }
+    };
 
     // Set initial range to the current month when component mounts
     useEffect(() => {
         const initialStart = startOfMonth(new Date());
         const initialEnd = endOfMonth(new Date());
         setCurrentRange({start: initialStart, end: initialEnd});
+
+        // Fetch Technische Schouwers
+        fetchTechnischeSchouwers();
     }, []);
 
     useEffect(() => {
         if (currentRange.start && currentRange.end) {
-            fetchAppointments(currentRange.start, currentRange.end);
+            fetchAppointments();
         }
     }, [currentRange]);
 
@@ -84,6 +110,7 @@ const AgendaPage = () => {
                         title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
+                        personName: flat.technischeSchouwer.name, // Add person name for filtering
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
                             phone: flat.technischePlanning.telephone || 'Not provided',
@@ -94,12 +121,28 @@ const AgendaPage = () => {
                     };
                 });
 
+            setOriginalEvents(calendarEvents);
             setEvents(calendarEvents);
-            console.log('Calendar events created:', calendarEvents);
         } catch (error) {
             console.error('Error fetching appointments:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSchouwerFilter = (e) => {
+        const selectedName = e.target.value;
+        setSelectedSchouwer(selectedName);
+
+        if (!selectedName) {
+            // If no user is selected, show all events
+            setEvents(originalEvents);
+        } else {
+            // Filter events by selected Technische Schouwer
+            const filteredEvents = originalEvents.filter(event =>
+                event.personName === selectedName
+            );
+            setEvents(filteredEvents);
         }
     };
 
@@ -136,9 +179,62 @@ const AgendaPage = () => {
     };
 
     return (
-        <div style={{height: '90vh', padding: '20px', position: 'relative'}}>
-            <h1>Appointments Calendar</h1>
-            <div style={{height: 'calc(100% - 60px)'}}>
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            padding: '20px'
+        }}>
+            {/* Filter Section - Explicitly at the top */}
+            <div style={{
+                width: '100%',
+                marginBottom: '20px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#f0f0f0',
+                padding: '15px',
+                borderRadius: '8px'
+            }}>
+                {technischeSchouwers.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
+                        <label htmlFor="schouwerFilter" style={{
+                            marginRight: '10px',
+                            fontWeight: 'bold'
+                        }}>
+                            Select Technische Schouwer:
+                        </label>
+                        <select
+                            id="schouwerFilter"
+                            value={selectedSchouwer}
+                            onChange={handleSchouwerFilter}
+                            style={{
+                                padding: '8px',
+                                borderRadius: '4px',
+                                border: '1px solid #ccc',
+                                minWidth: '250px'
+                            }}
+                        >
+                            <option value="">All Technische Schouwers</option>
+                            {technischeSchouwers.map(schouwer => (
+                                <option key={schouwer._id} value={schouwer.name}>
+                                    {schouwer.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+            </div>
+
+            {/* Calendar Section - Takes remaining space */}
+            <div style={{
+                flex: 1,
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
                 <Calendar
                     localizer={localizer}
                     events={events}
@@ -151,7 +247,7 @@ const AgendaPage = () => {
                     step={30}
                     timeslots={2}
                     onRangeChange={handleRangeChange} // Fetch appointments based on the visible range
-                    tooltipAccessor={event => `${event.title}\nPhone: ${event.resource.phone}`}
+                    tooltipAccessor={event => `${event.title}\nPhone: ${event.resource.phone}\nSchouwer: ${event.personName}`}
                     messages={{
                         next: "Volgende",
                         previous: "Vorige",

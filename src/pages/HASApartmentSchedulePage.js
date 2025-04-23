@@ -1,9 +1,10 @@
+// HASApartmentSchedulePage.jsx
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import '../styles/tsApartmentDetails.css';
+import '../styles/tsApartmentDetails.css'; // Reuse the same styles
 
-const TSApartmentSchedulePage = () => {
+const HASApartmentSchedulePage = () => {
     const {id} = useParams();
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
@@ -11,14 +12,19 @@ const TSApartmentSchedulePage = () => {
     const [building, setBuilding] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedApartments, setSelectedApartments] = useState([]);
-    const [technischeSchouwers, setTechnischeSchouwers] = useState([]);
+    const [hasMonteurs, setHASMonteurs] = useState([]);
+
+    // Moved appointmentData definition to avoid lexical declaration error
     const [appointmentData, setAppointmentData] = useState({
         date: '',
         startTime: '',
         endTime: '',
         weekNumber: null,
-        technischeSchouwerName: '' // Added field for the selected TechnischeSchouwer
+        type: 'HAS', // Default appointment type for HASMonteur
+        hasMonteurName: '', // Added field for the selected HASMonteur
+        complaintDetails: '' // Added field for complaint details
     });
+
     const [flatAppointments, setFlatAppointments] = useState({});
 
     const calculateWeekNumber = (date) => {
@@ -35,56 +41,64 @@ const TSApartmentSchedulePage = () => {
         return date.toISOString().split('T')[0];
     };
 
-    // Fetch users with TechnischeSchouwer role (8687)
-    const fetchTechnischeSchouwers = async () => {
+    // Fetch users with HASMonteur role (2023)
+    const fetchHASMonteurs = async () => {
         try {
-            // Using the same approach as your AdminPage
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            // Filter users with TechnischeSchouwer role (8687)
-            const schouwers = users.filter(user => {
-                // Check if user has roles and specifically has the TechnischeSchouwer role
+            // Filter users with HASMonteur role (2023)
+            const monteurs = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
-                    user.roles.TechnischeSchouwer === 8687;
+                    user.roles.HASMonteur === 2023;
             });
 
-            console.log('Found Technische Schouwers:', schouwers);
-            setTechnischeSchouwers(schouwers);
+            console.log('Found HAS Monteurs:', monteurs);
+            setHASMonteurs(monteurs);
         } catch (error) {
-            console.error('Error fetching technische schouwers:', error);
+            console.error('Error fetching HAS Monteurs:', error);
         }
     };
 
     const fetchBuilding = async () => {
         try {
-            const {data} = await axiosPrivate.get(`/api/building/${id}`);
+            const { data } = await axiosPrivate.get(`/api/building/${id}`);
+            console.log('Building data:', data);
             setBuilding(data);
 
-            // Initialize appointments from TechnischePlanning data
+            // Initialize appointments from hasMonteur data
             const initialFlatAppointments = {};
             data.flats.forEach((flat) => {
-                // Make sure to check the populated technischePlanning data
-                if (flat.technischePlanning?.appointmentBooked?.date) {
+                console.log(`Processing flat ${flat._id}:`, flat.hasMonteur);
+                if (flat.hasMonteur?.appointmentBooked?.date) {
                     initialFlatAppointments[flat._id] = {
-                        date: formatDate(flat.technischePlanning.appointmentBooked.date),
-                        startTime: flat.technischePlanning.appointmentBooked.startTime,
-                        endTime: flat.technischePlanning.appointmentBooked.endTime,
-                        weekNumber: flat.technischePlanning.appointmentBooked.weekNumber,
-                        technischeSchouwerName: flat.technischePlanning.technischeSchouwerName || ''
+                        date: formatDate(flat.hasMonteur.appointmentBooked.date),
+                        startTime: flat.hasMonteur.appointmentBooked.startTime,
+                        endTime: flat.hasMonteur.appointmentBooked.endTime,
+                        weekNumber: flat.hasMonteur.appointmentBooked.weekNumber,
+                        type: flat.hasMonteur.appointmentBooked.type || 'HAS',
+                        hasMonteurName: flat.hasMonteur.hasMonteurName || '',
+                        complaintDetails: flat.hasMonteur.appointmentBooked.complaintDetails || ''
                     };
                 }
             });
 
+            console.log('Initial flat appointments:', initialFlatAppointments);
             setFlatAppointments(initialFlatAppointments);
 
             // Select apartments that have appointments
             const apartmentsWithAppointments = data.flats
-                .filter(flat => flat.technischePlanning?.appointmentBooked?.date)
+                .filter(flat => flat.hasMonteur?.appointmentBooked?.date)
                 .map(flat => flat._id);
 
-            setSelectedApartments(apartmentsWithAppointments);
+            setSelectedApartments(prevSelected => {
+                // Keep existing selections if they're new, otherwise use what's from the server
+                const combined = [...new Set([...prevSelected, ...apartmentsWithAppointments])];
+                console.log('Selected apartments:', combined);
+                return combined;
+            });
+
             setLoading(false);
         } catch (error) {
             console.error('Error fetching building data', error);
@@ -94,7 +108,7 @@ const TSApartmentSchedulePage = () => {
 
     useEffect(() => {
         fetchBuilding();
-        fetchTechnischeSchouwers(); // Fetch users with TechnischeSchouwer role
+        fetchHASMonteurs();
     }, [id, axiosPrivate]);
 
     const handleApartmentSelection = (flatId) => {
@@ -120,22 +134,54 @@ const TSApartmentSchedulePage = () => {
         setLoading(true);
 
         try {
-            await Promise.all(
+            // Create an array to store all appointment results
+            const appointmentResults = await Promise.all(
                 selectedApartments.map(async (flatId) => {
-                    // This will handle both creation and updates
-                    await axiosPrivate.put(`/api/apartment/${flatId}/technische-planning`, {
+                    // Create a copy of appointmentData to avoid mutating the state directly
+                    const appointmentPayload = {
                         appointmentBooked: {
                             date: appointmentData.date,
                             startTime: appointmentData.startTime,
                             endTime: appointmentData.endTime,
-                            weekNumber: appointmentData.weekNumber
+                            weekNumber: appointmentData.weekNumber,
+                            type: appointmentData.type
                         },
-                        technischeSchouwerName: appointmentData.technischeSchouwerName // Include this field in the request
-                    });
+                        hasMonteurName: appointmentData.hasMonteurName
+                    };
+
+                    // Only add complaintDetails if the type is Complaint
+                    if (appointmentData.type === 'Complaint' && appointmentData.complaintDetails) {
+                        appointmentPayload.appointmentBooked.complaintDetails = appointmentData.complaintDetails;
+                    }
+
+                    const response = await axiosPrivate.put(`/api/apartment/${flatId}/has-monteur`, appointmentPayload);
+                    return { flatId, data: response.data };
                 })
             );
 
-            await fetchBuilding();
+            // Update the local flatAppointments state immediately without waiting for a new fetch
+            const updatedFlatAppointments = { ...flatAppointments };
+
+            appointmentResults.forEach(({ flatId, data }) => {
+                if (data.hasMonteur?.appointmentBooked) {
+                    updatedFlatAppointments[flatId] = {
+                        date: formatDate(data.hasMonteur.appointmentBooked.date),
+                        startTime: data.hasMonteur.appointmentBooked.startTime,
+                        endTime: data.hasMonteur.appointmentBooked.endTime,
+                        weekNumber: data.hasMonteur.appointmentBooked.weekNumber,
+                        type: data.hasMonteur.appointmentBooked.type || 'HAS',
+                        hasMonteurName: data.hasMonteur.hasMonteurName || appointmentData.hasMonteurName,
+                        complaintDetails: data.hasMonteur.appointmentBooked.complaintDetails || ''
+                    };
+                }
+            });
+
+            setFlatAppointments(updatedFlatAppointments);
+
+            // Still fetch the full building data to ensure everything is synchronized
+            const buildingResponse = await axiosPrivate.get(`/api/building/${id}`);
+            setBuilding(buildingResponse.data);
+
             alert('Appointments saved successfully!');
         } catch (error) {
             console.error('Error saving appointments:', error);
@@ -149,7 +195,7 @@ const TSApartmentSchedulePage = () => {
 
     return (
         <div className="ts-apartmentDetailsContainer">
-            <h2>Apartment Schedule for {building.address}</h2>
+            <h2>HAS Appointment Schedule for {building.address}</h2>
             <div className="ts-columns">
                 <div className="ts-leftColumn">
                     <h3>Select Apartments for Appointment</h3>
@@ -168,6 +214,9 @@ const TSApartmentSchedulePage = () => {
                                     <div className="ts-formGroup">
                                         <label>Current Appointment:</label>
                                         <div>
+                                            Type: {flatAppointments[flat._id].type}
+                                        </div>
+                                        <div>
                                             Date: {new Date(flatAppointments[flat._id].date).toLocaleDateString()}
                                         </div>
                                         <div>
@@ -176,9 +225,14 @@ const TSApartmentSchedulePage = () => {
                                         <div>
                                             Week: {flatAppointments[flat._id].weekNumber}
                                         </div>
-                                        {flatAppointments[flat._id].technischeSchouwerName && (
+                                        {flatAppointments[flat._id].hasMonteurName && (
                                             <div>
-                                                Technische Schouwer: {flatAppointments[flat._id].technischeSchouwerName}
+                                                HAS Monteur: {flatAppointments[flat._id].hasMonteurName}
+                                            </div>
+                                        )}
+                                        {flatAppointments[flat._id].type === 'Complaint' && flatAppointments[flat._id].complaintDetails && (
+                                            <div>
+                                                Complaint Details: {flatAppointments[flat._id].complaintDetails}
                                             </div>
                                         )}
                                     </div>
@@ -190,6 +244,55 @@ const TSApartmentSchedulePage = () => {
                 <div className="ts-rightColumn">
                     <h3>Set Appointment Details</h3>
                     <form onSubmit={handleAppointmentSubmit} className="ts-form">
+                        <div className="ts-formGroup">
+                            <label>Appointment Type:</label>
+                            <div className="ts-radioGroup">
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="type"
+                                        value="HAS"
+                                        checked={appointmentData.type === 'HAS'}
+                                        onChange={handleAppointmentChange}
+                                    />
+                                    HAS
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="type"
+                                        value="Storing"
+                                        checked={appointmentData.type === 'Storing'}
+                                        onChange={handleAppointmentChange}
+                                    />
+                                    Storing
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="type"
+                                        value="Complaint"
+                                        checked={appointmentData.type === 'Complaint'}
+                                        onChange={handleAppointmentChange}
+                                    />
+                                    Complaint
+                                </label>
+                            </div>
+                        </div>
+                        {appointmentData.type === 'Complaint' && (
+                            <div className="ts-formGroup">
+                                <label>Complaint Details:</label>
+                                <textarea
+                                    name="complaintDetails"
+                                    value={appointmentData.complaintDetails}
+                                    onChange={handleAppointmentChange}
+                                    className="ts-input"
+                                    rows="4"
+                                    placeholder="Enter complaint details"
+                                    required={appointmentData.type === 'Complaint'}
+                                ></textarea>
+                            </div>
+                        )}
                         <div className="ts-formGroup">
                             <label>Appointment Date:</label>
                             <input
@@ -234,17 +337,17 @@ const TSApartmentSchedulePage = () => {
                             />
                         </div>
                         <div className="ts-formGroup">
-                            <label>Technische Schouwer:</label>
+                            <label>HAS Monteur:</label>
                             <select
-                                name="technischeSchouwerName"
-                                value={appointmentData.technischeSchouwerName}
+                                name="hasMonteurName"
+                                value={appointmentData.hasMonteurName}
                                 onChange={handleAppointmentChange}
                                 className="ts-input"
                             >
-                                <option value="">Select a Technische Schouwer</option>
-                                {technischeSchouwers.map(schouwer => (
-                                    <option key={schouwer._id} value={schouwer.name}>
-                                        {schouwer.name}
+                                <option value="">Select a HAS Monteur</option>
+                                {hasMonteurs.map(monteur => (
+                                    <option key={monteur._id} value={monteur.name}>
+                                        {monteur.name}
                                     </option>
                                 ))}
                             </select>
@@ -263,4 +366,4 @@ const TSApartmentSchedulePage = () => {
     );
 };
 
-export default TSApartmentSchedulePage;
+export default HASApartmentSchedulePage;

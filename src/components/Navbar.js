@@ -4,15 +4,7 @@ import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-
-const ROLES_LIST = {
-    Admin: 5150,
-    TechnischePlanning: 1991, // TP
-    TechnischeSchouwer: 8687, // TS
-    Werkvoorbereider: 1948, // Wrk
-    HASPlanning: 1959, // HASP
-    HASMonteur: 2023, // HASM
-};
+import ROLES_LIST from "../context/roles_list";
 
 const Navbar = () => {
     const {auth, setAuth} = useAuth()
