@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css';
 
 const TSApartmentSchedulePage = () => {
-    const {id} = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
 
@@ -17,7 +17,7 @@ const TSApartmentSchedulePage = () => {
         startTime: '',
         endTime: '',
         weekNumber: null,
-        technischeSchouwerName: '' // Added field for the selected TechnischeSchouwer
+        technischeSchouwerName: ''
     });
     const [flatAppointments, setFlatAppointments] = useState({});
 
@@ -59,7 +59,7 @@ const TSApartmentSchedulePage = () => {
 
     const fetchBuilding = async () => {
         try {
-            const {data} = await axiosPrivate.get(`/api/building/${id}`);
+            const { data } = await axiosPrivate.get(`/api/building/${id}`);
             setBuilding(data);
 
             // Initialize appointments from TechnischePlanning data
@@ -106,12 +106,12 @@ const TSApartmentSchedulePage = () => {
     };
 
     const handleAppointmentChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setAppointmentData((prevData) => ({
             ...prevData,
             [name]: value,
             // Update week number when date changes
-            ...(name === 'date' ? {weekNumber: calculateWeekNumber(value)} : {})
+            ...(name === 'date' ? { weekNumber: calculateWeekNumber(value) } : {})
         }));
     };
 
