@@ -1,17 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
-import format from 'date-fns/format';
-import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
-import startOfMonth from 'date-fns/startOfMonth';
-import endOfMonth from 'date-fns/endOfMonth';
+import {format, parse, startOfWeek, getDay} from 'date-fns';
+import {nl} from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
 
 const locales = {
-    'nl': require('date-fns/locale/nl')
+    'nl': nl
 };
 
 const localizer = dateFnsLocalizer({
@@ -30,9 +26,10 @@ const AgendaPage = () => {
     const [currentRange, setCurrentRange] = useState({start: null, end: null}); // Current calendar view range
     const [technischeSchouwers, setTechnischeSchouwers] = useState([]); // List of Technische Schouwers
     const [selectedSchouwer, setSelectedSchouwer] = useState(''); // Selected Schouwer for filtering
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); // Track current month being displayed
 
     // Fetch Technische Schouwers with specific role code
-    const fetchTechnischeSchouwers = async () => {
+    const fetchTechnischeSchouwers = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
@@ -49,25 +46,9 @@ const AgendaPage = () => {
         } catch (error) {
             console.error('Error fetching technische schouwers:', error);
         }
-    };
+    }, [axiosPrivate]);
 
-    // Set initial range to the current month when component mounts
-    useEffect(() => {
-        const initialStart = startOfMonth(new Date());
-        const initialEnd = endOfMonth(new Date());
-        setCurrentRange({start: initialStart, end: initialEnd});
-
-        // Fetch Technische Schouwers
-        fetchTechnischeSchouwers();
-    }, []);
-
-    useEffect(() => {
-        if (currentRange.start && currentRange.end) {
-            fetchAppointments();
-        }
-    }, [currentRange]);
-
-    const fetchAppointments = async () => {
+    const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
             console.log('Fetching all appointments without date filtering.');
@@ -75,7 +56,7 @@ const AgendaPage = () => {
             // Request to fetch all flats that have appointments
             const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                 params: {
-                    limit: 100,  // Limit the number of fetched flats to reduce load
+                    limit: 500,  // Increased limit to get more historical data
                 }
             });
 
@@ -110,7 +91,7 @@ const AgendaPage = () => {
                         title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
-                        personName: flat.technischeSchouwer.name, // Add person name for filtering
+                        personName: flat.technischePlanning.technischeSchouwerName, // Add person name for filtering
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
                             phone: flat.technischePlanning.telephone || 'Not provided',
@@ -128,7 +109,26 @@ const AgendaPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [axiosPrivate]);
+
+    // Set initial range to the current month when component mounts
+    useEffect(() => {
+        // Don't set initial range restriction - let calendar show any month
+        setCurrentRange({start: null, end: null});
+
+        // Fetch Technische Schouwers
+        fetchTechnischeSchouwers();
+        
+        // Fetch all appointments immediately without date restrictions
+        fetchAppointments();
+    }, [fetchTechnischeSchouwers, fetchAppointments]);
+
+    // Remove the useEffect that was tied to currentRange to avoid refetching on navigation
+    // useEffect(() => {
+    //     if (currentRange.start && currentRange.end) {
+    //         fetchAppointments();
+    //     }
+    // }, [currentRange]);
 
     const handleSchouwerFilter = (e) => {
         const selectedName = e.target.value;
@@ -147,8 +147,12 @@ const AgendaPage = () => {
     };
 
     const handleRangeChange = (range) => {
+        // Just track the range for potential future use, but don't refetch data
+        // All appointments are loaded once and the calendar handles the display
         if (range.start && range.end) {
             setCurrentRange(range);
+            setCurrentDisplayMonth(range.start); // Update the display month
+            console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
 
@@ -229,6 +233,25 @@ const AgendaPage = () => {
                 )}
             </div>
 
+            {/* Navigation Instructions */}
+            <div style={{
+                backgroundColor: '#e8f4fd',
+                padding: '10px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                textAlign: 'center',
+                fontSize: '14px',
+                color: '#1e3a5f',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <span>💡 <strong>Navigation:</strong> Use "Vorige" and "Volgende" buttons to view appointments from different months</span>
+                <span style={{ fontWeight: 'bold' }}>
+                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: locales.nl })}
+                </span>
+            </div>
+
             {/* Calendar Section - Takes remaining space */}
             <div style={{
                 flex: 1,
@@ -246,7 +269,10 @@ const AgendaPage = () => {
                     defaultView='month' // Set to 'month' to load all appointments for the month initially
                     step={30}
                     timeslots={2}
-                    onRangeChange={handleRangeChange} // Fetch appointments based on the visible range
+                    onRangeChange={handleRangeChange} // Track range changes but don't refetch
+                    showMultiDayTimes={true}
+                    popup={true}
+                    popupOffset={30}
                     tooltipAccessor={event => `${event.title}\nPhone: ${event.resource.phone}\nSchouwer: ${event.personName}`}
                     messages={{
                         next: "Volgende",
@@ -256,6 +282,15 @@ const AgendaPage = () => {
                         week: "Week",
                         day: "Dag",
                         agenda: "Agenda",
+                        noEventsInRange: "Geen afspraken in deze periode",
+                        showMore: total => `+ ${total} meer`,
+                    }}
+                    formats={{
+                        monthHeaderFormat: 'MMMM yyyy',
+                        dayHeaderFormat: 'dddd, MMMM do',
+                        dayRangeHeaderFormat: ({start, end}, culture, localizer) =>
+                            localizer.format(start, 'MMMM dd', culture) + ' - ' + 
+                            localizer.format(end, 'MMMM dd, yyyy', culture)
                     }}
                 />
                 {/* Show loader over the calendar while fetching events */}

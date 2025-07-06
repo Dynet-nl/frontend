@@ -1,11 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
-import format from 'date-fns/format';
-import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
-import startOfMonth from 'date-fns/startOfMonth';
-import endOfMonth from 'date-fns/endOfMonth';
+import {format, parse, startOfWeek, getDay} from 'date-fns';
+import {nl} from 'date-fns/locale';
 import differenceInMinutes from 'date-fns/differenceInMinutes';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
@@ -13,7 +9,7 @@ import {BounceLoader} from 'react-spinners';
 import {useNavigate} from 'react-router-dom';
 
 const locales = {
-    'nl': require('date-fns/locale/nl')
+    'nl': nl
 };
 
 const localizer = dateFnsLocalizer({
@@ -34,9 +30,10 @@ const HASAgendaPage = () => {
     const [currentRange, setCurrentRange] = useState({start: null, end: null});
     const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
     const [hasMonteurs, setHasMonteurs] = useState([]);
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); // Track current month being displayed
 
     // Fetch HAS Monteurs with specific role code
-    const fetchHasMonteurs = async () => {
+    const fetchHasMonteurs = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
@@ -53,30 +50,15 @@ const HASAgendaPage = () => {
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
         }
-    };
+    }, [axiosPrivate]);
 
-    useEffect(() => {
-        const initialStart = startOfMonth(new Date());
-        const initialEnd = endOfMonth(new Date());
-        setCurrentRange({start: initialStart, end: initialEnd});
-
-        // Fetch HAS Monteurs
-        fetchHasMonteurs();
-    }, []);
-
-    useEffect(() => {
-        if (currentRange.start && currentRange.end) {
-            fetchAppointments();
-        }
-    }, [currentRange]);
-
-    const fetchAppointments = async () => {
+    const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
 
             const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
                 params: {
-                    limit: 100,
+                    limit: 500, // Increased limit to get more historical data
                 }
             });
 
@@ -108,7 +90,7 @@ const HASAgendaPage = () => {
                         start: startDateTime,
                         end: endDateTime,
                         duration: duration,
-                        personName: flat.hasMonteur.name, // Using 'name' here
+                        personName: flat.hasMonteur.hasMonteurName, // Using 'hasMonteurName' here
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
                             type: appointmentData.type,
@@ -126,7 +108,18 @@ const HASAgendaPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [axiosPrivate]);
+
+    useEffect(() => {
+        // Don't set initial range restriction - let calendar show any month
+        setCurrentRange({start: null, end: null});
+
+        // Fetch HAS Monteurs
+        fetchHasMonteurs();
+        
+        // Fetch all appointments immediately without date restrictions
+        fetchAppointments();
+    }, [fetchHasMonteurs, fetchAppointments]);
 
     const handleHASMonteurFilter = (e) => {
         const selectedName = e.target.value;
@@ -145,8 +138,12 @@ const HASAgendaPage = () => {
     };
 
     const handleRangeChange = (range) => {
+        // Just track the range for potential future use, but don't refetch data
+        // All appointments are loaded once and the calendar handles the display
         if (range.start && range.end) {
             setCurrentRange(range);
+            setCurrentDisplayMonth(range.start); // Update the display month
+            console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
 
@@ -234,6 +231,25 @@ const HASAgendaPage = () => {
                 )}
             </div>
 
+            {/* Navigation Instructions */}
+            <div style={{
+                backgroundColor: '#e8f5e8',
+                padding: '10px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                textAlign: 'center',
+                fontSize: '14px',
+                color: '#2c6e49',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <span>💡 <strong>Navigation:</strong> Use "Vorige" and "Volgende" buttons to view appointments from different months</span>
+                <span style={{ fontWeight: 'bold' }}>
+                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: nl })}
+                </span>
+            </div>
+
             {/* Calendar Section - Takes remaining space */}
             <div style={{
                 flex: 1,
@@ -252,6 +268,9 @@ const HASAgendaPage = () => {
                     step={30}
                     timeslots={2}
                     onRangeChange={handleRangeChange}
+                    showMultiDayTimes={true}
+                    popup={true}
+                    popupOffset={30}
                     tooltipAccessor={event => `${event.title}\nType: ${event.resource.type}\nDuration: ${event.duration} minutes\nPerson: ${event.personName}`}
                     messages={{
                         next: "Volgende",
@@ -261,6 +280,15 @@ const HASAgendaPage = () => {
                         week: "Week",
                         day: "Dag",
                         agenda: "Agenda",
+                        noEventsInRange: "Geen afspraken in deze periode",
+                        showMore: total => `+ ${total} meer`,
+                    }}
+                    formats={{
+                        monthHeaderFormat: 'MMMM yyyy',
+                        dayHeaderFormat: 'dddd, MMMM do',
+                        dayRangeHeaderFormat: ({start, end}, culture, localizer) =>
+                            localizer.format(start, 'MMMM dd', culture) + ' - ' + 
+                            localizer.format(end, 'MMMM dd, yyyy', culture)
                     }}
                 />
                 {loading && (
