@@ -173,7 +173,7 @@ const TSPApartmentPage = () => {
             ...prev.technischePlanning,
             appointmentBooked: data.technischePlanning.appointmentBooked
           },
-          updatedAt: new Date().toISOString() // Update the timestamp
+          updatedAt: new Date().toISOString() 
         }));
       }
       setIsEditingAppointment(false);
@@ -193,7 +193,7 @@ const TSPApartmentPage = () => {
       setFlat((prevFlat) => ({
         ...prevFlat,
         technischePlanning: response.data.technischePlanning,
-        updatedAt: new Date().toISOString() // Update the timestamp
+        updatedAt: new Date().toISOString() 
       }));
 
       setIsEditingPlanning(false);

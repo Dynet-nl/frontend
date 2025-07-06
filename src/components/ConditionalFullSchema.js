@@ -25,7 +25,7 @@ const blockTypeComponents = {
     doubleNoLeftBGWing: DoubleNoLeftBG,
     leftWingFlat: LeftStraightFlats,
     rightWingFlat: RightStraightFlats,
-    // Add more mappings here as needed
+    
 };
 
 const ConditionalFullSchema = ({
@@ -49,7 +49,7 @@ const ConditionalFullSchema = ({
         );
     }
 
-    // Optionally, return null or a default component if form.blockType doesn't match
+    
     return null;
 };
 

@@ -76,7 +76,7 @@ const TPApartmentPage = () => {
 
                 const today = new Date().toISOString().split('T')[0];
 
-                // Check if appointment data exists, otherwise set default values
+                
                 const appointmentData = data.technischePlanning?.appointmentBooked || {};
                 setAppointmentData({
                     date: appointmentData.date ? new Date(appointmentData.date).toISOString().split('T')[0] : today,

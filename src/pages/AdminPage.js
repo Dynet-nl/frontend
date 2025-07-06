@@ -41,7 +41,7 @@ const AdminPage = () => {
 
     const handleRoleChange = (e) => {
         const {value} = e.target;
-        setUserData({...userData, roles: [value]}); // Set roles as an array of role names
+        setUserData({...userData, roles: [value]}); 
     };
 
     const validateEmail = (email) => {

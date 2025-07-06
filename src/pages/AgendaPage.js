@@ -20,21 +20,19 @@ const localizer = dateFnsLocalizer({
 
 const AgendaPage = () => {
     const axiosPrivate = useAxiosPrivate();
-    const [events, setEvents] = useState([]); // Events state
-    const [originalEvents, setOriginalEvents] = useState([]); // Original events for filtering
-    const [loading, setLoading] = useState(false); // Events loading state
-    const [currentRange, setCurrentRange] = useState({start: null, end: null}); // Current calendar view range
-    const [technischeSchouwers, setTechnischeSchouwers] = useState([]); // List of Technische Schouwers
-    const [selectedSchouwer, setSelectedSchouwer] = useState(''); // Selected Schouwer for filtering
-    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); // Track current month being displayed
+    const [events, setEvents] = useState([]);
+    const [originalEvents, setOriginalEvents] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [currentRange, setCurrentRange] = useState({start: null, end: null});
+    const [technischeSchouwers, setTechnischeSchouwers] = useState([]);
+    const [selectedSchouwer, setSelectedSchouwer] = useState('');
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date());
 
-    // Fetch Technische Schouwers with specific role code
     const fetchTechnischeSchouwers = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            // Filter users with TechnischeSchouwer role (8687)
             const schouwers = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
@@ -53,10 +51,10 @@ const AgendaPage = () => {
             setLoading(true);
             console.log('Fetching all appointments without date filtering.');
 
-            // Request to fetch all flats that have appointments
+            
             const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                 params: {
-                    limit: 500,  // Increased limit to get more historical data
+                    limit: 500,  
                 }
             });
 
@@ -66,7 +64,7 @@ const AgendaPage = () => {
                 console.log('No appointments found.');
             }
 
-            // Create calendar events from fetched appointments
+            
             const calendarEvents = response.data
                 .filter(flat =>
                     flat.technischePlanning?.appointmentBooked?.date &&
@@ -77,9 +75,9 @@ const AgendaPage = () => {
                     const [startHours, startMinutes] = flat.technischePlanning.appointmentBooked.startTime.split(':');
                     const [endHours, endMinutes] = flat.technischePlanning.appointmentBooked.endTime
                         ? flat.technischePlanning.appointmentBooked.endTime.split(':')
-                        : [startHours, startMinutes]; // Fallback to start time if end time is not provided
+                        : [startHours, startMinutes]; 
 
-                    // Set start and end time for the appointment date
+                    
                     const startDateTime = new Date(appointmentDate);
                     startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
 
@@ -91,7 +89,7 @@ const AgendaPage = () => {
                         title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
-                        personName: flat.technischePlanning.technischeSchouwerName, // Add person name for filtering
+                        personName: flat.technischePlanning.technischeSchouwerName, 
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
                             phone: flat.technischePlanning.telephone || 'Not provided',
@@ -111,34 +109,34 @@ const AgendaPage = () => {
         }
     }, [axiosPrivate]);
 
-    // Set initial range to the current month when component mounts
+    
     useEffect(() => {
-        // Don't set initial range restriction - let calendar show any month
+        
         setCurrentRange({start: null, end: null});
 
-        // Fetch Technische Schouwers
+        
         fetchTechnischeSchouwers();
         
-        // Fetch all appointments immediately without date restrictions
+        
         fetchAppointments();
     }, [fetchTechnischeSchouwers, fetchAppointments]);
 
-    // Remove the useEffect that was tied to currentRange to avoid refetching on navigation
-    // useEffect(() => {
-    //     if (currentRange.start && currentRange.end) {
-    //         fetchAppointments();
-    //     }
-    // }, [currentRange]);
+    
+    
+    
+    
+    
+    
 
     const handleSchouwerFilter = (e) => {
         const selectedName = e.target.value;
         setSelectedSchouwer(selectedName);
 
         if (!selectedName) {
-            // If no user is selected, show all events
+            
             setEvents(originalEvents);
         } else {
-            // Filter events by selected Technische Schouwer
+            
             const filteredEvents = originalEvents.filter(event =>
                 event.personName === selectedName
             );
@@ -147,11 +145,11 @@ const AgendaPage = () => {
     };
 
     const handleRangeChange = (range) => {
-        // Just track the range for potential future use, but don't refetch data
-        // All appointments are loaded once and the calendar handles the display
+        
+        
         if (range.start && range.end) {
             setCurrentRange(range);
-            setCurrentDisplayMonth(range.start); // Update the display month
+            setCurrentDisplayMonth(range.start); 
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
@@ -189,7 +187,6 @@ const AgendaPage = () => {
             height: '100vh',
             padding: '20px'
         }}>
-            {/* Filter Section - Explicitly at the top */}
             <div style={{
                 width: '100%',
                 marginBottom: '20px',
@@ -233,7 +230,7 @@ const AgendaPage = () => {
                 )}
             </div>
 
-            {/* Navigation Instructions */}
+            
             <div style={{
                 backgroundColor: '#e8f4fd',
                 padding: '10px',
@@ -252,7 +249,7 @@ const AgendaPage = () => {
                 </span>
             </div>
 
-            {/* Calendar Section - Takes remaining space */}
+            
             <div style={{
                 flex: 1,
                 position: 'relative',
@@ -266,10 +263,10 @@ const AgendaPage = () => {
                     onSelectEvent={handleEventClick}
                     eventPropGetter={eventStyleGetter}
                     views={['month', 'week', 'day', 'agenda']}
-                    defaultView='month' // Set to 'month' to load all appointments for the month initially
+                    defaultView='month' 
                     step={30}
                     timeslots={2}
-                    onRangeChange={handleRangeChange} // Track range changes but don't refetch
+                    onRangeChange={handleRangeChange} 
                     showMultiDayTimes={true}
                     popup={true}
                     popupOffset={30}
@@ -293,7 +290,7 @@ const AgendaPage = () => {
                             localizer.format(end, 'MMMM dd, yyyy', culture)
                     }}
                 />
-                {/* Show loader over the calendar while fetching events */}
+                
                 {loading && (
                     <div style={{
                         position: 'absolute',

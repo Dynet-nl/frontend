@@ -6,16 +6,16 @@ import ROLES_LIST from "../context/roles_list";
 const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
     const { auth } = useAuth();
 
-    // Debug the structure of auth and roles
+    
     console.log("Auth object:", auth);
     console.log("Auth roles:", auth.roles);
 
-    // Check if the user has a specific role by role value
+    
     const hasRole = (roleValue) => {
         return auth?.roles && Array.isArray(auth.roles) && auth.roles.includes(roleValue);
     };
 
-    // Check for specific roles
+    
     const isAdmin = hasRole(ROLES_LIST.Admin);
     const isTechnischePlanning = hasRole(ROLES_LIST.TechnischePlanning);
     const isHASPlanning = hasRole(ROLES_LIST.HASPlanning);
@@ -26,7 +26,7 @@ const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
 
     let path = '/';
 
-    // For pencil icon links (schedule type)
+    
     if (type === 'schedule' && buildingId) {
         if (isHASPlanning) {
             path = `/has-planning-apartment-schedule/${buildingId}`;
@@ -36,7 +36,7 @@ const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
             console.log("Using TechnischePlanning schedule path");
         }
     }
-    // For apartment/flat links
+    
     else if (flatId) {
         if (isAdmin) {
             path = `/admin-apartment/${flatId}`;

@@ -9,11 +9,11 @@ axiosPrivate.interceptors.response.use(
     (response) => response,
     async (error) => {
         if (error.response?.status === 401) {
-            // Clear auth data
+            
             localStorage.removeItem('accessToken');
             localStorage.removeItem('roles');
 
-            // Force reload to clear all state and redirect to login
+            
             window.location.href = '/login';
         }
         return Promise.reject(error);

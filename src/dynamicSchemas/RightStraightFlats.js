@@ -15,7 +15,7 @@ const RightStraightFlats = ({
 
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        // on ground floor we need extra line on basement
+                        
                         if (index == 0) {
                             return (
                                 <div key={index} className="flat">
@@ -31,8 +31,8 @@ const RightStraightFlats = ({
                                 </div>
                             )
                         }
-                        // on last floor we need a vertical line to be only 42px long
-                        // and an entrance line
+                        
+                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -47,8 +47,8 @@ const RightStraightFlats = ({
                                 </div>
                             )
                         }
-                        // on all other floors we need a vertical line on stairs
-                        // and an entrance line
+                        
+                        
                         if (index !== 0 || index !== array.length - 1) {
                             return (
                                 <div key={index} className="flat">

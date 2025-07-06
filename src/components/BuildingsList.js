@@ -14,7 +14,7 @@ const BuildingsList = ({buildings}) => {
 
     const {user} = useContext(AuthContext);
 
-    // For debugging - remove in production
+    
     useEffect(() => {
         if (filter === 'appointment' || filter === 'done') {
             console.log(`Filter applied: ${filter}`);
@@ -22,7 +22,7 @@ const BuildingsList = ({buildings}) => {
             console.log('Buildings count:', buildings?.length);
 
             if (buildings && buildings.length > 0) {
-                // Check a few buildings to see if we can find flats with appointments
+                
                 let hasMonteursFound = [];
                 let technischePlanningsFound = [];
 
@@ -66,12 +66,12 @@ const BuildingsList = ({buildings}) => {
     const categorizeBuilding = (flats) => {
         if (!flats || flats.length === 0) return {types: [], typeString: ''};
 
-        // Count total flats first
+        
         const totalFlats = flats.length;
 
-        // If more than 2 flats, it should be HB regardless of prefixes
+        
         if (totalFlats > 2) {
-            // Still collect prefixes for reference
+            
             const prefixes = flats.reduce((acc, flat) => {
                 if (!flat.zoeksleutel) return acc;
                 const [prefix] = flat.zoeksleutel.split('_');
@@ -87,7 +87,7 @@ const BuildingsList = ({buildings}) => {
             };
         }
 
-        // For 1-2 flats, use the original logic
+        
         const prefixCounts = flats.reduce((acc, flat) => {
             if (!flat.zoeksleutel) return acc;
             const [prefix] = flat.zoeksleutel.split('_');
@@ -101,33 +101,33 @@ const BuildingsList = ({buildings}) => {
         const types = Object.entries(prefixCounts).map(([prefix, {count, complexNaam}]) => {
             if (count === 1) return {type: 'Laag bouw', prefix};
             if (count === 2) return {type: 'Duplex', prefix};
-            return {type: 'HB', prefix}; // This would now only happen for a single prefix with 3+ flats
+            return {type: 'HB', prefix}; 
         });
 
-        // Create a single string of unique building types
+        
         const uniqueTypes = [...new Set(types.map(t => t.type))];
         const typeString = uniqueTypes.join(', ');
 
         return {types, typeString};
     };
 
-    // Helper function to check if a flat has a technischePlanning appointment
+    
     const hasTechnischePlanningAppointment = (flat) => {
         return !!flat.technischePlanning?.appointmentBooked?.date;
     };
 
-    // Helper function to check if a flat has a hasMonteur appointment
+    
     const hasHasMonteurAppointment = (flat) => {
         return !!flat.hasMonteur?.appointmentBooked?.date;
     };
 
-    // Helper function to check if a flat has signature or report
+    
     const hasSignatureOrReport = (flat) => {
         return !!(flat.technischePlanning?.signature?.fileUrl ||
             flat.technischePlanning?.report?.fileUrl);
     };
 
-    // Function to determine if the user has a specific role
+    
     const hasRole = (roleName) => {
         if (!user || !user.roles) return false;
         return user.roles[roleName] === ROLES_LIST[roleName];
@@ -163,8 +163,8 @@ const BuildingsList = ({buildings}) => {
                     building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'Duplex')
                 );
             case 'appointment':
-                // For now, show all buildings with any appointments since role detection isn't working
-                // We'll investigate the role issue separately
+                
+                
                 console.log("Showing all buildings with any appointments (user role issue will be fixed)");
 
                 return filteredBuildings.filter(building =>
@@ -173,21 +173,9 @@ const BuildingsList = ({buildings}) => {
                         )
                 );
 
-            /* Original role-specific code - left for reference
-            if (hasRole('HASPlanning')) {
-                console.log("Filtering with appointments for HASPlanning role - checking hasMonteur appointments");
-                return filteredBuildings.filter(building =>
-                    building.flats && building.flats.some(flat => hasHasMonteurAppointment(flat))
-                );
-            } else {
-                console.log("Filtering with appointments for non-HASPlanning role - checking technischePlanning appointments");
-                return filteredBuildings.filter(building =>
-                    building.flats && building.flats.some(flat => hasTechnischePlanningAppointment(flat))
-                );
-            }
-            */
+            
             case 'done':
-                // For now, show any "done" flats based on either role criteria
+                
                 console.log("Showing all 'done' buildings based on any criteria (user role issue will be fixed)");
 
                 return filteredBuildings.filter(building =>
@@ -196,24 +184,7 @@ const BuildingsList = ({buildings}) => {
                         )
                 );
 
-            /* Original role-specific code - left for reference
-            if (hasRole('HASPlanning')) {
-                console.log("Applying HASPlanning filter: fcStatusHas === '2'");
-                return filteredBuildings.filter(building =>
-                    building.flats && building.flats.some(flat =>
-                        flat.fcStatusHas === '2'
-                    )
-                );
-            } else if (hasRole('TechnischePlanning')) {
-                console.log("Applying TechnischePlanning filter: signature or report");
-                return filteredBuildings.filter(building =>
-                    building.flats && building.flats.some(flat => hasSignatureOrReport(flat))
-                );
-            }
-
-            console.log("No matching role for 'done' filter");
-            return [];
-            */
+            
             default:
                 return filteredBuildings;
         }
@@ -242,7 +213,7 @@ const BuildingsList = ({buildings}) => {
     const renderFlatLinks = (flats, types, building) => {
         if (!flats || flats.length === 0) return null;
 
-        // Check if this is a Laag bouw building (only has one flat)
+        
         const laagBouwType = types.find(type => type.type === 'Laag bouw');
         if (laagBouwType && flats.length === 1) {
             const laagBouwFlat = flats.find(flat =>
@@ -250,7 +221,7 @@ const BuildingsList = ({buildings}) => {
             );
 
             if (laagBouwFlat) {
-                // Check for any appointment (regardless of role for now)
+                
                 const hasAppt = hasHasMonteurAppointment(laagBouwFlat) || hasTechnischePlanningAppointment(laagBouwFlat);
                 const flatClassName = hasAppt ? 'flatLink flatWithAppointment' : 'flatLink';
 
@@ -264,15 +235,15 @@ const BuildingsList = ({buildings}) => {
             }
         }
 
-        // For other building types (HB, Duplex), or if the above didn't return, show each flat separately
+        
         return flats.map(flat => {
             if (!flat) return null;
 
-            // Check for any appointment (regardless of role for now)
+            
             const hasAppt = hasHasMonteurAppointment(flat) || hasTechnischePlanningAppointment(flat);
             const flatClassName = hasAppt ? 'flatLink flatWithAppointment' : 'flatLink';
 
-            // Create a formatted display for the apartment that includes more details
+            
             const flatDisplay = flat.complexNaam ?
                 `${flat.complexNaam} - ${flat.toevoeging}` :
                 `${flat.adres} ${flat.huisNummer}${flat.toevoeging}`;
@@ -301,7 +272,7 @@ const BuildingsList = ({buildings}) => {
             if (building.flats) {
                 totalFlats += building.flats.length;
                 completedFlats += building.flats.filter(flat =>
-                    flat.fcStatusHas === '2' // Changed to check fcStatusHas
+                    flat.fcStatusHas === '2' 
                 ).length;
             }
         });

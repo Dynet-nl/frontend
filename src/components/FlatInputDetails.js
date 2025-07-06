@@ -29,7 +29,7 @@ const FlatInputDetails = ({
                         )
                     })}
             </select>
-            {/* <label id={`cableNumber${index}`}>Cable Number</label> */}
+            
             <input
                 id={`cableNumber${index}`}
                 placeholder="CN"

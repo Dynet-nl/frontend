@@ -1,8 +1,8 @@
-// HASApartmentSchedulePage.jsx
+
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import '../styles/tsApartmentDetails.css'; // Reuse the same styles
+import '../styles/tsApartmentDetails.css'; 
 
 const HASApartmentSchedulePage = () => {
     const {id} = useParams();
@@ -14,15 +14,15 @@ const HASApartmentSchedulePage = () => {
     const [selectedApartments, setSelectedApartments] = useState([]);
     const [hasMonteurs, setHASMonteurs] = useState([]);
 
-    // Moved appointmentData definition to avoid lexical declaration error
+    
     const [appointmentData, setAppointmentData] = useState({
         date: '',
         startTime: '',
         endTime: '',
         weekNumber: null,
-        type: 'HAS', // Default appointment type for HASMonteur
-        hasMonteurName: '', // Added field for the selected HASMonteur
-        complaintDetails: '' // Added field for complaint details
+        type: 'HAS', 
+        hasMonteurName: '', 
+        complaintDetails: '' 
     });
 
     const [flatAppointments, setFlatAppointments] = useState({});
@@ -41,13 +41,13 @@ const HASApartmentSchedulePage = () => {
         return date.toISOString().split('T')[0];
     };
 
-    // Fetch users with HASMonteur role (2023)
+    
     const fetchHASMonteurs = async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            // Filter users with HASMonteur role (2023)
+            
             const monteurs = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
@@ -67,7 +67,7 @@ const HASApartmentSchedulePage = () => {
             console.log('Building data:', data);
             setBuilding(data);
 
-            // Initialize appointments from hasMonteur data
+            
             const initialFlatAppointments = {};
             data.flats.forEach((flat) => {
                 console.log(`Processing flat ${flat._id}:`, flat.hasMonteur);
@@ -87,13 +87,13 @@ const HASApartmentSchedulePage = () => {
             console.log('Initial flat appointments:', initialFlatAppointments);
             setFlatAppointments(initialFlatAppointments);
 
-            // Select apartments that have appointments
+            
             const apartmentsWithAppointments = data.flats
                 .filter(flat => flat.hasMonteur?.appointmentBooked?.date)
                 .map(flat => flat._id);
 
             setSelectedApartments(prevSelected => {
-                // Keep existing selections if they're new, otherwise use what's from the server
+                
                 const combined = [...new Set([...prevSelected, ...apartmentsWithAppointments])];
                 console.log('Selected apartments:', combined);
                 return combined;
@@ -124,7 +124,7 @@ const HASApartmentSchedulePage = () => {
         setAppointmentData((prevData) => ({
             ...prevData,
             [name]: value,
-            // Update week number when date changes
+            
             ...(name === 'date' ? {weekNumber: calculateWeekNumber(value)} : {})
         }));
     };
@@ -134,10 +134,10 @@ const HASApartmentSchedulePage = () => {
         setLoading(true);
 
         try {
-            // Create an array to store all appointment results
+            
             const appointmentResults = await Promise.all(
                 selectedApartments.map(async (flatId) => {
-                    // Create a copy of appointmentData to avoid mutating the state directly
+                    
                     const appointmentPayload = {
                         appointmentBooked: {
                             date: appointmentData.date,
@@ -149,7 +149,7 @@ const HASApartmentSchedulePage = () => {
                         hasMonteurName: appointmentData.hasMonteurName
                     };
 
-                    // Only add complaintDetails if the type is Complaint
+                    
                     if (appointmentData.type === 'Complaint' && appointmentData.complaintDetails) {
                         appointmentPayload.appointmentBooked.complaintDetails = appointmentData.complaintDetails;
                     }
@@ -159,7 +159,7 @@ const HASApartmentSchedulePage = () => {
                 })
             );
 
-            // Update the local flatAppointments state immediately without waiting for a new fetch
+            
             const updatedFlatAppointments = { ...flatAppointments };
 
             appointmentResults.forEach(({ flatId, data }) => {
@@ -178,7 +178,7 @@ const HASApartmentSchedulePage = () => {
 
             setFlatAppointments(updatedFlatAppointments);
 
-            // Still fetch the full building data to ensure everything is synchronized
+            
             const buildingResponse = await axiosPrivate.get(`/api/building/${id}`);
             setBuilding(buildingResponse.data);
 

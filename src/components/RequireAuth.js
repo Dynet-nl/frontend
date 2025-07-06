@@ -5,7 +5,7 @@ const RequireAuth = ({allowedRoles}) => {
     const {auth} = useAuth();
     const location = useLocation();
 
-    // Convert roles object to array of role values
+    
     const rolesArray = auth?.roles ? Object.values(auth.roles) : [];
     const hasAllowedRole = allowedRoles ? rolesArray.some(role => allowedRoles.includes(role)) : true;
 

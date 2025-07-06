@@ -1,9 +1,9 @@
-// src/pages/DashboardPage.js
+
 import React, { useEffect, useState } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { BounceLoader } from 'react-spinners';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import '../styles/dashboardPage.css';  // Create this CSS file
+import '../styles/dashboardPage.css';  
 
 const DashboardPage = () => {
     const axiosPrivate = useAxiosPrivate();
@@ -48,7 +48,7 @@ const DashboardPage = () => {
             });
         } catch (error) {
             console.error('Failed to update priorities', error);
-            // Revert the local state on error
+            
             fetchAllDistricts();
         } finally {
             setIsSaving(false);
@@ -56,11 +56,11 @@ const DashboardPage = () => {
     };
 
     const getProgressBarColor = (percentage) => {
-        if (percentage === 100) return '#4CAF50';  // Green
-        if (percentage >= 75) return '#8BC34A';   // Light Green
-        if (percentage >= 50) return '#FFC107';   // Amber
-        if (percentage >= 25) return '#FF9800';   // Orange
-        return '#F44336';  // Red
+        if (percentage === 100) return '#4CAF50';  
+        if (percentage >= 75) return '#8BC34A';   
+        if (percentage >= 50) return '#FFC107';   
+        if (percentage >= 25) return '#FF9800';   
+        return '#F44336';  
     };
 
     return (

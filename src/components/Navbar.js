@@ -10,17 +10,17 @@ const Navbar = () => {
     const {auth, setAuth} = useAuth()
     const navigate = useNavigate()
     
-    // Role checks
-    const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin) // Use 5150 from ROLES_LIST
+    
+    const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin) 
     const hasTechnischePlanningRole = auth?.roles?.includes(ROLES_LIST.TechnischePlanning)
     const hasHASPlanningRole = auth?.roles?.includes(ROLES_LIST.HASPlanning)
     const hasTechnischeSchouwerRole = auth?.roles?.includes(ROLES_LIST.TechnischeSchouwer)
     const hasHASMonteurRole = auth?.roles?.includes(ROLES_LIST.HASMonteur)
     
-    // Check if user should see HAS Agenda
+    
     const canSeeHASAgenda = isAdmin || hasHASPlanningRole || hasTechnischeSchouwerRole || hasHASMonteurRole
     
-    // Check if user should see Planning Agenda
+    
     const canSeePlanningAgenda = isAdmin || hasTechnischePlanningRole
     
     const getRoleName = (roleId) => {
@@ -41,7 +41,7 @@ const Navbar = () => {
         <nav>
             <Link style={{fontSize: 20}} to='/'>Home</Link>
             
-            {/* Dashboard only for Admin users */}
+            
             {isAdmin && (
                 <Link style={{fontSize: 20}} to='/dashboard'>Dashboard</Link>
             )}

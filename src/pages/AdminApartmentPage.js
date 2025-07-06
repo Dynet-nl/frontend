@@ -54,7 +54,7 @@ const AdminApartmentPage = () => {
         HASDatum3e: '',
         redenNA: '',
         plaats: '',
-        // Add Technische Schouwer fields
+        
         telephone: '',
         vveWocoName: '',
         technischeSchouwerName: '',
@@ -122,7 +122,7 @@ const AdminApartmentPage = () => {
                     HASDatum3e: flatData.HASDatum3e,
                     redenNA: flatData.redenNA,
                     plaats: flatData.plaats,
-                    // Set Technische Schouwer fields
+                    
                     telephone: flatData.technischePlanning?.telephone || '',
                     vveWocoName: flatData.technischePlanning?.vveWocoName || '',
                     technischeSchouwerName: flatData.technischePlanning?.technischeSchouwerName || '',

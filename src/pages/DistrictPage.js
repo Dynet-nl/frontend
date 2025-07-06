@@ -36,7 +36,7 @@ const DistrictPage = () => {
             const districtData = response.data;
             setDistricts(districtData);
 
-            // If there's no current district selected or it's a refresh, select the first one
+            
             if (!currentDistrict?._id || districtData[0]?._id !== currentDistrict._id) {
                 setCurrentDistrict(districtData[0] || {});
             }
@@ -45,7 +45,7 @@ const DistrictPage = () => {
         }
     }, [axiosPrivate, areaId, currentDistrict?._id]);
 
-    // Handle district creation/update
+    
     const handleDistrictChange = useCallback(async () => {
         await fetchDistricts();
         if (currentDistrict?._id) {

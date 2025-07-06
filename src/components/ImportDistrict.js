@@ -31,11 +31,11 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
             const {data} = await axiosPrivate.post('/api/district', formData, config)
             setNewDistrictUploaded(prev => prev + 1)
 
-            // Clear the form
+            
             setSelectedFile([])
             setCurrentDistrict('')
 
-            // Notify parent component
+            
             if (onDistrictCreated) {
                 onDistrictCreated()
             }

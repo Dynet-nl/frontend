@@ -7,13 +7,13 @@ const CityPage = () => {
     const [cities, setCities] = useState([]);
     const axiosPrivate = useAxiosPrivate();
 
-    // Function to fetch existing cities from the backend
+    
     const fetchCities = async () => {
         try {
             const response = await axiosPrivate.get('/api/city');
             const citiesWithAreas = response.data.map(city => ({
                 ...city,
-                numberOfAreas: city.areas.length // Add a new property numberOfAreas to each city object
+                numberOfAreas: city.areas.length 
             }));
             setCities(citiesWithAreas);
         } catch (error) {
@@ -21,7 +21,7 @@ const CityPage = () => {
         }
     };
 
-    // Fetch cities when the component mounts or axiosPrivate changes
+    
     useEffect(() => {
         fetchCities();
     }, [axiosPrivate]);

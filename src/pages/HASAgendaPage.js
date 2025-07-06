@@ -30,15 +30,15 @@ const HASAgendaPage = () => {
     const [currentRange, setCurrentRange] = useState({start: null, end: null});
     const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
     const [hasMonteurs, setHasMonteurs] = useState([]);
-    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); // Track current month being displayed
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); 
 
-    // Fetch HAS Monteurs with specific role code
+    
     const fetchHasMonteurs = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            // Filter users with HASMonteur role (2023)
+            
             const monteurs = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
@@ -58,7 +58,7 @@ const HASAgendaPage = () => {
 
             const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
                 params: {
-                    limit: 500, // Increased limit to get more historical data
+                    limit: 500, 
                 }
             });
 
@@ -81,7 +81,7 @@ const HASAgendaPage = () => {
                     const endDateTime = new Date(appointmentDate);
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
 
-                    // Calculate duration in minutes
+                    
                     const duration = Math.max(differenceInMinutes(endDateTime, startDateTime), 30);
 
                     return {
@@ -90,7 +90,7 @@ const HASAgendaPage = () => {
                         start: startDateTime,
                         end: endDateTime,
                         duration: duration,
-                        personName: flat.hasMonteur.hasMonteurName, // Using 'hasMonteurName' here
+                        personName: flat.hasMonteur.hasMonteurName, 
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
                             type: appointmentData.type,
@@ -111,13 +111,13 @@ const HASAgendaPage = () => {
     }, [axiosPrivate]);
 
     useEffect(() => {
-        // Don't set initial range restriction - let calendar show any month
+        
         setCurrentRange({start: null, end: null});
 
-        // Fetch HAS Monteurs
+        
         fetchHasMonteurs();
         
-        // Fetch all appointments immediately without date restrictions
+        
         fetchAppointments();
     }, [fetchHasMonteurs, fetchAppointments]);
 
@@ -126,10 +126,10 @@ const HASAgendaPage = () => {
         setSelectedHASMonteur(selectedName);
 
         if (!selectedName) {
-            // If no user is selected, show all events
+            
             setEvents(originalEvents);
         } else {
-            // Filter events by selected HAS Monteur
+            
             const filteredEvents = originalEvents.filter(event =>
                 event.personName === selectedName
             );
@@ -138,11 +138,11 @@ const HASAgendaPage = () => {
     };
 
     const handleRangeChange = (range) => {
-        // Just track the range for potential future use, but don't refetch data
-        // All appointments are loaded once and the calendar handles the display
+        
+        
         if (range.start && range.end) {
             setCurrentRange(range);
-            setCurrentDisplayMonth(range.start); // Update the display month
+            setCurrentDisplayMonth(range.start); 
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
@@ -155,13 +155,13 @@ const HASAgendaPage = () => {
     const eventStyleGetter = (event) => {
         const isStoring = event.resource.type === 'Storing';
 
-        // Calculate height and opacity based on duration
-        const baseHeight = 30; // Base height in pixels
-        const minDuration = 30; // Minimum duration in minutes
-        const maxDuration = 240; // Maximum duration in minutes
+        
+        const baseHeight = 30; 
+        const minDuration = 30; 
+        const maxDuration = 240; 
         const normalizedDuration = Math.min(Math.max(event.duration, minDuration), maxDuration);
 
-        // Calculate height multiplier (logarithmic scaling to prevent extreme sizes)
+        
         const heightMultiplier = Math.log(normalizedDuration / minDuration + 1);
 
         return {
@@ -173,9 +173,9 @@ const HASAgendaPage = () => {
                 border: `1px solid ${isStoring ? '#c0392b' : '#27ae60'}`,
                 display: 'block',
                 padding: '5px 10px',
-                height: `${baseHeight * heightMultiplier}px`, // Dynamic height with logarithmic scaling
+                height: `${baseHeight * heightMultiplier}px`, 
                 overflow: 'hidden',
-                fontSize: `${Math.max(10, 14 - (normalizedDuration / 60))}px` // Adjust font size based on duration
+                fontSize: `${Math.max(10, 14 - (normalizedDuration / 60))}px` 
             }
         };
     };
@@ -187,7 +187,7 @@ const HASAgendaPage = () => {
             height: '100vh',
             padding: '20px'
         }}>
-            {/* Filter Section - Explicitly at the top */}
+            
             <div style={{
                 width: '100%',
                 marginBottom: '20px',
@@ -231,7 +231,7 @@ const HASAgendaPage = () => {
                 )}
             </div>
 
-            {/* Navigation Instructions */}
+            
             <div style={{
                 backgroundColor: '#e8f5e8',
                 padding: '10px',
@@ -250,7 +250,7 @@ const HASAgendaPage = () => {
                 </span>
             </div>
 
-            {/* Calendar Section - Takes remaining space */}
+            
             <div style={{
                 flex: 1,
                 position: 'relative',

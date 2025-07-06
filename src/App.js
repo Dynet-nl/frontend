@@ -8,7 +8,7 @@ import BuildingPage from './pages/BuildingPage';
 import CityPage from './pages/CityPage';
 import AreaPage from './pages/AreaPage';
 import AdminPage from './pages/AdminPage';
-import DashboardPage from './pages/DashboardPage'; // Import the new page
+import DashboardPage from './pages/DashboardPage';
 import AdminApartmentPage from './pages/AdminApartmentPage';
 import TPApartmentPage from './pages/TPApartmentPage';
 import HPApartmentPage from './pages/HPApartmentPage';
@@ -41,25 +41,21 @@ function App() {
                 <Route element={<LoginPage />} path='/login' />
                 <Route element={<Unauthorized />} path='/unauthorized' />
                 <Route element={<Layout />}>
-                    {/* Admin routes */}
                     <Route element={<RequireAuth allowedRoles={[5150]} />}>
                         <Route element={<AdminPage />} path='/admin' />
-                        <Route element={<DashboardPage />} path='/dashboard' /> {/* Add Dashboard route */}
+                        <Route element={<DashboardPage />} path='/dashboard' />
                         <Route element={<AdminApartmentPage />} path='/admin-apartment/:id' />
                     </Route>
 
-                    {/* Technische Planning routes */}
                     <Route element={<RequireAuth allowedRoles={[1991]} />}>
                         <Route element={<TPApartmentPage />} path='/planning-apartment/:id' />
                     </Route>
 
-                    {/* HAS Planning routes */}
                     <Route element={<RequireAuth allowedRoles={[1959]} />}>
                         <Route element={<HPApartmentPage />} path='/has-planning-apartment/:id' />
                         <Route element={<HASApartmentSchedulePage />} path='/has-planning-apartment-schedule/:id' />
                     </Route>
 
-                    {/* Technische Schouwer routes */}
                     <Route element={<RequireAuth allowedRoles={[8687]} />}>
                         <Route element={<TSApartmentPage />} path='/ts-apartment/:id' />
                     </Route>
@@ -68,18 +64,15 @@ function App() {
                         <Route element={<HMApartmentPage />} path='/hm-apartment/:id' />
                     </Route>
 
-                    {/* HASMonteur and TechnischeSchouwer routes*/}
                     <Route element={<RequireAuth allowedRoles={[1959, 8687, 2023, 5150]} />}>
                         <Route element={<HASAgendaPage />} path='/has-agenda' />
                     </Route>
 
-                    {/* Shared planning routes */}
                     <Route element={<RequireAuth allowedRoles={[1991, 5150]} />}>
                         <Route element={<TSApartmentSchedulePage />} path='/planning-apartment-schedule/:id' />
                         <Route element={<AgendaPage />} path='/agenda' />
                     </Route>
 
-                    {/* Default routes accessible by all roles */}
                     <Route element={<RequireAuth allowedRoles={[5150, 1991, 8687, 1948, 1959, 2023]} />}>
                         <Route element={<HomePage />} path='/' />
                         <Route element={<CityPage />} path='/city' />

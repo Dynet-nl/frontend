@@ -35,16 +35,16 @@ const TSApartmentSchedulePage = () => {
         return date.toISOString().split('T')[0];
     };
 
-    // Fetch users with TechnischeSchouwer role (8687)
+    
     const fetchTechnischeSchouwers = async () => {
         try {
-            // Using the same approach as your AdminPage
+            
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            // Filter users with TechnischeSchouwer role (8687)
+            
             const schouwers = users.filter(user => {
-                // Check if user has roles and specifically has the TechnischeSchouwer role
+                
                 return user.roles &&
                     typeof user.roles === 'object' &&
                     user.roles.TechnischeSchouwer === 8687;
@@ -62,10 +62,10 @@ const TSApartmentSchedulePage = () => {
             const { data } = await axiosPrivate.get(`/api/building/${id}`);
             setBuilding(data);
 
-            // Initialize appointments from TechnischePlanning data
+            
             const initialFlatAppointments = {};
             data.flats.forEach((flat) => {
-                // Make sure to check the populated technischePlanning data
+                
                 if (flat.technischePlanning?.appointmentBooked?.date) {
                     initialFlatAppointments[flat._id] = {
                         date: formatDate(flat.technischePlanning.appointmentBooked.date),
@@ -79,7 +79,7 @@ const TSApartmentSchedulePage = () => {
 
             setFlatAppointments(initialFlatAppointments);
 
-            // Select apartments that have appointments
+            
             const apartmentsWithAppointments = data.flats
                 .filter(flat => flat.technischePlanning?.appointmentBooked?.date)
                 .map(flat => flat._id);
@@ -94,7 +94,7 @@ const TSApartmentSchedulePage = () => {
 
     useEffect(() => {
         fetchBuilding();
-        fetchTechnischeSchouwers(); // Fetch users with TechnischeSchouwer role
+        fetchTechnischeSchouwers(); 
     }, [id, axiosPrivate]);
 
     const handleApartmentSelection = (flatId) => {
@@ -110,7 +110,7 @@ const TSApartmentSchedulePage = () => {
         setAppointmentData((prevData) => ({
             ...prevData,
             [name]: value,
-            // Update week number when date changes
+            
             ...(name === 'date' ? { weekNumber: calculateWeekNumber(value) } : {})
         }));
     };
@@ -122,7 +122,7 @@ const TSApartmentSchedulePage = () => {
         try {
             await Promise.all(
                 selectedApartments.map(async (flatId) => {
-                    // This will handle both creation and updates
+                    
                     await axiosPrivate.put(`/api/apartment/${flatId}/technische-planning`, {
                         appointmentBooked: {
                             date: appointmentData.date,
@@ -130,7 +130,7 @@ const TSApartmentSchedulePage = () => {
                             endTime: appointmentData.endTime,
                             weekNumber: appointmentData.weekNumber
                         },
-                        technischeSchouwerName: appointmentData.technischeSchouwerName // Include this field in the request
+                        technischeSchouwerName: appointmentData.technischeSchouwerName 
                     });
                 })
             );
