@@ -16,7 +16,7 @@ import RightWingApart from '../mockupSchemas/RightWingApart'
 import LeftWingApart from '../mockupSchemas/LeftWingApart'
 import '../styles/buildingPage.css'
 
-const BuildingPage = () => {
+const BuildingListPage = () => {
     const params = useParams()
 
     const axiosPrivate = useAxiosPrivate()
@@ -416,4 +416,4 @@ const BuildingPage = () => {
     )
 }
 
-export default BuildingPage
+export default BuildingListPage

@@ -17,10 +17,11 @@
     border-radius: 10px;
     background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.2s ease; /* Faster transition, only on transform */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    will-change: transform; /* Optimize for transform changes */
 }
 
 /* Allow scrolling within the flats section if the content exceeds available space */
@@ -39,10 +40,9 @@
     border-radius: 5px;
 }
 
-/* Hover effect for the building card */
+/* Hover effect for the building card - optimized for performance */
 .buildingContainer:hover {
-    transform: translateY(-5px); /* Slight lift on hover */
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Elevates shadow on hover */
+    transform: translateY(-3px); /* Reduced lift for smoother performance */
 }
 
 /* Filter buttons section */
@@ -220,4 +220,63 @@
     margin-top: 10px;
     font-size: 16px;
     color: #333;
+}
+
+/* Loading and status indicators */
+.loadingIndicator {
+    color: #007bff;
+    font-weight: 500;
+    animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+}
+
+.loadingContainer {
+    padding: 40px;
+    text-align: center;
+    color: #666;
+    font-size: 16px;
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    margin: 20px 0;
+    background-color: #f9f9f9;
+}
+
+.cacheStatus {
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background-color: #f0f8ff;
+    border-radius: 6px;
+    border-left: 3px solid #007bff;
+}
+
+.cacheStatus span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.autoRefreshIndicator {
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Enhanced search container */
+.searchContainer .resultsCount {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
 }

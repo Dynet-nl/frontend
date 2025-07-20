@@ -2,9 +2,11 @@ import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
 import {format, parse, startOfWeek, getDay} from 'date-fns';
 import {nl} from 'date-fns/locale';
+import differenceInMinutes from 'date-fns/differenceInMinutes';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
+import {useNavigate} from 'react-router-dom';
 
 const locales = {
     'nl': nl
@@ -18,82 +20,81 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
-const AgendaPage = () => {
+const HASInstallerAgendaCalendarPage = () => {
     const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
+
     const [events, setEvents] = useState([]);
     const [originalEvents, setOriginalEvents] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentRange, setCurrentRange] = useState({start: null, end: null});
-    const [technischeSchouwers, setTechnischeSchouwers] = useState([]);
-    const [selectedSchouwer, setSelectedSchouwer] = useState('');
-    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date());
+    const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
+    const [hasMonteurs, setHasMonteurs] = useState([]);
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); 
 
-    const fetchTechnischeSchouwers = useCallback(async () => {
+    
+    const fetchHasMonteurs = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            const schouwers = users.filter(user => {
+            
+            const monteurs = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
-                    user.roles.TechnischeSchouwer === 8687;
+                    user.roles.HASMonteur === 2023;
             });
 
-            console.log('Found Technische Schouwers:', schouwers);
-            setTechnischeSchouwers(schouwers);
+            console.log('Found HAS Monteurs:', monteurs);
+            setHasMonteurs(monteurs);
         } catch (error) {
-            console.error('Error fetching technische schouwers:', error);
+            console.error('Error fetching HAS Monteurs:', error);
         }
     }, [axiosPrivate]);
 
     const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
-            console.log('Fetching all appointments without date filtering.');
 
-            
-            const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
+            const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
                 params: {
-                    limit: 500,  
+                    limit: 500, 
                 }
             });
 
-            if (response?.data?.length > 0) {
-                console.log('Appointments fetched successfully:', response.data);
-            } else {
-                console.log('No appointments found.');
-            }
-
-            
             const calendarEvents = response.data
                 .filter(flat =>
-                    flat.technischePlanning?.appointmentBooked?.date &&
-                    flat.technischePlanning?.appointmentBooked?.startTime
+                    flat.hasMonteur?.appointmentBooked?.date &&
+                    flat.hasMonteur?.appointmentBooked?.startTime
                 )
                 .map(flat => {
-                    const appointmentDate = new Date(flat.technischePlanning.appointmentBooked.date);
-                    const [startHours, startMinutes] = flat.technischePlanning.appointmentBooked.startTime.split(':');
-                    const [endHours, endMinutes] = flat.technischePlanning.appointmentBooked.endTime
-                        ? flat.technischePlanning.appointmentBooked.endTime.split(':')
-                        : [startHours, startMinutes]; 
+                    const appointmentData = flat.hasMonteur.appointmentBooked;
+                    const appointmentDate = new Date(appointmentData.date);
+                    const [startHours, startMinutes] = appointmentData.startTime.split(':');
+                    const [endHours, endMinutes] = appointmentData.endTime
+                        ? appointmentData.endTime.split(':')
+                        : [parseInt(startHours) + 1, startMinutes];
 
-                    
                     const startDateTime = new Date(appointmentDate);
                     startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
 
                     const endDateTime = new Date(appointmentDate);
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
 
+                    
+                    const duration = Math.max(differenceInMinutes(endDateTime, startDateTime), 30);
+
                     return {
                         id: flat._id,
-                        title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
+                        title: `${appointmentData.type}: ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
-                        personName: flat.technischePlanning.technischeSchouwerName, 
+                        duration: duration,
+                        personName: flat.hasMonteur.hasMonteurName, 
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
-                            phone: flat.technischePlanning.telephone || 'Not provided',
-                            notes: flat.technischePlanning.additionalNotes || 'No notes',
+                            type: appointmentData.type,
+                            notes: flat.hasMonteur.notes || 'No notes',
                             flatId: flat._id,
                             complexNaam: flat.complexNaam || 'N/A'
                         }
@@ -109,28 +110,20 @@ const AgendaPage = () => {
         }
     }, [axiosPrivate]);
 
-    
     useEffect(() => {
         
         setCurrentRange({start: null, end: null});
 
         
-        fetchTechnischeSchouwers();
+        fetchHasMonteurs();
         
         
         fetchAppointments();
-    }, [fetchTechnischeSchouwers, fetchAppointments]);
+    }, [fetchHasMonteurs, fetchAppointments]);
 
-    
-    
-    
-    
-    
-    
-
-    const handleSchouwerFilter = (e) => {
+    const handleHASMonteurFilter = (e) => {
         const selectedName = e.target.value;
-        setSelectedSchouwer(selectedName);
+        setSelectedHASMonteur(selectedName);
 
         if (!selectedName) {
             
@@ -156,26 +149,33 @@ const AgendaPage = () => {
 
     const handleEventClick = (event) => {
         const {resource} = event;
-        alert(`
-            Appointment Details:
-            -------------------
-            Address: ${resource.address}
-            Phone: ${resource.phone}
-            Notes: ${resource.notes}
-            Complex Name: ${resource.complexNaam}
-        `);
+        navigate(`/hm-apartment/${resource.flatId}`);
     };
 
     const eventStyleGetter = (event) => {
+        const isStoring = event.resource.type === 'Storing';
+
+        
+        const baseHeight = 30; 
+        const minDuration = 30; 
+        const maxDuration = 240; 
+        const normalizedDuration = Math.min(Math.max(event.duration, minDuration), maxDuration);
+
+        
+        const heightMultiplier = Math.log(normalizedDuration / minDuration + 1);
+
         return {
             style: {
-                backgroundColor: '#3498db',
+                backgroundColor: isStoring ? '#e74c3c' : '#2ecc71',
                 borderRadius: '4px',
                 opacity: 0.9,
                 color: 'white',
-                border: '1px solid #2980b9',
+                border: `1px solid ${isStoring ? '#c0392b' : '#27ae60'}`,
                 display: 'block',
-                padding: '5px 10px'
+                padding: '5px 10px',
+                height: `${baseHeight * heightMultiplier}px`, 
+                overflow: 'hidden',
+                fontSize: `${Math.max(10, 14 - (normalizedDuration / 60))}px` 
             }
         };
     };
@@ -187,6 +187,7 @@ const AgendaPage = () => {
             height: '100vh',
             padding: '20px'
         }}>
+            
             <div style={{
                 width: '100%',
                 marginBottom: '20px',
@@ -197,21 +198,21 @@ const AgendaPage = () => {
                 padding: '15px',
                 borderRadius: '8px'
             }}>
-                {technischeSchouwers.length > 0 && (
+                {hasMonteurs.length > 0 && (
                     <div style={{
                         display: 'flex',
                         alignItems: 'center'
                     }}>
-                        <label htmlFor="schouwerFilter" style={{
+                        <label htmlFor="hasMonteurFilter" style={{
                             marginRight: '10px',
                             fontWeight: 'bold'
                         }}>
-                            Select Technische Schouwer:
+                            Select HAS Monteur:
                         </label>
                         <select
-                            id="schouwerFilter"
-                            value={selectedSchouwer}
-                            onChange={handleSchouwerFilter}
+                            id="hasMonteurFilter"
+                            value={selectedHASMonteur}
+                            onChange={handleHASMonteurFilter}
                             style={{
                                 padding: '8px',
                                 borderRadius: '4px',
@@ -219,10 +220,10 @@ const AgendaPage = () => {
                                 minWidth: '250px'
                             }}
                         >
-                            <option value="">All Technische Schouwers</option>
-                            {technischeSchouwers.map(schouwer => (
-                                <option key={schouwer._id} value={schouwer.name}>
-                                    {schouwer.name}
+                            <option value="">All HAS Monteurs</option>
+                            {hasMonteurs.map(monteur => (
+                                <option key={monteur._id} value={monteur.name}>
+                                    {monteur.name}
                                 </option>
                             ))}
                         </select>
@@ -232,20 +233,20 @@ const AgendaPage = () => {
 
             
             <div style={{
-                backgroundColor: '#e8f4fd',
+                backgroundColor: '#e8f5e8',
                 padding: '10px',
                 borderRadius: '5px',
                 marginBottom: '10px',
                 textAlign: 'center',
                 fontSize: '14px',
-                color: '#1e3a5f',
+                color: '#2c6e49',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
                 <span>💡 <strong>Navigation:</strong> Use "Vorige" and "Volgende" buttons to view appointments from different months</span>
                 <span style={{ fontWeight: 'bold' }}>
-                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: locales.nl })}
+                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: nl })}
                 </span>
             </div>
 
@@ -263,14 +264,14 @@ const AgendaPage = () => {
                     onSelectEvent={handleEventClick}
                     eventPropGetter={eventStyleGetter}
                     views={['month', 'week', 'day', 'agenda']}
-                    defaultView='month' 
+                    defaultView='month'
                     step={30}
                     timeslots={2}
-                    onRangeChange={handleRangeChange} 
+                    onRangeChange={handleRangeChange}
                     showMultiDayTimes={true}
                     popup={true}
                     popupOffset={30}
-                    tooltipAccessor={event => `${event.title}\nPhone: ${event.resource.phone}\nSchouwer: ${event.personName}`}
+                    tooltipAccessor={event => `${event.title}\nType: ${event.resource.type}\nDuration: ${event.duration} minutes\nPerson: ${event.personName}`}
                     messages={{
                         next: "Volgende",
                         previous: "Vorige",
@@ -290,7 +291,6 @@ const AgendaPage = () => {
                             localizer.format(end, 'MMMM dd, yyyy', culture)
                     }}
                 />
-                
                 {loading && (
                     <div style={{
                         position: 'absolute',
@@ -303,7 +303,7 @@ const AgendaPage = () => {
                         justifyContent: 'center',
                         alignItems: 'center'
                     }}>
-                        <BounceLoader color="#3498db"/>
+                        <BounceLoader color="#2ecc71"/>
                     </div>
                 )}
             </div>
@@ -311,4 +311,4 @@ const AgendaPage = () => {
     );
 };
 
-export default AgendaPage;
+export default HASInstallerAgendaCalendarPage;

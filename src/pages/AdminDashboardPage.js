@@ -3,7 +3,7 @@ import {Button, FormControl, InputLabel, MenuItem, Select, TextField} from '@mui
 import axiosPrivate from '../api/axios';
 import Users from '../components/Users';
 
-const AdminPage = () => {
+const AdminDashboardPage = () => {
     const [errors, setErrors] = useState({
         name: false,
         email: false,
@@ -145,4 +145,4 @@ const AdminPage = () => {
     );
 };
 
-export default AdminPage;
+export default AdminDashboardPage;

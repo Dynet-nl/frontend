@@ -111,10 +111,8 @@
 .ts-planningDetails .ts-planningHeader h3,
 .ts-appointmentDetails .ts-planningHeader h3 {
     margin: 0;
-    color: #059669;
+    color: #2d3748;
     font-size: 1.25rem;
-    font-weight: 600;
-    flex-grow: 1;
 }
 
 /* Planning details and Appointment details sections */
@@ -357,6 +355,41 @@
     color: #0369a1;
     font-weight: 600;
     margin-right: 0.5rem;
+}
+
+/* Appointment actions styles */
+.ts-appointmentActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ts-unifiedSchedulerButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.ts-unifiedSchedulerButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+.ts-unifiedSchedulerButton:active {
+    transform: translateY(0);
 }
 
 /* Responsive design */

@@ -5,7 +5,7 @@ import {saveAs} from 'file-saver';
 import {createEvent} from 'ics';
 import '../styles/adminApartmentDetails.css';
 
-const AdminApartmentPage = () => {
+const AdminApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
 
@@ -264,4 +264,4 @@ const AdminApartmentPage = () => {
     );
 }
 
-export default AdminApartmentPage;
+export default AdminApartmentDetailPage;

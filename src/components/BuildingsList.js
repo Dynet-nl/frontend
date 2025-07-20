@@ -1,12 +1,13 @@
-import React, {useContext, useState, useEffect} from 'react';
+// Buildings list component with filtering, pagination, and role-based navigation. Integrates with RoleBasedLink for routing and displays building status/progress indicators.
+
+import React, {useContext, useState, useEffect, useMemo, useCallback} from 'react';
 import RoleBasedLink from './RoleBasedLink';
 import {Link} from 'react-router-dom';
 import '../styles/buildingsList.css';
 import pencilIcon from '../assets/pencil_edit.png';
 import AuthContext from '../context/AuthProvider';
-import ROLES_LIST from "../context/roles_list";
 
-const BuildingsList = ({buildings}) => {
+const BuildingsList = ({buildings, isLoading}) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
@@ -14,15 +15,13 @@ const BuildingsList = ({buildings}) => {
 
     const {user} = useContext(AuthContext);
 
-    
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter, searchQuery, buildings]);
+
     useEffect(() => {
         if (filter === 'appointment' || filter === 'done') {
-            console.log(`Filter applied: ${filter}`);
-            console.log('User context:', user);
-            console.log('Buildings count:', buildings?.length);
-
             if (buildings && buildings.length > 0) {
-                
                 let hasMonteursFound = [];
                 let technischePlanningsFound = [];
 
@@ -47,23 +46,21 @@ const BuildingsList = ({buildings}) => {
                     }
                 });
 
-                console.log(`Found ${hasMonteursFound.length} hasMonteur appointments:`, hasMonteursFound);
-                console.log(`Found ${technischePlanningsFound.length} technischePlanning appointments:`, technischePlanningsFound);
             }
         }
     }, [filter, buildings, user]);
 
-    const handleSearch = (e) => {
+    const handleSearch = useCallback((e) => {
         setSearchQuery(e.target.value.toLowerCase());
         setCurrentPage(1);
-    };
+    }, []);
 
-    const handleFilterChange = (newFilter) => {
+    const handleFilterChange = useCallback((newFilter) => {
         setFilter(newFilter);
         setCurrentPage(1);
-    };
+    }, []);
 
-    const categorizeBuilding = (flats) => {
+    const categorizeBuilding = useCallback((flats) => {
         if (!flats || flats.length === 0) return {types: [], typeString: ''};
 
         
@@ -109,7 +106,7 @@ const BuildingsList = ({buildings}) => {
         const typeString = uniqueTypes.join(', ');
 
         return {types, typeString};
-    };
+    }, []);
 
     
     const hasTechnischePlanningAppointment = (flat) => {
@@ -127,13 +124,7 @@ const BuildingsList = ({buildings}) => {
             flat.technischePlanning?.report?.fileUrl);
     };
 
-    
-    const hasRole = (roleName) => {
-        if (!user || !user.roles) return false;
-        return user.roles[roleName] === ROLES_LIST[roleName];
-    };
-
-    const filterBuildings = (buildings, query) => {
+    const filterBuildings = useCallback((buildings, query) => {
         let filteredBuildings = buildings;
 
         if (!buildings) return [];
@@ -163,32 +154,23 @@ const BuildingsList = ({buildings}) => {
                     building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'Duplex')
                 );
             case 'appointment':
-                
-                
-                console.log("Showing all buildings with any appointments (user role issue will be fixed)");
-
                 return filteredBuildings.filter(building =>
                         building.flats && building.flats.some(flat =>
                             hasHasMonteurAppointment(flat) || hasTechnischePlanningAppointment(flat)
                         )
                 );
 
-            
             case 'done':
-                
-                console.log("Showing all 'done' buildings based on any criteria (user role issue will be fixed)");
-
                 return filteredBuildings.filter(building =>
                         building.flats && building.flats.some(flat =>
                             flat.fcStatusHas === '2' || hasSignatureOrReport(flat)
                         )
                 );
 
-            
             default:
                 return filteredBuildings;
         }
-    };
+    }, [filter]);
 
     const sortFlats = (a, b) => {
         if (!a.toevoeging || !b.toevoeging) return 0;
@@ -286,23 +268,34 @@ const BuildingsList = ({buildings}) => {
         };
     };
 
-    const categorizedBuildings = buildings ? filterBuildings(buildings, searchQuery) : [];
+    const categorizedBuildings = useMemo(() => {
+        return buildings ? filterBuildings(buildings, searchQuery) : [];
+    }, [buildings, searchQuery, filter, filterBuildings]);
+    
     const totalResults = categorizedBuildings.length;
+    
+    const completionStatus = useMemo(() => {
+        return calculateCompletionStatus(categorizedBuildings);
+    }, [categorizedBuildings]);
+    
     const {
         percentage: completionPercentage,
         completedFlats,
         totalFlats
-    } = calculateCompletionStatus(categorizedBuildings);
+    } = completionStatus;
 
     const totalPages = Math.ceil(categorizedBuildings.length / buildingsPerPage);
     const startIndex = (currentPage - 1) * buildingsPerPage;
-    const currentBuildings = categorizedBuildings.slice(startIndex, startIndex + buildingsPerPage);
+    
+    const currentBuildings = useMemo(() => {
+        return categorizedBuildings.slice(startIndex, startIndex + buildingsPerPage);
+    }, [categorizedBuildings, startIndex, buildingsPerPage]);
 
-    const handlePageChange = (page) => {
+    const handlePageChange = useCallback((page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
         }
-    };
+    }, [totalPages]);
 
     return (
         <>
@@ -325,6 +318,7 @@ const BuildingsList = ({buildings}) => {
                 </div>
                 <div className="resultsCount">
                     <strong>{totalResults}</strong> results found
+                    {isLoading && <span className="loadingIndicator"> • Refreshing...</span>}
                 </div>
             </div>
 
@@ -332,45 +326,50 @@ const BuildingsList = ({buildings}) => {
                 {`Completion Status: ${completedFlats} / ${totalFlats} (${completionPercentage}%)`}
             </div>
 
-            <div className="buildingsList">
-                {currentBuildings.map((building, index) => {
-                    const {types, typeString} = categorizeBuilding(building.flats);
-                    const sortedFlats = [...building.flats].sort(sortFlats);
-                    const flatCount = sortedFlats.length;
+            {isLoading && !buildings ? (
+                <div className="loadingContainer" style={{
+                    padding: '40px',
+                    textAlign: 'center',
+                    color: '#666'
+                }}>
+                    Loading buildings...
+                </div>
+            ) : (
+                <div className="buildingsList">
+                    {currentBuildings.map((building, index) => {
+                        const {types, typeString} = categorizeBuilding(building.flats);
+                        const sortedFlats = [...building.flats].sort(sortFlats);
+                        const flatCount = sortedFlats.length;
 
-                    const hbType = types.find(type => type.type === 'HB');
-                    const displayText = hbType
-                        ? `HB: ${hbType.prefix}`
-                        : building.address;
+                        return (
+                            <div key={index} className="buildingContainer">
+                                <div className="buildingHeaderSection">
+                                    <Link to={`/building/${building._id}`}>
+                                        <div className="buildingHeader">
+                                            {building.flats && building.flats[0]?.complexNaam
+                                                ? building.flats[0].complexNaam
+                                                : building.address
+                                            }
+                                        </div>
+                                    </Link>
+                                    <div className="flatCountBox">{flatCount}</div>
 
-                    return (
-                        <div key={index} className="buildingContainer">
-                            <div className="buildingHeaderSection">
-                                <Link to={`/building/${building._id}`}>
-                                    <div className="buildingHeader">
-                                        {building.flats && building.flats[0]?.complexNaam
-                                            ? building.flats[0].complexNaam
-                                            : building.address
-                                        }
-                                    </div>
-                                </Link>
-                                <div className="flatCountBox">{flatCount}</div>
-
-                                <RoleBasedLink
-                                    buildingId={building._id}
-                                    type="schedule"
-                                    className="editIconLink">
-                                    <img src={pencilIcon} alt="Edit" className="editIcon"/>
-                                </RoleBasedLink>
+                                    <RoleBasedLink
+                                        buildingId={building._id}
+                                        type="schedule"
+                                        className="editIconLink">
+                                        <img src={pencilIcon} alt="Edit" className="editIcon"/>
+                                    </RoleBasedLink>
+                                </div>
+                                <div className="buildingType"><b>{typeString}</b></div>
+                                <div className="flatsWrapper">
+                                    {renderFlatLinks(sortedFlats, types, building)}
+                                </div>
                             </div>
-                            <div className="buildingType"><b>{typeString}</b></div>
-                            <div className="flatsWrapper">
-                                {renderFlatLinks(sortedFlats, types, building)}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            )}
 
             <div className="pagination">
                 <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>

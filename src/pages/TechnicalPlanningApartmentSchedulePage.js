@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css';
 
-const TSApartmentSchedulePage = () => {
+const TechnicalPlanningApartmentSchedulePage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
@@ -263,4 +263,4 @@ const TSApartmentSchedulePage = () => {
     );
 };
 
-export default TSApartmentSchedulePage;
+export default TechnicalPlanningApartmentSchedulePage;

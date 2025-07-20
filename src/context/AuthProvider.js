@@ -1,3 +1,5 @@
+// Authentication context provider managing user auth state, roles, and logout functionality. Integrates with localStorage for token persistence.
+
 import {createContext, useCallback, useState} from 'react';
 
 const AuthContext = createContext({});

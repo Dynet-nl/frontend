@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField';
 
 import {useLocation, useNavigate} from 'react-router-dom'
 
-const Login = () => {
+const UserLoginPage = () => {
     const {setAuth} = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
@@ -113,4 +113,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default UserLoginPage

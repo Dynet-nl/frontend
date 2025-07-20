@@ -11,7 +11,7 @@ const calculateWeekNumber = (date) => {
     return Math.ceil(days / 7);
 };
 
-const HPApartmentPage = () => {
+const HASInstallerApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
     const {auth} = useAuth();
@@ -19,12 +19,14 @@ const HPApartmentPage = () => {
     const hasHASPlanningRole = auth?.roles?.includes(1959);
 
     const [isEditingHASAppointment, setIsEditingHASAppointment] = useState(false);
+    const [availableHASMonteurs, setAvailableHASMonteurs] = useState([]);
     const [hasAppointmentData, setHASAppointmentData] = useState({
         date: new Date().toISOString().split('T')[0],
         startTime: '',
         endTime: '',
         weekNumber: calculateWeekNumber(new Date()),
-        type: 'HAS'
+        type: 'HAS',
+        hasMonteurName: ''
     });
 
     const [flat, setFlat] = useState({
@@ -51,6 +53,22 @@ const HPApartmentPage = () => {
         odf: '',
         odfPositie: '',
     });
+
+    const fetchAvailableHASMonteurs = async () => {
+        try {
+            const response = await axiosPrivate.get('/api/users');
+            const users = response.data;
+            
+            const hasMonteurs = users.filter(user => 
+                user.roles && typeof user.roles === 'object' && 
+                user.roles.HASMonteur === 2023
+            );
+            
+            setAvailableHASMonteurs(hasMonteurs);
+        } catch (error) {
+            console.error('Error fetching HAS Monteurs:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchApartment = async () => {
@@ -92,7 +110,8 @@ const HPApartmentPage = () => {
                     startTime: hasAppointment.startTime || '',
                     endTime: hasAppointment.endTime || '',
                     weekNumber: hasAppointment.date ? calculateWeekNumber(hasAppointment.date) : calculateWeekNumber(today),
-                    type: hasAppointment.type || 'HAS'
+                    type: hasAppointment.type || 'HAS',
+                    hasMonteurName: data.hasMonteur?.hasMonteurName || ''
                 });
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -100,6 +119,7 @@ const HPApartmentPage = () => {
         };
 
         fetchApartment();
+        fetchAvailableHASMonteurs();
     }, [params.id, axiosPrivate]);
 
     const handleHASAppointmentChange = (e) => {
@@ -121,7 +141,8 @@ const HPApartmentPage = () => {
                     endTime: hasAppointmentData.endTime,
                     weekNumber: hasAppointmentData.weekNumber,
                     type: hasAppointmentData.type
-                }
+                },
+                hasMonteurName: hasAppointmentData.hasMonteurName
             });
 
             if (response.data) {
@@ -224,7 +245,7 @@ const HPApartmentPage = () => {
                                         <label>
                                             <input
                                                 type="radio"
-                                                name="appointmentType"
+                                                name="type"
                                                 value="HAS"
                                                 checked={hasAppointmentData.type === 'HAS'}
                                                 onChange={handleHASAppointmentChange}
@@ -234,7 +255,7 @@ const HPApartmentPage = () => {
                                         <label>
                                             <input
                                                 type="radio"
-                                                name="appointmentType"
+                                                name="type"
                                                 value="Storing"
                                                 checked={hasAppointmentData.type === 'Storing'}
                                                 onChange={handleHASAppointmentChange}
@@ -286,6 +307,23 @@ const HPApartmentPage = () => {
                                         className="ts-input"
                                     />
                                 </div>
+                                <div className="ts-formGroup">
+                                    <label>HAS Monteur:</label>
+                                    <select
+                                        name="hasMonteurName"
+                                        value={hasAppointmentData.hasMonteurName}
+                                        onChange={handleHASAppointmentChange}
+                                        className="ts-input"
+                                        required
+                                    >
+                                        <option value="">Select a HAS Monteur</option>
+                                        {availableHASMonteurs.map(person => (
+                                            <option key={person._id} value={person.name}>
+                                                {person.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <button type="submit" className="ts-saveButton">
                                     Save Appointment
                                 </button>
@@ -303,6 +341,7 @@ const HPApartmentPage = () => {
                                             <strong>Time:</strong> {flat.hasMonteur.appointmentBooked.startTime} - {flat.hasMonteur.appointmentBooked.endTime}
                                         </p>
                                         <p><strong>Week:</strong> {flat.hasMonteur.appointmentBooked.weekNumber}</p>
+                                        <p><strong>HAS Monteur:</strong> {flat.hasMonteur.hasMonteurName || 'Not assigned'}</p>
                                     </>
                                 ) : (
                                     <p>No appointment scheduled</p>
@@ -316,4 +355,4 @@ const HPApartmentPage = () => {
     );
 };
 
-export default HPApartmentPage;
+export default HASInstallerApartmentDetailPage;

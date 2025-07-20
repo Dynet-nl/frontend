@@ -3,7 +3,7 @@ import {Link, useParams} from 'react-router-dom';
 import AreaForm from '../components/AreaForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 
-const AreaPage = () => {
+const AreaSelectionPage = () => {
     const {cityId} = useParams();
     const [areas, setAreas] = useState([]);
     const axiosPrivate = useAxiosPrivate();
@@ -101,4 +101,4 @@ const AreaPage = () => {
     );
 };
 
-export default AreaPage;
+export default AreaSelectionPage;

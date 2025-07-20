@@ -2,11 +2,9 @@ import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
 import {format, parse, startOfWeek, getDay} from 'date-fns';
 import {nl} from 'date-fns/locale';
-import differenceInMinutes from 'date-fns/differenceInMinutes';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
-import {useNavigate} from 'react-router-dom';
 
 const locales = {
     'nl': nl
@@ -20,81 +18,82 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
-const HASAgendaPage = () => {
+const TechnicalPlanningAgendaCalendarPage = () => {
     const axiosPrivate = useAxiosPrivate();
-    const navigate = useNavigate();
-
     const [events, setEvents] = useState([]);
     const [originalEvents, setOriginalEvents] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentRange, setCurrentRange] = useState({start: null, end: null});
-    const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
-    const [hasMonteurs, setHasMonteurs] = useState([]);
-    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); 
+    const [technischeSchouwers, setTechnischeSchouwers] = useState([]);
+    const [selectedSchouwer, setSelectedSchouwer] = useState('');
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date());
 
-    
-    const fetchHasMonteurs = useCallback(async () => {
+    const fetchTechnischeSchouwers = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
 
-            
-            const monteurs = users.filter(user => {
+            const schouwers = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
-                    user.roles.HASMonteur === 2023;
+                    user.roles.TechnischeSchouwer === 8687;
             });
 
-            console.log('Found HAS Monteurs:', monteurs);
-            setHasMonteurs(monteurs);
+            console.log('Found Technische Schouwers:', schouwers);
+            setTechnischeSchouwers(schouwers);
         } catch (error) {
-            console.error('Error fetching HAS Monteurs:', error);
+            console.error('Error fetching technische schouwers:', error);
         }
     }, [axiosPrivate]);
 
     const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
+            console.log('Fetching all appointments without date filtering.');
 
-            const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
+            
+            const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                 params: {
-                    limit: 500, 
+                    limit: 500,  
                 }
             });
 
+            if (response?.data?.length > 0) {
+                console.log('Appointments fetched successfully:', response.data);
+            } else {
+                console.log('No appointments found.');
+            }
+
+            
             const calendarEvents = response.data
                 .filter(flat =>
-                    flat.hasMonteur?.appointmentBooked?.date &&
-                    flat.hasMonteur?.appointmentBooked?.startTime
+                    flat.technischePlanning?.appointmentBooked?.date &&
+                    flat.technischePlanning?.appointmentBooked?.startTime
                 )
                 .map(flat => {
-                    const appointmentData = flat.hasMonteur.appointmentBooked;
-                    const appointmentDate = new Date(appointmentData.date);
-                    const [startHours, startMinutes] = appointmentData.startTime.split(':');
-                    const [endHours, endMinutes] = appointmentData.endTime
-                        ? appointmentData.endTime.split(':')
-                        : [parseInt(startHours) + 1, startMinutes];
+                    const appointmentDate = new Date(flat.technischePlanning.appointmentBooked.date);
+                    const [startHours, startMinutes] = flat.technischePlanning.appointmentBooked.startTime.split(':');
+                    const [endHours, endMinutes] = flat.technischePlanning.appointmentBooked.endTime
+                        ? flat.technischePlanning.appointmentBooked.endTime.split(':')
+                        : [startHours, startMinutes]; 
 
+                    
                     const startDateTime = new Date(appointmentDate);
                     startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
 
                     const endDateTime = new Date(appointmentDate);
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
 
-                    
-                    const duration = Math.max(differenceInMinutes(endDateTime, startDateTime), 30);
-
                     return {
                         id: flat._id,
-                        title: `${appointmentData.type}: ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
+                        title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
-                        duration: duration,
-                        personName: flat.hasMonteur.hasMonteurName, 
+                        personName: flat.technischePlanning.technischeSchouwerName, 
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
-                            type: appointmentData.type,
-                            notes: flat.hasMonteur.notes || 'No notes',
+                            phone: flat.technischePlanning.telephone || 'Not provided',
+                            notes: flat.technischePlanning.additionalNotes || 'No notes',
                             flatId: flat._id,
                             complexNaam: flat.complexNaam || 'N/A'
                         }
@@ -110,20 +109,28 @@ const HASAgendaPage = () => {
         }
     }, [axiosPrivate]);
 
+    
     useEffect(() => {
         
         setCurrentRange({start: null, end: null});
 
         
-        fetchHasMonteurs();
+        fetchTechnischeSchouwers();
         
         
         fetchAppointments();
-    }, [fetchHasMonteurs, fetchAppointments]);
+    }, [fetchTechnischeSchouwers, fetchAppointments]);
 
-    const handleHASMonteurFilter = (e) => {
+    
+    
+    
+    
+    
+    
+
+    const handleSchouwerFilter = (e) => {
         const selectedName = e.target.value;
-        setSelectedHASMonteur(selectedName);
+        setSelectedSchouwer(selectedName);
 
         if (!selectedName) {
             
@@ -149,33 +156,26 @@ const HASAgendaPage = () => {
 
     const handleEventClick = (event) => {
         const {resource} = event;
-        navigate(`/hm-apartment/${resource.flatId}`);
+        alert(`
+            Appointment Details:
+            -------------------
+            Address: ${resource.address}
+            Phone: ${resource.phone}
+            Notes: ${resource.notes}
+            Complex Name: ${resource.complexNaam}
+        `);
     };
 
     const eventStyleGetter = (event) => {
-        const isStoring = event.resource.type === 'Storing';
-
-        
-        const baseHeight = 30; 
-        const minDuration = 30; 
-        const maxDuration = 240; 
-        const normalizedDuration = Math.min(Math.max(event.duration, minDuration), maxDuration);
-
-        
-        const heightMultiplier = Math.log(normalizedDuration / minDuration + 1);
-
         return {
             style: {
-                backgroundColor: isStoring ? '#e74c3c' : '#2ecc71',
+                backgroundColor: '#3498db',
                 borderRadius: '4px',
                 opacity: 0.9,
                 color: 'white',
-                border: `1px solid ${isStoring ? '#c0392b' : '#27ae60'}`,
+                border: '1px solid #2980b9',
                 display: 'block',
-                padding: '5px 10px',
-                height: `${baseHeight * heightMultiplier}px`, 
-                overflow: 'hidden',
-                fontSize: `${Math.max(10, 14 - (normalizedDuration / 60))}px` 
+                padding: '5px 10px'
             }
         };
     };
@@ -187,7 +187,6 @@ const HASAgendaPage = () => {
             height: '100vh',
             padding: '20px'
         }}>
-            
             <div style={{
                 width: '100%',
                 marginBottom: '20px',
@@ -198,21 +197,21 @@ const HASAgendaPage = () => {
                 padding: '15px',
                 borderRadius: '8px'
             }}>
-                {hasMonteurs.length > 0 && (
+                {technischeSchouwers.length > 0 && (
                     <div style={{
                         display: 'flex',
                         alignItems: 'center'
                     }}>
-                        <label htmlFor="hasMonteurFilter" style={{
+                        <label htmlFor="schouwerFilter" style={{
                             marginRight: '10px',
                             fontWeight: 'bold'
                         }}>
-                            Select HAS Monteur:
+                            Select Technische Schouwer:
                         </label>
                         <select
-                            id="hasMonteurFilter"
-                            value={selectedHASMonteur}
-                            onChange={handleHASMonteurFilter}
+                            id="schouwerFilter"
+                            value={selectedSchouwer}
+                            onChange={handleSchouwerFilter}
                             style={{
                                 padding: '8px',
                                 borderRadius: '4px',
@@ -220,10 +219,10 @@ const HASAgendaPage = () => {
                                 minWidth: '250px'
                             }}
                         >
-                            <option value="">All HAS Monteurs</option>
-                            {hasMonteurs.map(monteur => (
-                                <option key={monteur._id} value={monteur.name}>
-                                    {monteur.name}
+                            <option value="">All Technische Schouwers</option>
+                            {technischeSchouwers.map(schouwer => (
+                                <option key={schouwer._id} value={schouwer.name}>
+                                    {schouwer.name}
                                 </option>
                             ))}
                         </select>
@@ -233,20 +232,20 @@ const HASAgendaPage = () => {
 
             
             <div style={{
-                backgroundColor: '#e8f5e8',
+                backgroundColor: '#e8f4fd',
                 padding: '10px',
                 borderRadius: '5px',
                 marginBottom: '10px',
                 textAlign: 'center',
                 fontSize: '14px',
-                color: '#2c6e49',
+                color: '#1e3a5f',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
                 <span>💡 <strong>Navigation:</strong> Use "Vorige" and "Volgende" buttons to view appointments from different months</span>
                 <span style={{ fontWeight: 'bold' }}>
-                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: nl })}
+                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: locales.nl })}
                 </span>
             </div>
 
@@ -264,14 +263,14 @@ const HASAgendaPage = () => {
                     onSelectEvent={handleEventClick}
                     eventPropGetter={eventStyleGetter}
                     views={['month', 'week', 'day', 'agenda']}
-                    defaultView='month'
+                    defaultView='month' 
                     step={30}
                     timeslots={2}
-                    onRangeChange={handleRangeChange}
+                    onRangeChange={handleRangeChange} 
                     showMultiDayTimes={true}
                     popup={true}
                     popupOffset={30}
-                    tooltipAccessor={event => `${event.title}\nType: ${event.resource.type}\nDuration: ${event.duration} minutes\nPerson: ${event.personName}`}
+                    tooltipAccessor={event => `${event.title}\nPhone: ${event.resource.phone}\nSchouwer: ${event.personName}`}
                     messages={{
                         next: "Volgende",
                         previous: "Vorige",
@@ -291,6 +290,7 @@ const HASAgendaPage = () => {
                             localizer.format(end, 'MMMM dd, yyyy', culture)
                     }}
                 />
+                
                 {loading && (
                     <div style={{
                         position: 'absolute',
@@ -303,7 +303,7 @@ const HASAgendaPage = () => {
                         justifyContent: 'center',
                         alignItems: 'center'
                     }}>
-                        <BounceLoader color="#2ecc71"/>
+                        <BounceLoader color="#3498db"/>
                     </div>
                 )}
             </div>
@@ -311,4 +311,4 @@ const HASAgendaPage = () => {
     );
 };
 
-export default HASAgendaPage;
+export default TechnicalPlanningAgendaCalendarPage;

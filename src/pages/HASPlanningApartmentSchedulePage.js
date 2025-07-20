@@ -4,7 +4,7 @@ import {useNavigate, useParams} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css'; 
 
-const HASApartmentSchedulePage = () => {
+const HASPlanningApartmentSchedulePage = () => {
     const {id} = useParams();
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
@@ -366,4 +366,4 @@ const HASApartmentSchedulePage = () => {
     );
 };
 
-export default HASApartmentSchedulePage;
+export default HASPlanningApartmentSchedulePage;

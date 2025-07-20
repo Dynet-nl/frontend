@@ -1,28 +1,32 @@
+// Main App component with routing configuration, authentication checks, and cache invalidation provider. Handles all page routes and role-based access control.
+
 import './App.css';
 import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
-import HomePage from './pages/HomePage';
-import DistrictPage from './pages/DistrictPage';
-import BuildingPage from './pages/BuildingPage';
-import CityPage from './pages/CityPage';
-import AreaPage from './pages/AreaPage';
-import AdminPage from './pages/AdminPage';
-import DashboardPage from './pages/DashboardPage';
-import AdminApartmentPage from './pages/AdminApartmentPage';
-import TPApartmentPage from './pages/TPApartmentPage';
-import HPApartmentPage from './pages/HPApartmentPage';
-import TSApartmentPage from './pages/TSApartmentPage';
-import HMApartmentPage from './pages/HMApartmentPage';
-import TSApartmentSchedulePage from './pages/TSApartmentSchedulePage';
-import AgendaPage from './pages/AgendaPage.js';
-import HASAgendaPage from './pages/HASAgendaPage';
-import LoginPage from './pages/LoginPage';
+import { CacheInvalidationProvider } from './context/CacheInvalidationProvider';
+import DashboardHomePage from './pages/DashboardHomePage';
+import DistrictSelectionPage from './pages/DistrictSelectionPage';
+import BuildingListPage from './pages/BuildingListPage';
+import CitySelectionPage from './pages/CitySelectionPage';
+import AreaSelectionPage from './pages/AreaSelectionPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminDistrictManagementPage from './pages/AdminDistrictManagementPage';
+import AdminApartmentDetailPage from './pages/AdminApartmentDetailPage';
+import TechnicalPlanningApartmentDetailPage from './pages/TechnicalPlanningApartmentDetailPage';
+import HASPlanningApartmentDetailPage from './pages/HASPlanningApartmentDetailPage';
+import TechnicalInspectorApartmentDetailPage from './pages/TechnicalInspectorApartmentDetailPage';
+import HASInstallerApartmentDetailPage from './pages/HASInstallerApartmentDetailPage';
+import TechnicalPlanningApartmentSchedulePage from './pages/TechnicalPlanningApartmentSchedulePage';
+import TechnicalPlanningAgendaCalendarPage from './pages/TechnicalPlanningAgendaCalendarPage';
+import HASInstallerAgendaCalendarPage from './pages/HASInstallerAgendaCalendarPage';
+import UserLoginPage from './pages/UserLoginPage';
 import Layout from './components/Layout';
 import NotFound from './components/NotFound';
 import Unauthorized from './components/Unauthorized';
 import RequireAuth from './components/RequireAuth';
-import HASApartmentSchedulePage from "./pages/HASApartmentSchedulePage";
+import HASPlanningApartmentSchedulePage from "./pages/HASPlanningApartmentSchedulePage";
+import UnifiedAppointmentPage from "./pages/UnifiedAppointmentPage";
 
 function App() {
     const { setAuth } = useAuth();
@@ -36,54 +40,58 @@ function App() {
     }, [setAuth]);
 
     return (
-        <div className='App'>
-            <Routes>
-                <Route element={<LoginPage />} path='/login' />
-                <Route element={<Unauthorized />} path='/unauthorized' />
-                <Route element={<Layout />}>
+        <CacheInvalidationProvider>
+            <div className='App'>
+                <Routes>
+                    <Route element={<UserLoginPage />} path='/login' />
+                    <Route element={<Unauthorized />} path='/unauthorized' />
+                    <Route element={<Layout />}>
                     <Route element={<RequireAuth allowedRoles={[5150]} />}>
-                        <Route element={<AdminPage />} path='/admin' />
-                        <Route element={<DashboardPage />} path='/dashboard' />
-                        <Route element={<AdminApartmentPage />} path='/admin-apartment/:id' />
+                        <Route element={<AdminDashboardPage />} path='/admin' />
+                        <Route element={<AdminDistrictManagementPage />} path='/dashboard' />
+                        <Route element={<AdminApartmentDetailPage />} path='/admin-apartment/:id' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[1991]} />}>
-                        <Route element={<TPApartmentPage />} path='/planning-apartment/:id' />
+                        <Route element={<TechnicalPlanningApartmentDetailPage />} path='/planning-apartment/:id' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[1959]} />}>
-                        <Route element={<HPApartmentPage />} path='/has-planning-apartment/:id' />
-                        <Route element={<HASApartmentSchedulePage />} path='/has-planning-apartment-schedule/:id' />
+                        <Route element={<HASPlanningApartmentDetailPage />} path='/has-planning-apartment/:id' />
+                        <Route element={<HASPlanningApartmentSchedulePage />} path='/has-planning-apartment-schedule/:id' />
+                        <Route element={<UnifiedAppointmentPage />} path='/has-appointment-scheduler/:id' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[8687]} />}>
-                        <Route element={<TSApartmentPage />} path='/ts-apartment/:id' />
+                        <Route element={<TechnicalInspectorApartmentDetailPage />} path='/ts-apartment/:id' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[2023, 5150, 1959]} />}>
-                        <Route element={<HMApartmentPage />} path='/hm-apartment/:id' />
+                        <Route element={<HASInstallerApartmentDetailPage />} path='/hm-apartment/:id' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[1959, 8687, 2023, 5150]} />}>
-                        <Route element={<HASAgendaPage />} path='/has-agenda' />
+                        <Route element={<HASInstallerAgendaCalendarPage />} path='/has-agenda' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[1991, 5150]} />}>
-                        <Route element={<TSApartmentSchedulePage />} path='/planning-apartment-schedule/:id' />
-                        <Route element={<AgendaPage />} path='/agenda' />
+                        <Route element={<TechnicalPlanningApartmentSchedulePage />} path='/planning-apartment-schedule/:id' />
+                        <Route element={<TechnicalPlanningAgendaCalendarPage />} path='/agenda' />
+                        <Route element={<UnifiedAppointmentPage />} path='/appointment-scheduler/:id' />
                     </Route>
 
                     <Route element={<RequireAuth allowedRoles={[5150, 1991, 8687, 1948, 1959, 2023]} />}>
-                        <Route element={<HomePage />} path='/' />
-                        <Route element={<CityPage />} path='/city' />
-                        <Route element={<AreaPage />} path='/area/:cityId' />
-                        <Route element={<DistrictPage />} path='/district/:areaId' />
-                        <Route element={<BuildingPage />} path='/building/:id' />
+                        <Route element={<DashboardHomePage />} path='/' />
+                        <Route element={<CitySelectionPage />} path='/city' />
+                        <Route element={<AreaSelectionPage />} path='/area/:cityId' />
+                        <Route element={<DistrictSelectionPage />} path='/district/:areaId' />
+                        <Route element={<BuildingListPage />} path='/building/:id' />
                     </Route>
                 </Route>
                 <Route element={<NotFound />} path='*' />
             </Routes>
         </div>
+        </CacheInvalidationProvider>
     );
 }
 

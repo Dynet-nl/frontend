@@ -1,5 +1,7 @@
+// HAS Planning apartment detail page with inline editing for installation details and appointments. Integrates with UnifiedAppointmentScheduler and invalidates cache on updates.
+
 import React, {useEffect, useState} from 'react';
-import {useParams} from 'react-router-dom';
+import {useParams, Link} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/tsApartmentDetails.css';
@@ -11,7 +13,7 @@ const calculateWeekNumber = (date) => {
     return Math.ceil(days / 7);
 };
 
-const HMApartmentPage = () => {
+const HASPlanningApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
     const {auth} = useAuth();
@@ -19,12 +21,14 @@ const HMApartmentPage = () => {
     const hasHASPlanningRole = auth?.roles?.includes(1959);
 
     const [isEditingHASAppointment, setIsEditingHASAppointment] = useState(false);
+    const [availableHASMonteurs, setAvailableHASMonteurs] = useState([]);
     const [hasAppointmentData, setHASAppointmentData] = useState({
         date: new Date().toISOString().split('T')[0],
         startTime: '',
         endTime: '',
         weekNumber: calculateWeekNumber(new Date()),
-        type: 'HAS'
+        type: 'HAS',
+        hasMonteurName: ''
     });
 
     const [flat, setFlat] = useState({
@@ -51,6 +55,22 @@ const HMApartmentPage = () => {
         odf: '',
         odfPositie: '',
     });
+
+    const fetchAvailableHASMonteurs = async () => {
+        try {
+            const response = await axiosPrivate.get('/api/users');
+            const users = response.data;
+            
+            const hasMonteurs = users.filter(user => 
+                user.roles && typeof user.roles === 'object' && 
+                user.roles.HASMonteur === 2023
+            );
+            
+            setAvailableHASMonteurs(hasMonteurs);
+        } catch (error) {
+            console.error('Error fetching HAS Monteurs:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchApartment = async () => {
@@ -92,7 +112,8 @@ const HMApartmentPage = () => {
                     startTime: hasAppointment.startTime || '',
                     endTime: hasAppointment.endTime || '',
                     weekNumber: hasAppointment.date ? calculateWeekNumber(hasAppointment.date) : calculateWeekNumber(today),
-                    type: hasAppointment.type || 'HAS'
+                    type: hasAppointment.type || 'HAS',
+                    hasMonteurName: data.hasMonteur?.hasMonteurName || ''
                 });
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -100,6 +121,7 @@ const HMApartmentPage = () => {
         };
 
         fetchApartment();
+        fetchAvailableHASMonteurs();
     }, [params.id, axiosPrivate]);
 
     const handleHASAppointmentChange = (e) => {
@@ -121,7 +143,8 @@ const HMApartmentPage = () => {
                     endTime: hasAppointmentData.endTime,
                     weekNumber: hasAppointmentData.weekNumber,
                     type: hasAppointmentData.type
-                }
+                },
+                hasMonteurName: hasAppointmentData.hasMonteurName
             });
 
             if (response.data) {
@@ -139,6 +162,9 @@ const HMApartmentPage = () => {
             }
 
             setIsEditingHASAppointment(false);
+            
+            window.dispatchEvent(new CustomEvent('invalidate-buildings-cache'));
+            
             alert('HAS Monteur appointment saved successfully!');
         } catch (error) {
             console.error('Error saving HAS Monteur appointment:', error);
@@ -194,26 +220,37 @@ const HMApartmentPage = () => {
                     <div className="ts-appointmentDetails">
                         <div className="ts-planningHeader">
                             <h3>HAS Monteur Appointment</h3>
-                            {hasHASPlanningRole && (
-                                <button
-                                    className="ts-editButton"
-                                    onClick={() => setIsEditingHASAppointment(!isEditingHASAppointment)}
-                                    aria-label={isEditingHASAppointment ? "Close editing" : "Edit HAS Monteur appointment"}
-                                >
-                                    {isEditingHASAppointment ? (
-                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
-                                             strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    ) : (
-                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
-                                             strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                                        </svg>
-                                    )}
-                                </button>
-                            )}
+                            <div className="ts-appointmentActions">
+                                {hasHASPlanningRole && (
+                                    <Link 
+                                        to={`/has-appointment-scheduler/${flat._id}?mode=single&type=HAS`}
+                                        className="ts-unifiedSchedulerButton"
+                                        title="Use Unified Appointment Scheduler"
+                                    >
+                                        📅 Unified Scheduler
+                                    </Link>
+                                )}
+                                {hasHASPlanningRole && (
+                                    <button
+                                        className="ts-editButton"
+                                        onClick={() => setIsEditingHASAppointment(!isEditingHASAppointment)}
+                                        aria-label={isEditingHASAppointment ? "Close editing" : "Edit HAS Monteur appointment"}
+                                    >
+                                        {isEditingHASAppointment ? (
+                                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                                                 strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        ) : (
+                                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                                                 strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                            </svg>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {isEditingHASAppointment && hasHASPlanningRole ? (
@@ -224,7 +261,7 @@ const HMApartmentPage = () => {
                                         <label>
                                             <input
                                                 type="radio"
-                                                name="appointmentType"
+                                                name="type"
                                                 value="HAS"
                                                 checked={hasAppointmentData.type === 'HAS'}
                                                 onChange={handleHASAppointmentChange}
@@ -234,7 +271,7 @@ const HMApartmentPage = () => {
                                         <label>
                                             <input
                                                 type="radio"
-                                                name="appointmentType"
+                                                name="type"
                                                 value="Storing"
                                                 checked={hasAppointmentData.type === 'Storing'}
                                                 onChange={handleHASAppointmentChange}
@@ -286,6 +323,23 @@ const HMApartmentPage = () => {
                                         className="ts-input"
                                     />
                                 </div>
+                                <div className="ts-formGroup">
+                                    <label>HAS Monteur:</label>
+                                    <select
+                                        name="hasMonteurName"
+                                        value={hasAppointmentData.hasMonteurName}
+                                        onChange={handleHASAppointmentChange}
+                                        className="ts-input"
+                                        required
+                                    >
+                                        <option value="">Select a HAS Monteur</option>
+                                        {availableHASMonteurs.map(person => (
+                                            <option key={person._id} value={person.name}>
+                                                {person.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <button type="submit" className="ts-saveButton">
                                     Save Appointment
                                 </button>
@@ -303,6 +357,7 @@ const HMApartmentPage = () => {
                                             <strong>Time:</strong> {flat.hasMonteur.appointmentBooked.startTime} - {flat.hasMonteur.appointmentBooked.endTime}
                                         </p>
                                         <p><strong>Week:</strong> {flat.hasMonteur.appointmentBooked.weekNumber}</p>
+                                        <p><strong>HAS Monteur:</strong> {flat.hasMonteur.hasMonteurName || 'Not assigned'}</p>
                                     </>
                                 ) : (
                                     <p>No appointment scheduled</p>
@@ -316,4 +371,4 @@ const HMApartmentPage = () => {
     );
 };
 
-export default HMApartmentPage;
+export default HASPlanningApartmentDetailPage;

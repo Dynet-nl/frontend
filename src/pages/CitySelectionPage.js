@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import CityForm from '../components/CityForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 
-const CityPage = () => {
+const CitySelectionPage = () => {
     const [cities, setCities] = useState([]);
     const axiosPrivate = useAxiosPrivate();
 
@@ -99,4 +99,4 @@ const CityPage = () => {
     );
 }
 
-export default CityPage;
+export default CitySelectionPage;

@@ -1,3 +1,5 @@
+// District import component for uploading CSV files to create new districts or update existing ones. Integrates with backend district API and triggers cache invalidation.
+
 import React, {useState} from 'react'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Button from '@mui/material/Button';
@@ -28,8 +30,10 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
                 },
             }
 
-            const {data} = await axiosPrivate.post('/api/district', formData, config)
-            setNewDistrictUploaded(prev => prev + 1)
+            await axiosPrivate.post('/api/district', formData, config)
+            if (setNewDistrictUploaded) {
+                setNewDistrictUploaded(prev => prev + 1)
+            }
 
             
             setSelectedFile([])
@@ -62,7 +66,7 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
                     'Content-Type': 'multipart/form-data',
                 },
             }
-            const {data} = await axiosPrivate.put('/api/district', formData, config)
+            await axiosPrivate.put('/api/district', formData, config)
             setSelectedFile([])
             if (onDistrictCreated) {
                 onDistrictCreated()

@@ -4,7 +4,7 @@ import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/tsApartmentDetails.css';
 
-const TSPApartmentPage = () => {
+const TechnicalInspectorApartmentDetailPage = () => {
   const params = useParams();
   const axiosPrivate = useAxiosPrivate();
   const { auth } = useAuth();
@@ -511,4 +511,4 @@ const TSPApartmentPage = () => {
   );
 };
 
-export default TSPApartmentPage;
+export default TechnicalInspectorApartmentDetailPage;

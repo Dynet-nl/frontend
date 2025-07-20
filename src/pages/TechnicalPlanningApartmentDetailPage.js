@@ -1,5 +1,7 @@
+// Technical Planning apartment detail page with inline editing for planning details and appointments. Integrates with UnifiedAppointmentScheduler and invalidates cache on updates.
+
 import React, {useEffect, useState} from 'react';
-import {useParams} from 'react-router-dom';
+import {useParams, Link} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css';
 
@@ -10,11 +12,12 @@ const calculateWeekNumber = (date) => {
     return Math.ceil(days / 7);
 };
 
-const TPApartmentPage = () => {
+const TechnicalPlanningApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
     const [isEditingPlanning, setIsEditingPlanning] = useState(false);
     const [isEditingAppointment, setIsEditingAppointment] = useState(false);
+    const [availableTechnischeSchouwers, setAvailableTechnischeSchouwers] = useState([]);
 
     const [flat, setFlat] = useState({
         _id: '',
@@ -65,8 +68,25 @@ const TPApartmentPage = () => {
         date: new Date().toISOString().split('T')[0],
         startTime: '',
         endTime: '',
-        weekNumber: calculateWeekNumber(new Date())
+        weekNumber: calculateWeekNumber(new Date()),
+        technischeSchouwerName: ''
     });
+
+    const fetchAvailableTechnischeSchouwers = async () => {
+        try {
+            const response = await axiosPrivate.get('/api/users');
+            const users = response.data;
+            
+            const technischeSchouwers = users.filter(user => 
+                user.roles && typeof user.roles === 'object' && 
+                user.roles.TechnischeSchouwer === 8687
+            );
+            
+            setAvailableTechnischeSchouwers(technischeSchouwers);
+        } catch (error) {
+            console.error('Error fetching Technische Schouwers:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchApartment = async () => {
@@ -76,13 +96,13 @@ const TPApartmentPage = () => {
 
                 const today = new Date().toISOString().split('T')[0];
 
-                
                 const appointmentData = data.technischePlanning?.appointmentBooked || {};
                 setAppointmentData({
                     date: appointmentData.date ? new Date(appointmentData.date).toISOString().split('T')[0] : today,
                     startTime: appointmentData.startTime || '',
                     endTime: appointmentData.endTime || '',
                     weekNumber: appointmentData.date ? calculateWeekNumber(appointmentData.date) : calculateWeekNumber(today),
+                    technischeSchouwerName: data.technischePlanning?.technischeSchouwerName || ''
                 });
 
                 setFlat({
@@ -137,6 +157,7 @@ const TPApartmentPage = () => {
         };
 
         fetchApartment();
+        fetchAvailableTechnischeSchouwers();
     }, [params.id, axiosPrivate]);
 
     const handleChange = (e) => {
@@ -173,7 +194,8 @@ const TPApartmentPage = () => {
         e.preventDefault();
         try {
             await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, {
-                appointmentBooked: appointmentData
+                appointmentBooked: appointmentData,
+                technischeSchouwerName: appointmentData.technischeSchouwerName
             });
 
             const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
@@ -187,6 +209,9 @@ const TPApartmentPage = () => {
                     updatedAt: new Date().toISOString()
                 }));
             }
+            
+            window.dispatchEvent(new CustomEvent('invalidate-buildings-cache'));
+            
             setIsEditingAppointment(false);
             alert('Appointment saved successfully!');
         } catch (error) {
@@ -206,6 +231,8 @@ const TPApartmentPage = () => {
                 technischePlanning: response.data.technischePlanning,
                 updatedAt: new Date().toISOString()
             }));
+
+            window.dispatchEvent(new CustomEvent('invalidate-buildings-cache'));
 
             setIsEditingPlanning(false);
             alert('Planning details saved successfully!');
@@ -396,40 +423,49 @@ const TPApartmentPage = () => {
                     <div className="ts-appointmentDetails">
                         <div className="ts-planningHeader">
                             <h3>Appointment Details</h3>
-                            <button
-                                className="ts-editButton"
-                                onClick={() => setIsEditingAppointment(!isEditingAppointment)}
-                                aria-label={isEditingAppointment ? "Close editing" : "Edit appointment"}
-                            >
-                                {isEditingAppointment ? (
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        width="24"
-                                        height="24"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        fill="none"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
-                                ) : (
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        width="24"
-                                        height="24"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        fill="none"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                                    </svg>
-                                )}
-                            </button>
+                            <div className="ts-appointmentActions">
+                                <Link 
+                                    to={`/appointment-scheduler/${flat._id}?mode=single&type=Technical`}
+                                    className="ts-unifiedSchedulerButton"
+                                    title="Use Unified Appointment Scheduler"
+                                >
+                                    📅 Unified Scheduler
+                                </Link>
+                                <button
+                                    className="ts-editButton"
+                                    onClick={() => setIsEditingAppointment(!isEditingAppointment)}
+                                    aria-label={isEditingAppointment ? "Close editing" : "Edit appointment"}
+                                >
+                                    {isEditingAppointment ? (
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            width="24"
+                                            height="24"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            fill="none"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    ) : (
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            width="24"
+                                            height="24"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            fill="none"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         {isEditingAppointment ? (
@@ -477,6 +513,23 @@ const TPApartmentPage = () => {
                                         className="ts-input"
                                     />
                                 </div>
+                                <div className="ts-formGroup">
+                                    <label>Technische Schouwer:</label>
+                                    <select
+                                        name="technischeSchouwerName"
+                                        value={appointmentData.technischeSchouwerName}
+                                        onChange={handleAppointmentChange}
+                                        className="ts-input"
+                                        required
+                                    >
+                                        <option value="">Select a Technische Schouwer</option>
+                                        {availableTechnischeSchouwers.map(person => (
+                                            <option key={person._id} value={person.name}>
+                                                {person.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <button type="submit" className="ts-saveButton">
                                     Save Appointment
                                 </button>
@@ -493,6 +546,7 @@ const TPApartmentPage = () => {
                                         </p>
                                         <p><strong>Week:</strong> {flat.technischePlanning.appointmentBooked.weekNumber}
                                         </p>
+                                        <p><strong>Technische Schouwer:</strong> {flat.technischePlanning.technischeSchouwerName || 'Not assigned'}</p>
                                     </>
                                 ) : (
                                     <p>No appointment scheduled</p>
@@ -506,4 +560,4 @@ const TPApartmentPage = () => {
     );
 };
 
-export default TPApartmentPage;
+export default TechnicalPlanningApartmentDetailPage;
