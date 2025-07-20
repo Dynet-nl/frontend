@@ -1,6 +1,6 @@
 // Unified appointment scheduling page that handles both single apartment and building-wide appointment scheduling for HAS and Technical Planning teams. Routes to appropriate detail pages after saving.
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';

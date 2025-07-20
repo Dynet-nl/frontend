@@ -76,8 +76,6 @@ const HASPlanningApartmentDetailPage = () => {
         const fetchApartment = async () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
-                console.log('Full flat data:', data);
-                console.log('HAS Monteur data:', data.hasMonteur);
 
                 const today = new Date().toISOString().split('T')[0];
 

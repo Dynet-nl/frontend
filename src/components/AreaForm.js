@@ -11,7 +11,7 @@ const AreaForm = ({cityId, onAddArea}) => {
             await onAddArea({name: areaName, cityId: cityId});
             setAreaName('');
         } catch (error) {
-            console.log('Error adding area:', error);
+            console.error('Error adding area:', error);
         }
     };
 

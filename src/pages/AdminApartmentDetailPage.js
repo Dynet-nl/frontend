@@ -75,7 +75,6 @@ const AdminApartmentDetailPage = () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
                 const flatData = data;
-                console.log('Full flat data:', data);
 
                 setApartment({
                     _id: flatData._id,
@@ -193,7 +192,7 @@ const AdminApartmentDetailPage = () => {
 
         createEvent(event, (error, value) => {
             if (error) {
-                console.log(error);
+                console.error('Error creating calendar event:', error);
                 return;
             }
 

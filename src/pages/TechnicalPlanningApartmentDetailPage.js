@@ -92,7 +92,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
         const fetchApartment = async () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
-                console.log('Full flat data:', data);
 
                 const today = new Date().toISOString().split('T')[0];
 
@@ -224,7 +223,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
         e.preventDefault();
         try {
             const response = await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, formData);
-            console.log('Updated TechnischePlanning:', response.data);
 
             setFlat((prevFlat) => ({
                 ...prevFlat,

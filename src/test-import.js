@@ -4,4 +4,4 @@ import UserLoginPage from './pages/UserLoginPage';
 import TechnicalPlanningAgendaCalendarPage from './pages/TechnicalPlanningAgendaCalendarPage';
 import HASInstallerAgendaCalendarPage from './pages/HASInstallerAgendaCalendarPage';
 
-console.log('All imports successful');
+// Imports verified successfully - file can be removed in production

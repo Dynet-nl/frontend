@@ -156,8 +156,6 @@ const BuildingListPage = () => {
                 formFields,
                 config,
             )
-
-        console.log('response', data)
     }
 
     const addFields = () => {
@@ -222,8 +220,6 @@ const BuildingListPage = () => {
             schedules,
             config,
         )
-
-        console.log('data', data)
     }
 
     return (

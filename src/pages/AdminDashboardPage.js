@@ -63,10 +63,8 @@ const AdminDashboardPage = () => {
 
         const allFieldsFilled = !Object.values(newErrors).some((error) => error);
         if (allFieldsFilled) {
-            console.log("Submitting user data:", userData);
             try {
                 const response = await axiosPrivate.post('/api/users', userData);
-                console.log('User added:', response.data);
                 setUserData({name: '', email: '', password: '', roles: []});
             } catch (error) {
                 console.error('Error adding user:', error.response ? error.response.data : error);

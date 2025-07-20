@@ -54,7 +54,6 @@ const HASPlanningApartmentSchedulePage = () => {
                     user.roles.HASMonteur === 2023;
             });
 
-            console.log('Found HAS Monteurs:', monteurs);
             setHASMonteurs(monteurs);
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
@@ -64,13 +63,10 @@ const HASPlanningApartmentSchedulePage = () => {
     const fetchBuilding = async () => {
         try {
             const { data } = await axiosPrivate.get(`/api/building/${id}`);
-            console.log('Building data:', data);
             setBuilding(data);
 
-            
             const initialFlatAppointments = {};
             data.flats.forEach((flat) => {
-                console.log(`Processing flat ${flat._id}:`, flat.hasMonteur);
                 if (flat.hasMonteur?.appointmentBooked?.date) {
                     initialFlatAppointments[flat._id] = {
                         date: formatDate(flat.hasMonteur.appointmentBooked.date),
@@ -84,18 +80,14 @@ const HASPlanningApartmentSchedulePage = () => {
                 }
             });
 
-            console.log('Initial flat appointments:', initialFlatAppointments);
             setFlatAppointments(initialFlatAppointments);
 
-            
             const apartmentsWithAppointments = data.flats
                 .filter(flat => flat.hasMonteur?.appointmentBooked?.date)
                 .map(flat => flat._id);
 
             setSelectedApartments(prevSelected => {
-                
                 const combined = [...new Set([...prevSelected, ...apartmentsWithAppointments])];
-                console.log('Selected apartments:', combined);
                 return combined;
             });
 

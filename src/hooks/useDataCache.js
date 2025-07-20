@@ -50,23 +50,19 @@ const useDataCache = (cacheKey, fetchFunction, dependencies = []) => {
                 setCachedData(result);
                 setLastFetchTime(Date.now());
                 setData(result);
-                console.log(`✅ Cache updated for ${cacheKey}:`, result?.length || 'data loaded');
             } else {
-                console.warn(`⚠️ Invalid data received for ${cacheKey}`);
                 if (cachedData) {
-                    console.log(`Using existing cache for ${cacheKey}`);
                     setData(cachedData);
                 }
             }
             
             return result;
         } catch (err) {
-            console.error(`❌ Error fetching data for ${cacheKey}:`, err);
+            console.error(`Error fetching data for ${cacheKey}:`, err);
             setError(err);
             
             if (cachedData) {
                 setData(cachedData);
-                console.log(`📦 Using cached data for ${cacheKey} due to fetch error`);
             }
             
             throw err;
@@ -82,13 +78,9 @@ const useDataCache = (cacheKey, fetchFunction, dependencies = []) => {
 
         autoRefreshRef.current = setInterval(async () => {
             try {
-                console.log(`🔄 Auto-refreshing ${cacheKey}...`);
-                const newData = await fetchData(true);
-                if (newData) {
-                    console.log(`✅ Auto-refresh completed for ${cacheKey}`);
-                }
+                await fetchData(true);
             } catch (error) {
-                console.error(`❌ Auto-refresh failed for ${cacheKey}:`, error);
+                console.error(`Auto-refresh failed for ${cacheKey}:`, error);
             }
         }, AUTO_REFRESH_INTERVAL);
     }, [fetchData, cacheKey]);

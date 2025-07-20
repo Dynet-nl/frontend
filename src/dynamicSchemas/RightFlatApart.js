@@ -15,8 +15,7 @@ const RightFlatApart = ({
 
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        
-                        if (index == 0) {
+                        if (index === 0) {
                             return (
                                 <div key={index} className="flat">
                                     <FlatInputDetails

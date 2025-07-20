@@ -44,7 +44,6 @@ const DistrictSelectionPage = () => {
             if (!isNaN(position)) {
                 requestAnimationFrame(() => {
                     window.scrollTo(0, position);
-                    console.log(`📍 Scroll position restored: ${position}px`);
                 });
             }
         }
@@ -54,7 +53,6 @@ const DistrictSelectionPage = () => {
         const cacheKey = `districts_${areaId}`;
         
         if (isCacheValid(cacheKey) && cache.districts.has(cacheKey)) {
-            console.log('📦 Using cached districts');
             const cachedDistricts = cache.districts.get(cacheKey);
             setDistricts(cachedDistricts);
             setIsLoadingDistricts(false);
@@ -67,7 +65,6 @@ const DistrictSelectionPage = () => {
 
         try {
             setIsLoadingDistricts(true);
-            console.log('🌐 Fetching districts from API');
             const response = await axiosPrivate.get(`/api/district/area/${areaId}`);
             
             cache.districts.set(cacheKey, response.data);
@@ -79,7 +76,6 @@ const DistrictSelectionPage = () => {
                 setCurrentDistrict(response.data[0]);
             }
             
-            console.log('✅ Districts cached and loaded');
         } catch (error) {
             console.error('Error fetching districts:', error);
         } finally {
@@ -96,7 +92,6 @@ const DistrictSelectionPage = () => {
         const cacheKey = `buildings_${districtId}`;
         
         if (isCacheValid(cacheKey) && cache.buildings.has(cacheKey)) {
-            console.log('📦 Using cached buildings');
             const cachedBuildings = cache.buildings.get(cacheKey);
             setBuildings(cachedBuildings);
             setIsLoadingBuildings(false);
@@ -107,7 +102,6 @@ const DistrictSelectionPage = () => {
 
         try {
             setIsLoadingBuildings(true);
-            console.log('🌐 Fetching buildings from API');
             const response = await axiosPrivate.get(`/api/district/${districtId}`);
             const buildingsData = response.data.buildings || [];
             
@@ -118,7 +112,6 @@ const DistrictSelectionPage = () => {
             
             setTimeout(restoreScrollPosition, 50);
             
-            console.log('✅ Buildings cached and loaded');
         } catch (error) {
             console.error('Error fetching buildings:', error);
             setBuildings([]);
@@ -158,7 +151,6 @@ const DistrictSelectionPage = () => {
         const handleCacheInvalidation = () => {
             cache.buildings.clear();
             cache.timestamps.clear();
-            console.log('🗑️ Buildings cache invalidated');
         };
         
         window.addEventListener('invalidate-buildings-cache', handleCacheInvalidation);

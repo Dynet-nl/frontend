@@ -45,7 +45,6 @@ const HASInstallerAgendaCalendarPage = () => {
                     user.roles.HASMonteur === 2023;
             });
 
-            console.log('Found HAS Monteurs:', monteurs);
             setHasMonteurs(monteurs);
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
@@ -143,7 +142,6 @@ const HASInstallerAgendaCalendarPage = () => {
         if (range.start && range.end) {
             setCurrentRange(range);
             setCurrentDisplayMonth(range.start); 
-            console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
 
