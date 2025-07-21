@@ -12,6 +12,7 @@ import CitySelectionPage from './pages/CitySelectionPage';
 import AreaSelectionPage from './pages/AreaSelectionPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminDistrictManagementPage from './pages/AdminDistrictManagementPage';
+import DistrictManagementPage from './pages/DistrictManagementPage';
 import AdminApartmentDetailPage from './pages/AdminApartmentDetailPage';
 import TechnicalPlanningApartmentDetailPage from './pages/TechnicalPlanningApartmentDetailPage';
 import HASPlanningApartmentDetailPage from './pages/HASPlanningApartmentDetailPage';
@@ -49,6 +50,7 @@ function App() {
                     <Route element={<RequireAuth allowedRoles={[5150]} />}>
                         <Route element={<AdminDashboardPage />} path='/admin' />
                         <Route element={<AdminDistrictManagementPage />} path='/dashboard' />
+                        <Route element={<DistrictManagementPage />} path='/district-management/:areaId' />
                         <Route element={<AdminApartmentDetailPage />} path='/admin-apartment/:id' />
                     </Route>
 

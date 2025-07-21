@@ -60,11 +60,25 @@
     background-color: #007bff;
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .filterButtons button:hover {
     background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+/* Active/selected filter button styling */
+.filterButtons button.active {
+    background-color: #28a745;
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    transform: translateY(-1px);
+}
+
+.filterButtons button.active:hover {
+    background-color: #218838;
 }
 
 /* Header section inside each building container */

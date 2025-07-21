@@ -1,8 +1,9 @@
 // Main districts page with in-memory caching (5min expiry) and scroll position restoration. Manages district/building navigation and integrates with ImportDistrict for uploads.
 
 import {useCallback, useEffect, useState} from 'react';
-import {useParams} from 'react-router-dom';
+import {useParams, Link} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
+import useAuth from '../hooks/useAuth';
 import '../styles/districtPage.css';
 import ImportDistrict from '../components/ImportDistrict';
 import DistrictButtons from '../components/DistrictButtons';
@@ -25,6 +26,7 @@ const isCacheValid = (key) => {
 
 const DistrictSelectionPage = () => {
     const axiosPrivate = useAxiosPrivate();
+    const { auth } = useAuth();
     const {areaId} = useParams();
     const [districts, setDistricts] = useState([]);
     const [currentDistrict, setCurrentDistrict] = useState(null);
@@ -226,6 +228,48 @@ const DistrictSelectionPage = () => {
                 onDistrictCreated={handleDistrictChange}
                 style={{marginBottom: '20px'}}
             />
+            
+            {/* Enhanced District Management Button for Admins */}
+            {auth?.roles?.includes(5150) && (
+                <div style={{marginBottom: '20px'}}>
+                    <Link 
+                        to={`/district-management/${areaId}`} 
+                        style={{
+                            display: 'inline-block',
+                            padding: '12px 24px',
+                            backgroundColor: '#28a745',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '6px',
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onMouseOver={(e) => {
+                            e.target.style.backgroundColor = '#218838';
+                            e.target.style.transform = 'translateY(-1px)';
+                            e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                        }}
+                        onMouseOut={(e) => {
+                            e.target.style.backgroundColor = '#28a745';
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        }}
+                    >
+                        🚀 Enhanced District Management
+                    </Link>
+                    <div style={{
+                        fontSize: '12px', 
+                        color: '#666', 
+                        marginTop: '5px',
+                        fontStyle: 'italic'
+                    }}>
+                        Advanced file validation, preview, and import features
+                    </div>
+                </div>
+            )}
+            
             <div style={{marginTop: '20px'}}>
                 <h2 style={{marginBottom: '15px'}}>Current District Name: {currentDistrict?.name || 'Loading...'}</h2>
                 <DragDropContext onDragEnd={onDragEnd}>

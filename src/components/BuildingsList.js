@@ -56,9 +56,14 @@ const BuildingsList = ({buildings, isLoading}) => {
     }, []);
 
     const handleFilterChange = useCallback((newFilter) => {
-        setFilter(newFilter);
+        // Toggle functionality: if the same filter is clicked, reset to 'all'
+        if (filter === newFilter) {
+            setFilter('all');
+        } else {
+            setFilter(newFilter);
+        }
         setCurrentPage(1);
-    }, []);
+    }, [filter]);
 
     const categorizeBuilding = useCallback((flats) => {
         if (!flats || flats.length === 0) return {types: [], typeString: ''};
@@ -308,13 +313,48 @@ const BuildingsList = ({buildings, isLoading}) => {
                     className="searchInput"
                 />
                 <div className="filterButtons">
-                    <button onClick={() => handleFilterChange('fileUrl')}>With File URL</button>
-                    <button onClick={() => handleFilterChange('laagBouw')}>Laag Bouw</button>
-                    <button onClick={() => handleFilterChange('HB')}>HB</button>
-                    <button onClick={() => handleFilterChange('duplex')}>Duplex</button>
-                    <button onClick={() => handleFilterChange('appointment')}>With Appointment</button>
-                    <button onClick={() => handleFilterChange('done')}>Done</button>
-                    <button onClick={() => handleFilterChange('all')}>All</button>
+                    <button 
+                        onClick={() => handleFilterChange('fileUrl')}
+                        className={filter === 'fileUrl' ? 'active' : ''}
+                    >
+                        With File URL
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('laagBouw')}
+                        className={filter === 'laagBouw' ? 'active' : ''}
+                    >
+                        Laag Bouw
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('HB')}
+                        className={filter === 'HB' ? 'active' : ''}
+                    >
+                        HB
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('duplex')}
+                        className={filter === 'duplex' ? 'active' : ''}
+                    >
+                        Duplex
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('appointment')}
+                        className={filter === 'appointment' ? 'active' : ''}
+                    >
+                        With Appointment
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('done')}
+                        className={filter === 'done' ? 'active' : ''}
+                    >
+                        Done
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('all')}
+                        className={filter === 'all' ? 'active' : ''}
+                    >
+                        All
+                    </button>
                 </div>
                 <div className="resultsCount">
                     <strong>{totalResults}</strong> results found
