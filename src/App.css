@@ -426,3 +426,342 @@ body {
 .modern-grid-4 {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
+
+/* Modern Card Cell Layout - Table-like structure */
+.modern-card-cell {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 220px;
+}
+
+.modern-card-cell:hover {
+    border-color: #3498db;
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+.modern-card-cell-content {
+    flex: 1;
+    padding: 24px 20px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.modern-card-cell-content:hover {
+    background-color: #f8f9fa;
+}
+
+.modern-card-cell-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.8;
+}
+
+.modern-card-cell-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+}
+
+.modern-card-cell-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.modern-stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #3498db;
+    line-height: 1;
+}
+
+.modern-stat-label {
+    font-size: 12px;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.modern-card-cell-actions {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.modern-button-cell-action {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+}
+
+.modern-button-cell-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.modern-button-cell-danger:hover:not(:disabled) {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+}
+
+.modern-button-cell-danger:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.modern-button-cell-action:active {
+    transform: translateY(0);
+}
+
+/* Modern Breadcrumb Navigation */
+.modern-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.modern-breadcrumb-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.modern-breadcrumb-link:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+.modern-breadcrumb-separator {
+    color: #adb5bd;
+    font-weight: 400;
+}
+
+.modern-breadcrumb-current {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Modern Form Styles */
+.modern-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modern-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modern-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.modern-input {
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.modern-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.modern-input:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Modern Loading and Empty States */
+.modern-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+}
+
+.modern-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 12px;
+    text-align: center;
+}
+
+.modern-empty-state h3 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.modern-empty-state p {
+    max-width: 400px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Modern Spinner */
+.modern-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Grid Adjustments */
+@media (max-width: 768px) {
+    .modern-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .modern-container {
+        padding: 16px;
+    }
+    
+    .modern-card {
+        margin: 16px 0;
+    }
+}
+
+/* Modern Action Card Styles */
+.modern-action-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.2s ease;
+    height: 100%;
+}
+
+.modern-action-card:hover {
+    border-color: #3498db;
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+.modern-action-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    align-self: flex-start;
+}
+
+.modern-action-card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.modern-action-card-description {
+    color: #6c757d;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+}
+
+.modern-action-card-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.modern-feature-tag {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
+}
+
+.modern-action-card-stats {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding: 16px 0;
+    border-top: 1px solid #f1f3f4;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.modern-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.modern-info-note {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    color: #6c757d;
+    text-align: center;
+    line-height: 1.4;
+}

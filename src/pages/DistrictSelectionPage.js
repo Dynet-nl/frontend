@@ -5,7 +5,6 @@ import {useParams, Link} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/districtPage.css';
-import ImportDistrict from '../components/ImportDistrict';
 import DistrictButtons from '../components/DistrictButtons';
 import BuildingsList from '../components/BuildingsList';
 import {BounceLoader} from 'react-spinners';
@@ -141,14 +140,6 @@ const DistrictSelectionPage = () => {
         }
     }, [districts, saveScrollPosition]);
 
-    const handleDistrictChange = useCallback(async () => {
-        cache.districts.clear();
-        cache.buildings.clear();
-        cache.timestamps.clear();
-        
-        await fetchDistricts();
-    }, [fetchDistricts]);
-
     useEffect(() => {
         const handleCacheInvalidation = () => {
             cache.buildings.clear();
@@ -223,52 +214,82 @@ const DistrictSelectionPage = () => {
                 )}
             </div>
             
-            <ImportDistrict
-                areaId={areaId}
-                onDistrictCreated={handleDistrictChange}
-                style={{marginBottom: '20px'}}
-            />
-            
-            {/* Enhanced District Management Button for Admins */}
-            {auth?.roles?.includes(5150) && (
-                <div style={{marginBottom: '20px'}}>
-                    <Link 
-                        to={`/district-management/${areaId}`} 
-                        style={{
-                            display: 'inline-block',
-                            padding: '12px 24px',
-                            backgroundColor: '#28a745',
-                            color: 'white',
-                            textDecoration: 'none',
-                            borderRadius: '6px',
-                            fontWeight: '600',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            transition: 'all 0.3s ease'
-                        }}
-                        onMouseOver={(e) => {
-                            e.target.style.backgroundColor = '#218838';
-                            e.target.style.transform = 'translateY(-1px)';
-                            e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-                        }}
-                        onMouseOut={(e) => {
-                            e.target.style.backgroundColor = '#28a745';
-                            e.target.style.transform = 'translateY(0)';
-                            e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-                        }}
-                    >
-                        🚀 Enhanced District Management
-                    </Link>
+            {/* Modern District Management Section */}
+            <div className="modern-card" style={{marginBottom: '32px'}}>
+                <div className="modern-card-header">
+                    <h2 className="modern-card-title">
+                        <span style={{fontSize: '20px', marginRight: '8px'}}>📁</span>
+                        District Management
+                    </h2>
+                </div>
+                <div className="modern-card-body">
                     <div style={{
-                        fontSize: '12px', 
-                        color: '#666', 
-                        marginTop: '5px',
-                        fontStyle: 'italic'
+                        display: 'grid',
+                        gridTemplateColumns: auth?.roles?.includes(5150) ? 'repeat(auto-fit, minmax(250px, 1fr))' : '1fr',
+                        gap: '20px',
+                        alignItems: 'start'
                     }}>
-                        Advanced file validation, preview, and import features
+                        {/* Enhanced District Management - Available for Admins */}
+                        {auth?.roles?.includes(5150) && (
+                            <div className="modern-action-card">
+                                <div className="modern-action-card-icon" style={{backgroundColor: '#e8f5e8'}}>
+                                    🚀
+                                </div>
+                                <h3 className="modern-action-card-title">Enhanced Management</h3>
+                                <p className="modern-action-card-description">
+                                    Advanced file validation, preview, conflict detection, and batch import features.
+                                </p>
+                                <div className="modern-action-card-features">
+                                    <div className="modern-feature-tag">✅ File Validation</div>
+                                    <div className="modern-feature-tag">🔍 Data Preview</div>
+                                    <div className="modern-feature-tag">⚠️ Conflict Detection</div>
+                                    <div className="modern-feature-tag">📊 Import History</div>
+                                </div>
+                                <Link 
+                                    to={`/district-management/${areaId}`}
+                                    className="modern-button modern-button-primary"
+                                    style={{width: '100%', justifyContent: 'center'}}
+                                >
+                                    Open Enhanced Manager
+                                </Link>
+                            </div>
+                        )}
+                        
+                        {/* Quick Actions - Available for All Users */}
+                        <div className="modern-action-card">
+                            <div className="modern-action-card-icon" style={{backgroundColor: '#e8f4fd'}}>
+                                📋
+                            </div>
+                            <h3 className="modern-action-card-title">Quick Actions</h3>
+                            <p className="modern-action-card-description">
+                                {districts.length === 0 
+                                    ? "No districts found. Use the enhanced manager to create your first district."
+                                    : `Manage ${districts.length} district${districts.length !== 1 ? 's' : ''} with drag & drop reordering.`
+                                }
+                            </p>
+                            <div className="modern-action-card-stats">
+                                <div className="modern-stat-item">
+                                    <span className="modern-stat-number">{districts.length}</span>
+                                    <span className="modern-stat-label">Districts</span>
+                                </div>
+                                <div className="modern-stat-item">
+                                    <span className="modern-stat-number">{buildings.length}</span>
+                                    <span className="modern-stat-label">Buildings</span>
+                                </div>
+                            </div>
+                            {auth?.roles?.includes(5150) ? (
+                                <div className="modern-info-note">
+                                    💡 As an admin, you have access to enhanced management features above.
+                                </div>
+                            ) : (
+                                <div className="modern-info-note">
+                                    ℹ️ Contact your administrator to create or import new districts.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
             
             <div style={{marginTop: '20px'}}>
                 <h2 style={{marginBottom: '15px'}}>Current District Name: {currentDistrict?.name || 'Loading...'}</h2>

@@ -1,32 +1,58 @@
 import React, {useState} from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 
 const AreaForm = ({cityId, onAddArea}) => {
     const [areaName, setAreaName] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!areaName.trim()) return;
+        
         try {
-            await onAddArea({name: areaName, cityId: cityId});
+            setIsSubmitting(true);
+            await onAddArea({name: areaName.trim(), cityId: cityId});
             setAreaName('');
         } catch (error) {
             console.error('Error adding area:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{marginTop: '20px'}}>
-            <div style={{marginBottom: '15px'}}>
-                <TextField
+        <form onSubmit={handleSubmit} className="modern-form">
+            <div className="modern-form-group">
+                <label htmlFor="areaName" className="modern-label">
+                    Area Name
+                </label>
+                <input
                     id="areaName"
-                    label="Area Name"
-                    variant="outlined"
+                    type="text"
+                    className="modern-input"
                     value={areaName}
                     onChange={(e) => setAreaName(e.target.value)}
+                    placeholder="Enter area name..."
+                    required
+                    disabled={isSubmitting}
                 />
             </div>
-            <Button type="submit" style={{marginTop: '20px', marginBottom: '20px'}}>Add Area</Button>
+            <button 
+                type="submit" 
+                className="modern-button modern-button-primary"
+                disabled={isSubmitting || !areaName.trim()}
+            >
+                {isSubmitting ? (
+                    <>
+                        <span className="modern-spinner"></span>
+                        Adding Area...
+                    </>
+                ) : (
+                    <>
+                        <span style={{fontSize: '16px', marginRight: '8px'}}>➕</span>
+                        Add Area
+                    </>
+                )}
+            </button>
         </form>
     );
 };

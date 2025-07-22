@@ -1,33 +1,58 @@
 import React, {useState} from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 
 const CityForm = ({onAddCity}) => {
     const [cityName, setCityName] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!cityName.trim()) return;
+        
         try {
-            await onAddCity({name: cityName});
+            setIsSubmitting(true);
+            await onAddCity({name: cityName.trim()});
             setCityName('');
         } catch (error) {
             console.error('Error adding city:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{marginTop: '20px'}}>
-            <div style={{marginBottom: '15px'}}>
-                <TextField
+        <form onSubmit={handleSubmit} className="modern-form">
+            <div className="modern-form-group">
+                <label htmlFor="cityName" className="modern-label">
+                    City Name
+                </label>
+                <input
                     id="cityName"
-                    label="City Name"
-                    variant="outlined"
+                    type="text"
+                    className="modern-input"
                     value={cityName}
                     onChange={(e) => setCityName(e.target.value)}
+                    placeholder="Enter city name..."
+                    required
+                    disabled={isSubmitting}
                 />
             </div>
-            <Button type="submit" variant="contained" style={{marginTop: '20px', marginBottom: '20px'}}>Add
-                City</Button>
+            <button 
+                type="submit" 
+                className="modern-button modern-button-primary"
+                disabled={isSubmitting || !cityName.trim()}
+            >
+                {isSubmitting ? (
+                    <>
+                        <span className="modern-spinner"></span>
+                        Adding City...
+                    </>
+                ) : (
+                    <>
+                        <span style={{fontSize: '16px', marginRight: '8px'}}>➕</span>
+                        Add City
+                    </>
+                )}
+            </button>
         </form>
     );
 };
