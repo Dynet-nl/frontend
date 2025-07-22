@@ -1,27 +1,50 @@
-/* Building list uses flexbox to wrap and align items consistently */
+/* Modern Buildings List Styles - Matching Login and UnifiedScheduler Design */
+
+/* Modern buildings grid layout */
 .buildingsList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Space between each building card */
-    margin-top: 20px; /* Adds spacing from the filter section */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+    padding: 20px 0;
 }
 
-/* Ensure each building card has a consistent height */
+/* Modern Building Container */
 .buildingContainer {
-    flex: 1 1 300px; /* Allows the cards to grow and shrink with a minimum width of 300px */
-    max-width: 350px; /* Maximum width for each building card */
-    min-width: 300px; /* Minimum width for each building card */
-    max-height: 350px; /* Fix the height to ensure consistency */
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease; /* Faster transition, only on transform */
+    background: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    will-change: transform; /* Optimize for transform changes */
+}
+
+.buildingContainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.buildingContainer:hover::before {
+    opacity: 1;
+}
+
+.buildingContainer:hover {
+    border-color: #3498db;
+    box-shadow: 0 8px 16px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
 }
 
 /* Allow scrolling within the flats section if the content exceeds available space */
@@ -36,49 +59,53 @@
 }
 
 .flatsWrapper::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 5px;
+    background-color: #c1c1c1;
+    border-radius: 4px;
 }
 
-/* Hover effect for the building card - optimized for performance */
-.buildingContainer:hover {
-    transform: translateY(-3px); /* Reduced lift for smoother performance */
+.flatsWrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a8a8;
 }
 
-/* Filter buttons section */
+/* Modern filter buttons section */
 .filterButtons {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-/* Individual button styling for filters */
+/* Modern button styling for filters */
 .filterButtons button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
+    padding: 10px 20px;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #3498db;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
+    transition: all 0.2s ease;
+    font-size: 14px;
 }
 
 .filterButtons button:hover {
-    background-color: #0056b3;
+    background-color: #3498db;
+    color: white;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
 }
 
 /* Active/selected filter button styling */
 .filterButtons button.active {
-    background-color: #28a745;
+    background-color: #27ae60;
+    border-color: #27ae60;
     color: white;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
 }
 
 .filterButtons button.active:hover {
-    background-color: #218838;
+    background-color: #219a52;
 }
 
 /* Header section inside each building container */
@@ -120,49 +147,63 @@
     text-overflow: ellipsis;
 }
 
-/* Styling for each flat */
+/* Modern styling for each flat */
 .flat {
-    width: 50px;
-    height: 50px;
-    border: 1px solid #ccc;
+    width: 54px;
+    height: 54px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 5px;
-    background-color: #f9f9f9;
+    margin: 6px;
+    background-color: #ffffff;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    color: #2c3e50;
 }
 
-/* Hover effect for each flat */
+/* Modern hover effect for each flat */
 .flat:hover {
-    background-color: #e1e1e1; /* Slight hover effect for flats */
+    background-color: #f8f9fa;
+    border-color: #3498db;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
 }
 
-/* Styling for the flat link */
+/* Modern styling for the flat link */
 .flatLink {
     display: block;
-    margin-bottom: 30px;
-    margin-right: 20px;
-    padding: 10px;
-    background-color: #e7e7e7;
-    border-radius: 4px;
-    color: #000;
+    margin-bottom: 16px;
+    margin-right: 16px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    color: #2c3e50;
     text-decoration: none;
     text-align: center;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-/* Hover effect for flat link */
+/* Modern hover effect for flat link */
 .flatLink:hover {
-    background-color: #d7d7d7;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #3498db;
+    color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
 }
 
-/* Container for the checkmark on each flat */
+/* Modern container for the checkmark on each flat */
 .checkmarkContainer {
-    padding: 5px;
+    padding: 4px;
     display: inline-block;
     border-radius: 50%;
-    background-color: #fff;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Styling for a green checkmark */
@@ -175,63 +216,124 @@
     color: red;
 }
 
-/* Styling for the search input */
+/* Modern styling for the search input */
 .searchInput {
-    margin-top: 10px;
-    padding: 8px;
-    width: calc(100% - 20px);
+    margin-top: 16px;
+    padding: 12px 16px;
+    width: calc(100% - 32px);
+    max-width: 400px;
     font-size: 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
-/* Styling for the completion percentage section */
+.searchInput:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.searchInput::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Modern styling for the completion percentage section */
 .completionPercentage {
-    margin: 20px;
+    margin: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
     font-size: 24px;
-    font-weight: bold;
-    text-align: start;
+    font-weight: 700;
+    text-align: center;
+    color: #2c3e50;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Pagination section styling */
+.completionPercentage::before {
+    content: "📊";
+    display: block;
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+/* Modern pagination section styling */
 .pagination {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
-    gap: 10px;
+    align-items: center;
+    margin-top: 32px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .pagination button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
+    padding: 10px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #2c3e50;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 44px;
 }
 
 .pagination button:hover {
-    background-color: #0056b3;
+    border-color: #3498db;
+    background-color: #f8f9fa;
+    color: #3498db;
+    transform: translateY(-1px);
 }
 
 .pagination .activePage {
-    background-color: #0056b3;
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
+.pagination .activePage:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+    color: white;
+}
+
+/* Modern flat appointment indicator */
 .flatWithAppointment {
-    background-color: #d4edda; /* Light green background */
-    border: 2px solid #28a745; /* Green border */
-    padding: 10px;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border: 2px solid #27ae60;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
 }
 
 .editIcon {
     width: 24px;
     height: 24px;
     cursor: pointer;
-    margin-left: 10px;
+    color: #3498db;
+    transition: all 0.2s ease;
+    padding: 4px;
+    border-radius: 4px;
 }
 
+.editIcon:hover {
+    color: #2980b9;
+    background-color: rgba(52, 152, 219, 0.1);
+    transform: scale(1.1);
+}
+
+/* Modern results count styling */
 .resultsCount {
-    margin-top: 10px;
+    margin-top: 16px;
     font-size: 16px;
     color: #333;
 }

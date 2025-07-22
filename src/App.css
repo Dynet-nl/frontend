@@ -1,14 +1,428 @@
+/* Modern Global Styles - Matching Login and UnifiedScheduler Design */
+
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
 }
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.App {
+    min-height: 100vh;
+}
+
+/* Modern Building Container */
 .buildingContainer {
     margin: 20px 0;
-    padding: 0 10px 20px 10px;
-    border: black 2px solid;
-    border-radius: 5px;
+    padding: 20px;
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
     height: fit-content;
     width: fit-content;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.buildingContainer:hover {
+    border-color: #3498db;
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Modern Button Base Styles */
+.modern-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+.modern-button-primary {
+    background-color: #3498db;
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.modern-button-primary:hover:not(:disabled) {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+}
+
+.modern-button-success {
+    background-color: #27ae60;
+    color: white;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.modern-button-success:hover:not(:disabled) {
+    background-color: #229954;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+}
+
+.modern-button-secondary {
+    background-color: #95a5a6;
+    color: white;
+    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+}
+
+.modern-button-secondary:hover:not(:disabled) {
+    background-color: #7f8c8d;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(149, 165, 166, 0.4);
+}
+
+.modern-button:disabled {
+    background-color: #bdc3c7 !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.modern-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Modern Card Styles */
+.modern-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.modern-card-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modern-card-header h2,
+.modern-card-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.modern-card-body {
+    padding: 24px;
+}
+
+.modern-card-footer {
+    padding: 16px 24px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Modern Form Input Styles */
+.modern-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #ffffff;
+}
+
+.modern-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.modern-input:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Modern Select Styles */
+.modern-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modern-select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Modern Checkbox Styles */
+.modern-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #3498db;
+    cursor: pointer;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-indicator.completed {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-indicator.pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.status-indicator.scheduled {
+    background-color: #cce7ff;
+    color: #004085;
+    border: 1px solid #b3d7ff;
+}
+
+.status-indicator.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Loading States */
+.modern-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 18px;
+    color: #7f8c8d;
+}
+
+.modern-loading::after {
+    content: "";
+    width: 24px;
+    height: 24px;
+    margin-left: 12px;
+    border: 3px solid #e9ecef;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: -200% 0; }
+    50% { background-position: 200% 0; }
+}
+
+/* Modern Typography */
+.modern-title {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.modern-subtitle {
+    color: #6c757d;
+    font-weight: 400;
+    margin-bottom: 16px;
+}
+
+.modern-text {
+    color: #34495e;
+    line-height: 1.6;
+}
+
+.modern-text-muted {
+    color: #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .buildingContainer {
+        margin: 15px 0;
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .modern-card-header,
+    .modern-card-body,
+    .modern-card-footer {
+        padding: 16px 20px;
+    }
+
+    .modern-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .modern-input,
+    .modern-select {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .buildingContainer {
+        margin: 10px 0;
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .modern-card-header,
+    .modern-card-body,
+    .modern-card-footer {
+        padding: 12px 16px;
+    }
+}
+
+/* Animation Utilities */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Modern Container Classes for Page Layout */
+.modern-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modern-page-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 32px 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    position: relative;
+}
+
+.modern-page-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2980b9, #3498db);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+    border-radius: 12px 12px 0 0;
+}
+
+.modern-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.modern-page-subtitle {
+    font-size: 1.2rem;
+    color: #6c757d;
+    font-weight: 400;
+    margin: 0;
+}
+
+/* Modern Section Styling */
+.modern-section {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.modern-section-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modern-section-title {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.modern-section-body {
+    padding: 24px;
+}
+
+/* Modern Grid Layouts */
+.modern-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.modern-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.modern-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.modern-grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }

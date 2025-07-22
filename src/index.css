@@ -1,3 +1,5 @@
+/* Modern Global Base Styles - Matching Modern Design System */
+
 * {
     padding: 0;
     margin: 0;
@@ -7,7 +9,140 @@
 body {
     margin: 0;
     padding: 0;
-    background-image: url('assets/wallpaper_pattern.webp');
-    background-repeat: repeat;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
     position: relative;
+}
+
+/* Modern gradient overlay instead of repeating pattern */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(118, 75, 162, 0.02) 100%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Code formatting */
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #e83e8c;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+    background-color: rgba(52, 152, 219, 0.2);
+    color: #2c3e50;
+}
+
+/* Focus outline for accessibility */
+*:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* Modern scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Remove default button styles */
+button {
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* Remove default input styles */
+input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Link styles */
+a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #2980b9;
+}
+
+/* Modern table styles */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Image responsiveness */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Modern HR styling */
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    margin: 24px 0;
+}
+
+/* Print styles */
+@media print {
+    body::before {
+        display: none;
+    }
+    
+    * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
 }

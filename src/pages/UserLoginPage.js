@@ -68,48 +68,132 @@ const UserLoginPage = () => {
     }
 
     return (
-        <section className="loginContainer">
-            <p
-                ref={errRef}
-                className={errMsg ? 'errmsg' : 'offscreen'}
-                aria-live="assertive"
-            >
-                {errMsg}
-            </p>
+        <div className="login-page">
+            <div className="login-background">
+                <div className="login-card">
+                    <div className="login-header">
+                        <img src="/dynetLogo.png" alt="Dynet Logo" className="login-logo"/>
+                        <h1 className="login-title">Welcome Back</h1>
+                        <p className="login-subtitle">Sign in to your Fiber Installation Management System</p>
+                    </div>
 
-            <h1 style={{marginBottom: '20px'}}>Sign In</h1>
+                    <div 
+                        className={`error-message ${errMsg ? 'show' : ''}`}
+                        ref={errRef}
+                        aria-live="assertive"
+                    >
+                        {errMsg}
+                    </div>
 
-            <form className="login" onSubmit={handleSubmit}>
-                <TextField
-                    label="Email"
-                    type="email"
-                    id="username"
-                    autoComplete="off"
-                    onChange={(e) => setEmail(e.target.value)}
-                    value={email}
-                    required
-                    variant="outlined"
-                    fullWidth
-                    inputRef={userRef}
-                    style={{marginBottom: '20px'}}
-                />
+                    <form className="login-form" onSubmit={handleSubmit}>
+                        <div className="input-group">
+                            <TextField
+                                label="Email"
+                                type="email"
+                                id="username"
+                                autoComplete="off"
+                                onChange={(e) => setEmail(e.target.value)}
+                                value={email}
+                                required
+                                variant="outlined"
+                                fullWidth
+                                inputRef={userRef}
+                                className="modern-input"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '8px',
+                                        '& fieldset': {
+                                            borderColor: '#e9ecef',
+                                            borderWidth: '2px',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: '#3498db',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#3498db',
+                                            borderWidth: '2px',
+                                        },
+                                    },
+                                    '& .MuiInputLabel-root': {
+                                        color: '#6c757d',
+                                        '&.Mui-focused': {
+                                            color: '#3498db',
+                                        }
+                                    },
+                                }}
+                            />
+                        </div>
 
-                <TextField
-                    label="Password"
-                    type="password"
-                    id="password"
-                    onChange={(e) => setPassword(e.target.value)}
-                    value={password}
-                    required
-                    variant="outlined"
-                    fullWidth
-                    style={{marginBottom: '20px'}}
-                />
+                        <div className="input-group">
+                            <TextField
+                                label="Password"
+                                type="password"
+                                id="password"
+                                onChange={(e) => setPassword(e.target.value)}
+                                value={password}
+                                required
+                                variant="outlined"
+                                fullWidth
+                                className="modern-input"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '8px',
+                                        '& fieldset': {
+                                            borderColor: '#e9ecef',
+                                            borderWidth: '2px',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: '#3498db',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#3498db',
+                                            borderWidth: '2px',
+                                        },
+                                    },
+                                    '& .MuiInputLabel-root': {
+                                        color: '#6c757d',
+                                        '&.Mui-focused': {
+                                            color: '#3498db',
+                                        }
+                                    },
+                                }}
+                            />
+                        </div>
 
-                <Button type="submit" variant="contained" style={{marginTop: '20px'}}>Sign In</Button>
-            </form>
+                        <Button 
+                            type="submit" 
+                            variant="contained" 
+                            className="login-button"
+                            fullWidth
+                            sx={{
+                                backgroundColor: '#3498db',
+                                borderRadius: '8px',
+                                padding: '12px 0',
+                                fontSize: '16px',
+                                fontWeight: '600',
+                                textTransform: 'none',
+                                boxShadow: '0 4px 12px rgba(52, 152, 219, 0.3)',
+                                '&:hover': {
+                                    backgroundColor: '#2980b9',
+                                    boxShadow: '0 6px 16px rgba(52, 152, 219, 0.4)',
+                                    transform: 'translateY(-1px)',
+                                },
+                                '&:active': {
+                                    transform: 'translateY(0)',
+                                },
+                                transition: 'all 0.2s ease',
+                            }}
+                        >
+                            Sign In
+                        </Button>
+                    </form>
 
-        </section>
+                    <div className="login-footer">
+                        <p>Secure access to your workspace</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 

@@ -3,7 +3,6 @@ import {Link, useNavigate} from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import ROLES_LIST from "../context/roles_list";
 
 const Navbar = () => {
@@ -39,27 +38,62 @@ const Navbar = () => {
     
     return (
         <nav>
-            <Link style={{fontSize: 20}} to='/'>Home</Link>
+            <div className="nav-brand">
+                <span style={{fontSize: '24px'}}>🌐</span>
+                Dynet
+            </div>
             
+            <div className="nav-links">
+                <Link to='/'>Home</Link>
+                
+                {isAdmin && (
+                    <Link to='/dashboard'>Dashboard</Link>
+                )}
+                
+                <Link to='/city'>Cities</Link>
+                {canSeePlanningAgenda && (
+                    <Link to='/agenda'>Planning Agenda</Link>
+                )}
+                {canSeeHASAgenda && (
+                    <Link to='/has-agenda'>HAS Agenda</Link>
+                )}
+                {isAdmin && (
+                    <Link to='/admin'>Admin</Link>
+                )}
+            </div>
             
-            {isAdmin && (
-                <Link style={{fontSize: 20}} to='/dashboard'>Dashboard</Link>
-            )}
-            
-            <Link style={{fontSize: 20}} to='/city'>Cities</Link>
-            {canSeePlanningAgenda && (
-                <Link style={{fontSize: 20}} to='/agenda'>Planning Agenda</Link>
-            )}
-            {canSeeHASAgenda && (
-                <Link style={{fontSize: 20}} to='/has-agenda'>HAS Agenda</Link>
-            )}
-            {isAdmin && (
-                <Link style={{fontSize: 20}} to='/admin'>Admin page</Link>
-            )}
-            <Typography variant="h6" component="div">
-                Role: {currentRoles}
-            </Typography>
-            <Button onClick={logout}>Sign Out</Button>
+            <div className="nav-user-section">
+                <div className="nav-user-info">
+                    <div className="nav-user-role">
+                        {currentRoles}
+                    </div>
+                </div>
+                <Button 
+                    onClick={logout}
+                    className="nav-logout-btn"
+                    sx={{
+                        background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        fontSize: '14px',
+                        boxShadow: '0 2px 8px rgba(231, 76, 60, 0.3)',
+                        '&:hover': {
+                            background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 4px 12px rgba(231, 76, 60, 0.4)',
+                        },
+                        '&:active': {
+                            transform: 'translateY(0)',
+                        },
+                    }}
+                >
+                    Sign Out
+                </Button>
+            </div>
         </nav>
     )
 }
