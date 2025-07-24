@@ -30,7 +30,6 @@ import Unauthorized from './components/Unauthorized';
 import RequireAuth from './components/RequireAuth';
 import HASPlanningApartmentSchedulePage from "./pages/HASPlanningApartmentSchedulePage";
 import UnifiedAppointmentPage from "./pages/UnifiedAppointmentPage";
-import AdminSchedulingSelectionPage from "./pages/AdminSchedulingSelectionPage";
 import { ROLES } from './utils/constants';
 
 function App() {
@@ -58,14 +57,13 @@ function App() {
                                     <Route element={<AdminDistrictManagementPage />} path='/dashboard' />
                                     <Route element={<DistrictManagementPage />} path='/district-management/:areaId' />
                                     <Route element={<AdminApartmentDetailPage />} path='/admin-apartment/:id' />
-                                    <Route element={<AdminSchedulingSelectionPage />} path='/admin-scheduling-selection/:id' />
                                 </Route>
 
                                 <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING]} />}>
                                     <Route element={<TechnicalPlanningApartmentDetailPage />} path='/planning-apartment/:id' />
                                 </Route>
 
-                                <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING, ROLES.ADMIN]} />}>
+                                <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING]} />}>
                                     <Route element={<HASPlanningApartmentDetailPage />} path='/has-planning-apartment/:id' />
                                     <Route element={<HASPlanningApartmentSchedulePage />} path='/has-planning-apartment-schedule/:id' />
                                     <Route element={<UnifiedAppointmentPage />} path='/has-appointment-scheduler/:id' />

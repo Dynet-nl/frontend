@@ -34,8 +34,8 @@ const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
         } else if (isTechnischePlanning) {
             path = `/appointment-scheduler/${buildingId}?mode=building&type=Technical`;
         } else if (isAdmin) {
-            // Admin goes to selection page to choose between technical or HAS planning
-            path = `/admin-scheduling-selection/${buildingId}?mode=building`;
+            // Admin can access either - default to technical scheduling
+            path = `/appointment-scheduler/${buildingId}?mode=building&type=Technical`;
         }
     }
     else if (flatId) {
@@ -51,6 +51,13 @@ const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
             path = `/hm-apartment/${flatId}`;
         }
     }
+
+    return (
+        <Link to={path} className={className}>
+            {children}
+        </Link>
+    );
+};
 
     return (
         <Link to={path} className={className}>
