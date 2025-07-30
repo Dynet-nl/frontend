@@ -1,16 +1,15 @@
+// Component for displaying and managing user lists with role-based actions and user management features.
+
 import {useEffect, useState} from 'react'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import {useLocation, useNavigate} from 'react-router-dom'
-
 const Users = () => {
     const [users, setUsers] = useState([]);
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
     const location = useLocation();
-
     useEffect(() => {
         const controller = new AbortController();
-
         const getUsers = async () => {
             try {
                 const response = await axiosPrivate.get('/api/users', {
@@ -22,14 +21,11 @@ const Users = () => {
                 navigate('/login', {state: {from: location}, replace: true});
             }
         };
-
         getUsers()
-
         return () => {
             controller.abort();
         };
     }, [axiosPrivate, navigate, location]);
-
     return (
         <article style={{padding: '20px'}}>
             <h1 style={{marginBottom: '20px'}}>Users List</h1>
@@ -44,7 +40,5 @@ const Users = () => {
             )}
         </article>
     );
-
 };
-
 export default Users;

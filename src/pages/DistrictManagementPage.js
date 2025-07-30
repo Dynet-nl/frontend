@@ -1,21 +1,16 @@
-// Enhanced District Management Page with file validation, progress tracking, and detailed error handling
+// Page for managing district information including building assignments and district data.
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { BounceLoader } from 'react-spinners';
 import '../styles/districtManagement.css';
-
-// File validation utilities
 const validateExcelFile = (file) => {
     const errors = [];
     const warnings = [];
-    
-    // File size check (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
         errors.push('File size exceeds 50MB limit');
     }
-    
-    // File type check
     const allowedTypes = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-excel',
@@ -24,20 +19,14 @@ const validateExcelFile = (file) => {
     if (!allowedTypes.includes(file.type)) {
         errors.push('File must be an Excel (.xlsx, .xls) or CSV file');
     }
-    
-    // File name check
     if (file.name.length > 255) {
         warnings.push('File name is very long, consider shortening it');
     }
-    
     return { errors, warnings, isValid: errors.length === 0 };
 };
-
 const DistrictManagementPage = () => {
     const { areaId } = useParams();
     const axiosPrivate = useAxiosPrivate();
-    
-    // State management
     const [selectedFile, setSelectedFile] = useState(null);
     const [districtName, setDistrictName] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -47,7 +36,6 @@ const DistrictManagementPage = () => {
     const [dataPreview, setDataPreview] = useState(null);
     const [conflicts, setConflicts] = useState([]);
     const [operationType, setOperationType] = useState('create'); // 'create' or 'update'
-    
     const fetchImportHistory = useCallback(async () => {
         try {
             const response = await axiosPrivate.get(`/api/district/import-history/${areaId}`);
@@ -56,12 +44,9 @@ const DistrictManagementPage = () => {
             console.error('Error fetching import history:', error);
         }
     }, [axiosPrivate, areaId]);
-    
-    // Load import history on component mount
     useEffect(() => {
         fetchImportHistory();
     }, [fetchImportHistory]);
-    
     const handleFileSelect = (event) => {
         const file = event.target.files[0];
         if (!file) {
@@ -69,31 +54,21 @@ const DistrictManagementPage = () => {
             setValidationResults(null);
             return;
         }
-        
         setSelectedFile(file);
-        
-        // Validate file
         const validation = validateExcelFile(file);
         setValidationResults(validation);
-        
-        // If valid, generate preview
         if (validation.isValid) {
             generateDataPreview(file);
         }
     };
-    
     const generateDataPreview = async (file) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
-            
             const response = await axiosPrivate.post('/api/district/preview', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            
             setDataPreview(response.data);
-            
-            // Check for conflicts if updating
             if (operationType === 'update') {
                 checkForConflicts(response.data);
             }
@@ -105,7 +80,6 @@ const DistrictManagementPage = () => {
             }));
         }
     };
-    
     const checkForConflicts = async (previewData) => {
         try {
             const response = await axiosPrivate.post('/api/district/check-conflicts', {
@@ -117,33 +91,25 @@ const DistrictManagementPage = () => {
             console.error('Error checking conflicts:', error);
         }
     };
-    
     const handleImport = async () => {
         if (!selectedFile || !validationResults?.isValid) {
             return;
         }
-        
         if (operationType === 'create' && !districtName.trim()) {
             alert('Please enter a district name');
             return;
         }
-        
         setIsProcessing(true);
         setImportProgress({ stage: 'starting', progress: 0, message: 'Initializing import...' });
-        
         try {
             const formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('areaId', areaId);
-            
             if (operationType === 'create') {
                 formData.append('currentDistrict', districtName);
             }
-            
-            // Use enhanced endpoint for both create and update
             const endpoint = '/api/district/import-enhanced';
             const method = 'post'; // Always use POST for enhanced endpoint
-            
             await axiosPrivate[method](endpoint, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (progressEvent) => {
@@ -155,14 +121,11 @@ const DistrictManagementPage = () => {
                     });
                 }
             });
-            
             setImportProgress({
                 stage: 'processing',
                 progress: 50,
                 message: 'Processing data...'
             });
-            
-            // Simulate processing stages for better UX
             setTimeout(() => {
                 setImportProgress({
                     stage: 'saving',
@@ -170,30 +133,22 @@ const DistrictManagementPage = () => {
                     message: 'Saving to database...'
                 });
             }, 1000);
-            
             setTimeout(() => {
                 setImportProgress({
                     stage: 'complete',
                     progress: 100,
                     message: `${operationType === 'create' ? 'District created' : 'District updated'} successfully!`
                 });
-                
-                // Reset form
                 setSelectedFile(null);
                 setDistrictName('');
                 setValidationResults(null);
                 setDataPreview(null);
                 setConflicts([]);
-                
-                // Refresh history
                 fetchImportHistory();
-                
-                // Auto-hide progress after 3 seconds
                 setTimeout(() => {
                     setImportProgress(null);
                 }, 3000);
             }, 2000);
-            
         } catch (error) {
             console.error('Import error:', error);
             setImportProgress({
@@ -205,10 +160,8 @@ const DistrictManagementPage = () => {
             setIsProcessing(false);
         }
     };
-    
     const renderValidationResults = () => {
         if (!validationResults) return null;
-        
         return (
             <div className="validation-results">
                 {validationResults.errors.length > 0 && (
@@ -221,7 +174,6 @@ const DistrictManagementPage = () => {
                         </ul>
                     </div>
                 )}
-                
                 {validationResults.warnings.length > 0 && (
                     <div className="validation-warnings">
                         <h4>⚠️ Warnings:</h4>
@@ -232,7 +184,6 @@ const DistrictManagementPage = () => {
                         </ul>
                     </div>
                 )}
-                
                 {validationResults.isValid && (
                     <div className="validation-success">
                         <h4>✅ File validation passed</h4>
@@ -241,10 +192,8 @@ const DistrictManagementPage = () => {
             </div>
         );
     };
-    
     const renderDataPreview = () => {
         if (!dataPreview) return null;
-        
         return (
             <div className="data-preview">
                 <h3>📊 Data Preview</h3>
@@ -253,7 +202,6 @@ const DistrictManagementPage = () => {
                     <span>Apartments: {dataPreview.apartmentsCount}</span>
                     <span>Columns: {dataPreview.columnsCount}</span>
                 </div>
-                
                 {dataPreview.sampleData && (
                     <div className="preview-table">
                         <h4>Sample Data (first 5 rows):</h4>
@@ -280,10 +228,8 @@ const DistrictManagementPage = () => {
             </div>
         );
     };
-    
     const renderConflicts = () => {
         if (conflicts.length === 0) return null;
-        
         return (
             <div className="conflicts-section">
                 <h3>⚠️ Data Conflicts Detected</h3>
@@ -299,10 +245,8 @@ const DistrictManagementPage = () => {
             </div>
         );
     };
-    
     const renderImportProgress = () => {
         if (!importProgress) return null;
-        
         return (
             <div className="import-progress">
                 <div className="progress-header">
@@ -326,10 +270,8 @@ const DistrictManagementPage = () => {
             </div>
         );
     };
-    
     const renderImportHistory = () => {
         if (importHistory.length === 0) return null;
-        
         return (
             <div className="import-history">
                 <h3>📋 Recent Imports</h3>
@@ -350,11 +292,9 @@ const DistrictManagementPage = () => {
             </div>
         );
     };
-    
     return (
         <div className="district-management-container">
             <h1>District Management</h1>
-            
             <div className="operation-selector">
                 <button 
                     className={operationType === 'create' ? 'active' : ''}
@@ -369,13 +309,11 @@ const DistrictManagementPage = () => {
                     Update Existing District
                 </button>
             </div>
-            
             <div className="main-content">
                 <div className="upload-section">
                     <h2>
                         {operationType === 'create' ? '📁 Create New District' : '🔄 Update District Data'}
                     </h2>
-                    
                     {operationType === 'create' && (
                         <div className="district-name-input">
                             <label htmlFor="districtName">District Name:</label>
@@ -389,7 +327,6 @@ const DistrictManagementPage = () => {
                             />
                         </div>
                     )}
-                    
                     <div className="file-input-section">
                         <label htmlFor="fileInput">Select Excel File:</label>
                         <input
@@ -406,11 +343,9 @@ const DistrictManagementPage = () => {
                             </div>
                         )}
                     </div>
-                    
                     {renderValidationResults()}
                     {renderDataPreview()}
                     {renderConflicts()}
-                    
                     <div className="action-buttons">
                         <button 
                             onClick={handleImport}
@@ -420,7 +355,6 @@ const DistrictManagementPage = () => {
                             {isProcessing && <BounceLoader size={16} color="#fff" />}
                             {operationType === 'create' ? 'Create District' : 'Update District'}
                         </button>
-                        
                         <button 
                             onClick={() => {
                                 setSelectedFile(null);
@@ -435,13 +369,10 @@ const DistrictManagementPage = () => {
                             Reset
                         </button>
                     </div>
-                    
                     {renderImportProgress()}
                 </div>
-                
                 <div className="sidebar">
                     {renderImportHistory()}
-                    
                     <div className="help-section">
                         <h3>💡 Help</h3>
                         <div className="help-content">
@@ -451,7 +382,6 @@ const DistrictManagementPage = () => {
                                 <li>Maximum size: 50MB</li>
                                 <li>Required columns: Zoeksleutel, Adres, etc.</li>
                             </ul>
-                            
                             <h4>Weekly Update Process:</h4>
                             <ol>
                                 <li>Receive Excel file on Sunday</li>
@@ -466,5 +396,4 @@ const DistrictManagementPage = () => {
         </div>
     );
 };
-
 export default DistrictManagementPage;

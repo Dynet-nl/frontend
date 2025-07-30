@@ -1,24 +1,21 @@
-// Technical Planning apartment detail page with inline editing for planning details and appointments. Integrates with UnifiedAppointmentScheduler and invalidates cache on updates.
+// Technical planning view for apartment details with technical planning information and tools.
 
 import React, {useEffect, useState} from 'react';
 import {useParams, Link} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css';
-
 const calculateWeekNumber = (date) => {
     const currentDate = new Date(date);
     const startDate = new Date(currentDate.getFullYear(), 0, 1);
     const days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000));
     return Math.ceil(days / 7);
 };
-
 const TechnicalPlanningApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
     const [isEditingPlanning, setIsEditingPlanning] = useState(false);
     const [isEditingAppointment, setIsEditingAppointment] = useState(false);
     const [availableTechnischeSchouwers, setAvailableTechnischeSchouwers] = useState([]);
-
     const [flat, setFlat] = useState({
         _id: '',
         zoeksleutel: '',
@@ -45,7 +42,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
         laswerkDP: '',
         technischePlanning: null
     });
-
     const [formData, setFormData] = useState({
         vveWocoName: '',
         telephone: '',
@@ -63,7 +59,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
         additionalNotes: '',
         smsSent: false
     });
-
     const [appointmentData, setAppointmentData] = useState({
         date: new Date().toISOString().split('T')[0],
         startTime: '',
@@ -71,30 +66,24 @@ const TechnicalPlanningApartmentDetailPage = () => {
         weekNumber: calculateWeekNumber(new Date()),
         technischeSchouwerName: ''
     });
-
     const fetchAvailableTechnischeSchouwers = async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-            
             const technischeSchouwers = users.filter(user => 
                 user.roles && typeof user.roles === 'object' && 
                 user.roles.TechnischeSchouwer === 8687
             );
-            
             setAvailableTechnischeSchouwers(technischeSchouwers);
         } catch (error) {
             console.error('Error fetching Technische Schouwers:', error);
         }
     };
-
     useEffect(() => {
         const fetchApartment = async () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
-
                 const today = new Date().toISOString().split('T')[0];
-
                 const appointmentData = data.technischePlanning?.appointmentBooked || {};
                 setAppointmentData({
                     date: appointmentData.date ? new Date(appointmentData.date).toISOString().split('T')[0] : today,
@@ -103,7 +92,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                     weekNumber: appointmentData.date ? calculateWeekNumber(appointmentData.date) : calculateWeekNumber(today),
                     technischeSchouwerName: data.technischePlanning?.technischeSchouwerName || ''
                 });
-
                 setFlat({
                     _id: data._id,
                     zoeksleutel: data.zoeksleutel,
@@ -130,7 +118,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                     laswerkDP: data.laswerkDP,
                     technischePlanning: data.technischePlanning || null,
                 });
-
                 if (data.technischePlanning) {
                     setFormData({
                         vveWocoName: data.technischePlanning.vveWocoName || '',
@@ -154,14 +141,11 @@ const TechnicalPlanningApartmentDetailPage = () => {
                 console.error('Error fetching data:', error);
             }
         };
-
         fetchApartment();
         fetchAvailableTechnischeSchouwers();
     }, [params.id, axiosPrivate]);
-
     const handleChange = (e) => {
         const {name, value, type, checked} = e.target;
-
         if (name.includes('.')) {
             const [parent, child] = name.split('.');
             setFormData(prev => ({
@@ -179,7 +163,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
             }));
         }
     };
-
     const handleAppointmentChange = (e) => {
         const {name, value} = e.target;
         setAppointmentData((prevData) => ({
@@ -188,7 +171,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
             weekNumber: name === 'date' ? calculateWeekNumber(value) : prevData.weekNumber
         }));
     };
-
     const handleAppointmentSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -196,7 +178,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                 appointmentBooked: appointmentData,
                 technischeSchouwerName: appointmentData.technischeSchouwerName
             });
-
             const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
             if (data.technischePlanning?.appointmentBooked) {
                 setFlat(prev => ({
@@ -208,9 +189,7 @@ const TechnicalPlanningApartmentDetailPage = () => {
                     updatedAt: new Date().toISOString()
                 }));
             }
-            
             window.dispatchEvent(new CustomEvent('invalidate-buildings-cache'));
-            
             setIsEditingAppointment(false);
             alert('Appointment saved successfully!');
         } catch (error) {
@@ -218,20 +197,16 @@ const TechnicalPlanningApartmentDetailPage = () => {
             alert('Error saving appointment. Please try again.');
         }
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, formData);
-
             setFlat((prevFlat) => ({
                 ...prevFlat,
                 technischePlanning: response.data.technischePlanning,
                 updatedAt: new Date().toISOString()
             }));
-
             window.dispatchEvent(new CustomEvent('invalidate-buildings-cache'));
-
             setIsEditingPlanning(false);
             alert('Planning details saved successfully!');
         } catch (error) {
@@ -239,13 +214,11 @@ const TechnicalPlanningApartmentDetailPage = () => {
             alert('Error saving planning details');
         }
     };
-
     return (
         <div className="ts-apartmentDetailsContainer">
             <h2 className="ts-apartmentTitle">
                 {flat.adres} {flat.huisNummer}{flat.toevoeging}
             </h2>
-
             <div className="ts-columns">
                 <div className="ts-leftColumn">
                     <div className="ts-detailsGrid">
@@ -259,7 +232,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                             <p><b>Complex Name:</b> {flat.complexNaam || 'N/A'}</p>
                             <p><b>Search Key:</b> {flat.zoeksleutel || 'N/A'}</p>
                         </div>
-
                         <div className="ts-statusSection">
                             <h4>Status Overview</h4>
                             <div className="ts-statusGrid">
@@ -271,7 +243,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className="ts-timestamps">
                             <p><b>Created:</b> {flat.createdAt ? new Date(flat.createdAt).toLocaleString() : 'N/A'}</p>
                             <p><b>Last Updated:</b> {flat.updatedAt ? new Date(flat.updatedAt).toLocaleString() : 'N/A'}
@@ -279,7 +250,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="ts-rightColumn">
                     <div className="ts-planningDetails">
                         <div className="ts-planningHeader">
@@ -319,7 +289,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                 )}
                             </button>
                         </div>
-
                         {isEditingPlanning ? (
                             <form onSubmit={handleSubmit}>
                                 <div className="ts-formGroup">
@@ -337,7 +306,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         <option value="Huurder">Huurder</option>
                                     </select>
                                 </div>
-
                                 <div className="ts-formGroup">
                                     <label>Telephone:</label>
                                     <input
@@ -347,7 +315,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         onChange={handleChange}
                                     />
                                 </div>
-
                                 <div className="ts-formGroup">
                                     <label>Technische Schouwer:</label>
                                     <input
@@ -357,7 +324,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         onChange={handleChange}
                                     />
                                 </div>
-
                                 <div className="ts-formGroup">
                                     <label>
                                         <input
@@ -369,7 +335,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         Ready for Schouwer
                                     </label>
                                 </div>
-
                                 <div className="ts-formGroup">
                                     <label>
                                         <input
@@ -381,7 +346,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         Signed
                                     </label>
                                 </div>
-
                                 <div className="ts-formGroup">
                                     <label>Times Called:</label>
                                     <input
@@ -392,7 +356,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         min="0"
                                     />
                                 </div>
-
                                 <div className="ts-formGroup">
                                     <label>Additional Notes:</label>
                                     <textarea
@@ -401,7 +364,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                         onChange={handleChange}
                                     />
                                 </div>
-
                                 <button type="submit" className="ts-saveButton">Save</button>
                             </form>
                         ) : (
@@ -417,7 +379,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                             </div>
                         )}
                     </div>
-
                     <div className="ts-appointmentDetails">
                         <div className="ts-planningHeader">
                             <h3>Appointment Details</h3>
@@ -465,7 +426,6 @@ const TechnicalPlanningApartmentDetailPage = () => {
                                 </button>
                             </div>
                         </div>
-
                         {isEditingAppointment ? (
                             <form onSubmit={handleAppointmentSubmit} className="ts-form">
                                 <div className="ts-formGroup">
@@ -557,5 +517,4 @@ const TechnicalPlanningApartmentDetailPage = () => {
         </div>
     );
 };
-
 export default TechnicalPlanningApartmentDetailPage;

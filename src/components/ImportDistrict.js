@@ -1,45 +1,36 @@
-// District import component for uploading CSV files to create new districts or update existing ones. Integrates with backend district API and triggers cache invalidation.
+// Component for importing district data from Excel files with validation and error handling.
 
 import React, {useState} from 'react'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Button from '@mui/material/Button';
 import {BounceLoader} from 'react-spinners';
-
 const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => {
     const axiosPrivate = useAxiosPrivate()
     const [selectedFile, setSelectedFile] = useState([])
     const [currentDistrict, setCurrentDistrict] = useState('')
     const [isImporting, setIsImporting] = useState(false)
-
     const send = async (file, districtName) => {
         if (!file || !districtName) {
             alert('Please select a file and enter a district name')
             return
         }
-
         setIsImporting(true)
         try {
             const formData = new FormData()
             formData.append('file', file)
             formData.append('currentDistrict', districtName)
             formData.append('areaId', areaId);
-
             const config = {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             }
-
             await axiosPrivate.post('/api/district', formData, config)
             if (setNewDistrictUploaded) {
                 setNewDistrictUploaded(prev => prev + 1)
             }
-
-            
             setSelectedFile([])
             setCurrentDistrict('')
-
-            
             if (onDistrictCreated) {
                 onDistrictCreated()
             }
@@ -50,13 +41,11 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
             setIsImporting(false)
         }
     }
-
     const sendToUpdate = async (file) => {
         if (!file) {
             alert('Please select a file')
             return
         }
-
         setIsImporting(true)
         try {
             const formData = new FormData()
@@ -78,7 +67,6 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
             setIsImporting(false)
         }
     }
-
     return (
         <>
             <div style={{padding: '20px', marginBottom: '30px'}}>
@@ -142,5 +130,4 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
         </>
     )
 }
-
 export default ImportDistrict

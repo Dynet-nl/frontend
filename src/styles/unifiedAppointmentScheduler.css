@@ -1,31 +1,77 @@
-/* Unified Appointment Scheduler Styles */
+/* Unified Appointment Scheduler Styles - Mobile-First Responsive Design */
 .usc-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 16px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tablet and desktop container */
+@media (min-width: 640px) {
+    .usc-container {
+        padding: 20px;
+    }
 }
 
 .usc-columns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    min-height: 600px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    min-height: auto;
+}
+
+/* Tablet and desktop - side by side columns */
+@media (min-width: 768px) {
+    .usc-columns {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        min-height: 600px;
+    }
 }
 
 .usc-leftColumn {
     background: #f8f9fa;
     border-radius: 8px;
-    padding: 20px;
+    padding: 16px;
     border: 1px solid #e9ecef;
+    order: 2;
+}
+
+/* Tablet and desktop left column */
+@media (min-width: 640px) {
+    .usc-leftColumn {
+        padding: 20px;
+    }
+}
+
+/* Desktop - restore original order */
+@media (min-width: 768px) {
+    .usc-leftColumn {
+        order: 1;
+    }
 }
 
 .usc-rightColumn {
     background: #ffffff;
     border-radius: 8px;
-    padding: 20px;
+    padding: 16px;
     border: 1px solid #e9ecef;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    order: 1;
+}
+
+/* Tablet and desktop right column */
+@media (min-width: 640px) {
+    .usc-rightColumn {
+        padding: 20px;
+    }
+}
+
+/* Desktop - restore original order */
+@media (min-width: 768px) {
+    .usc-rightColumn {
+        order: 2;
+    }
 }
 
 /* Single Apartment View */

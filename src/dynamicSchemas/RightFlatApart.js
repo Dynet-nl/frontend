@@ -1,6 +1,7 @@
+// Building layout schema component for right-side flat apartments with separation elements.
+
 import React from 'react'
 import FlatInputDetails from '../components/FlatInputDetails'
-
 const RightFlatApart = ({
                             form,
                             building,
@@ -12,7 +13,6 @@ const RightFlatApart = ({
         <div className="block">
             <div className="mainPart">
                 <div className="stairs"></div>
-
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
                         if (index === 0) {
@@ -30,8 +30,6 @@ const RightFlatApart = ({
                                 </div>
                             )
                         }
-                        
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -44,12 +42,9 @@ const RightFlatApart = ({
                                     />
                                     <div className="rightFlatLineStairsLast"></div>
                                     <div className="rightFlatEntranceLine"></div>
-                                    
                                 </div>
                             )
                         }
-                        
-                        
                         if (index !== 0 || index !== array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -62,7 +57,6 @@ const RightFlatApart = ({
                                     />
                                     <div className="rightFlatLineStairs"></div>
                                     <div className="rightFlatEntranceLine"></div>
-                                    
                                 </div>
                             )
                         }
@@ -73,5 +67,4 @@ const RightFlatApart = ({
         </div>
     )
 }
-
 export default RightFlatApart

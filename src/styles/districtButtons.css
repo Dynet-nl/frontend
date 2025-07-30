@@ -1,21 +1,59 @@
+/* District Buttons Styles - Mobile-First Responsive Design */
 .districtButtonsContainer {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+}
+
+/* Tablet and desktop adjustments */
+@media (min-width: 640px) {
+    .districtButtonsContainer {
+        gap: 5px;
+    }
 }
 
 .draggableDistrict {
     display: flex;
     align-items: center;
-    margin: 5px;
-    padding: 10px;
+    margin: 0;
+    padding: 12px;
     background-color: #f1f1f1;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: move;
+    min-height: 44px;
+    width: 100%;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Tablet and desktop draggable district */
+@media (min-width: 640px) {
+    .draggableDistrict {
+        padding: 10px;
+        margin: 5px;
+        width: auto;
+        min-height: auto;
+    }
+}
+
+.draggableDistrict:hover {
+    background-color: #e9e9e9;
+    border-color: #ccc;
 }
 
 .districtContent {
     display: flex;
     align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+/* Mobile adjustments for district content */
+@media (max-width: 639px) {
+    .districtContent {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
 }

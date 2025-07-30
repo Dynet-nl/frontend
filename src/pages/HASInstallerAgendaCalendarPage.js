@@ -1,3 +1,5 @@
+// Calendar view for HAS installers showing appointment schedules and availability.
+
 import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
 import {format, parse, startOfWeek, getDay} from 'date-fns';
@@ -7,11 +9,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
 import {useNavigate} from 'react-router-dom';
-
 const locales = {
     'nl': nl
 };
-
 const localizer = dateFnsLocalizer({
     format,
     parse,
@@ -19,11 +19,9 @@ const localizer = dateFnsLocalizer({
     getDay,
     locales,
 });
-
 const HASInstallerAgendaCalendarPage = () => {
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
-
     const [events, setEvents] = useState([]);
     const [originalEvents, setOriginalEvents] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -31,36 +29,28 @@ const HASInstallerAgendaCalendarPage = () => {
     const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
     const [hasMonteurs, setHasMonteurs] = useState([]);
     const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); 
-
-    
     const fetchHasMonteurs = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-
-            
             const monteurs = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
                     user.roles.HASMonteur === 2023;
             });
-
             setHasMonteurs(monteurs);
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
         }
     }, [axiosPrivate]);
-
     const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
-
             const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
                 params: {
                     limit: 500, 
                 }
             });
-
             const calendarEvents = response.data
                 .filter(flat =>
                     flat.hasMonteur?.appointmentBooked?.date &&
@@ -73,16 +63,11 @@ const HASInstallerAgendaCalendarPage = () => {
                     const [endHours, endMinutes] = appointmentData.endTime
                         ? appointmentData.endTime.split(':')
                         : [parseInt(startHours) + 1, startMinutes];
-
                     const startDateTime = new Date(appointmentDate);
                     startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
-
                     const endDateTime = new Date(appointmentDate);
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
-
-                    
                     const duration = Math.max(differenceInMinutes(endDateTime, startDateTime), 30);
-
                     return {
                         id: flat._id,
                         title: `${appointmentData.type}: ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
@@ -99,7 +84,6 @@ const HASInstallerAgendaCalendarPage = () => {
                         }
                     };
                 });
-
             setOriginalEvents(calendarEvents);
             setEvents(calendarEvents);
         } catch (error) {
@@ -108,60 +92,40 @@ const HASInstallerAgendaCalendarPage = () => {
             setLoading(false);
         }
     }, [axiosPrivate]);
-
     useEffect(() => {
-        
         setCurrentRange({start: null, end: null});
-
-        
         fetchHasMonteurs();
-        
-        
         fetchAppointments();
     }, [fetchHasMonteurs, fetchAppointments]);
-
     const handleHASMonteurFilter = (e) => {
         const selectedName = e.target.value;
         setSelectedHASMonteur(selectedName);
-
         if (!selectedName) {
-            
             setEvents(originalEvents);
         } else {
-            
             const filteredEvents = originalEvents.filter(event =>
                 event.personName === selectedName
             );
             setEvents(filteredEvents);
         }
     };
-
     const handleRangeChange = (range) => {
-        
-        
         if (range.start && range.end) {
             setCurrentRange(range);
             setCurrentDisplayMonth(range.start); 
         }
     };
-
     const handleEventClick = (event) => {
         const {resource} = event;
         navigate(`/hm-apartment/${resource.flatId}`);
     };
-
     const eventStyleGetter = (event) => {
         const isStoring = event.resource.type === 'Storing';
-
-        
         const baseHeight = 30; 
         const minDuration = 30; 
         const maxDuration = 240; 
         const normalizedDuration = Math.min(Math.max(event.duration, minDuration), maxDuration);
-
-        
         const heightMultiplier = Math.log(normalizedDuration / minDuration + 1);
-
         return {
             style: {
                 backgroundColor: isStoring ? '#e74c3c' : '#2ecc71',
@@ -177,7 +141,6 @@ const HASInstallerAgendaCalendarPage = () => {
             }
         };
     };
-
     return (
         <div style={{
             display: 'flex',
@@ -185,7 +148,6 @@ const HASInstallerAgendaCalendarPage = () => {
             height: '100vh',
             padding: '20px'
         }}>
-            
             <div style={{
                 width: '100%',
                 marginBottom: '20px',
@@ -228,8 +190,6 @@ const HASInstallerAgendaCalendarPage = () => {
                     </div>
                 )}
             </div>
-
-            
             <div style={{
                 backgroundColor: '#e8f5e8',
                 padding: '10px',
@@ -247,8 +207,6 @@ const HASInstallerAgendaCalendarPage = () => {
                     Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: nl })}
                 </span>
             </div>
-
-            
             <div style={{
                 flex: 1,
                 position: 'relative',
@@ -308,5 +266,4 @@ const HASInstallerAgendaCalendarPage = () => {
         </div>
     );
 };
-
 export default HASInstallerAgendaCalendarPage;

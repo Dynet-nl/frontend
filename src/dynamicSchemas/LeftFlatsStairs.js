@@ -1,6 +1,7 @@
+// Building layout schema component for left-side flats with stair elements.
+
 import React from 'react'
 import FlatInputDetails from '../components/FlatInputDetails'
-
 const LeftFlatsStairs = ({
                              form,
                              parentIndex,
@@ -12,10 +13,8 @@ const LeftFlatsStairs = ({
         <div className="block">
             <div className="mainPart mainPartReversed">
                 <div className="stairs"></div>
-
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        
                         if (index === 0) {
                             return (
                                 <div key={index} className="flat">
@@ -26,13 +25,10 @@ const LeftFlatsStairs = ({
                                         formFields={formFields}
                                         handleFlatDetails={handleFlatDetails}
                                     />
-
                                     <div className="leftFlatLineStairs"></div>
                                 </div>
                             )
                         }
-                        
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -48,8 +44,6 @@ const LeftFlatsStairs = ({
                                 </div>
                             )
                         }
-                        
-                        
                         if (index !== 0 || index !== array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -78,5 +72,4 @@ const LeftFlatsStairs = ({
         </div>
     )
 }
-
 export default LeftFlatsStairs

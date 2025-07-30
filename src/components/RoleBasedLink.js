@@ -1,40 +1,30 @@
-// Role-based navigation component that generates appropriate routes based on user roles and context (apartment/building/schedule mode). Used throughout the app for consistent navigation.
+// Component generating role-specific navigation links and routing based on user permissions.
 
 import React from 'react';
 import {Link} from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import ROLES_LIST from "../context/roles_list";
-
 const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
     const { auth } = useAuth();
-
     const hasRole = (roleValue) => {
         return auth?.roles && Array.isArray(auth.roles) && auth.roles.includes(roleValue);
     };
-
     const isAdmin = hasRole(ROLES_LIST.Admin);
     const isTechnischePlanning = hasRole(ROLES_LIST.TechnischePlanning);
     const isHASPlanning = hasRole(ROLES_LIST.HASPlanning);
     const isTechnischeSchouwer = hasRole(ROLES_LIST.TechnischeSchouwer);
     const isHASMonteur = hasRole(ROLES_LIST.HASMonteur);
-
-    // Check if user has scheduling permissions
     const hasSchedulingPermissions = isAdmin || isTechnischePlanning || isHASPlanning;
-
     let path = '/';
-
     if (type === 'schedule' && buildingId) {
-        // Only show schedule pencil icon for roles that can actually schedule
         if (!hasSchedulingPermissions) {
             return null; // Don't render the pencil icon at all
         }
-        
         if (isHASPlanning) {
             path = `/has-appointment-scheduler/${buildingId}?mode=building&type=HAS`;
         } else if (isTechnischePlanning) {
             path = `/appointment-scheduler/${buildingId}?mode=building&type=Technical`;
         } else if (isAdmin) {
-            // Admin goes to selection page to choose between technical or HAS planning
             path = `/admin-scheduling-selection/${buildingId}?mode=building`;
         }
     }
@@ -51,12 +41,10 @@ const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
             path = `/hm-apartment/${flatId}`;
         }
     }
-
     return (
         <Link to={path} className={className}>
             {children}
         </Link>
     );
 };
-
 export default RoleBasedLink;

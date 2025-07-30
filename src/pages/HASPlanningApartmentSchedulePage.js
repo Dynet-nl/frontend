@@ -1,20 +1,17 @@
+// HAS planning interface for scheduling apartments with HAS-specific appointment options.
 
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import '../styles/tsApartmentDetails.css'; 
-
 const HASPlanningApartmentSchedulePage = () => {
     const {id} = useParams();
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
-
     const [building, setBuilding] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedApartments, setSelectedApartments] = useState([]);
     const [hasMonteurs, setHASMonteurs] = useState([]);
-
-    
     const [appointmentData, setAppointmentData] = useState({
         date: '',
         startTime: '',
@@ -24,9 +21,7 @@ const HASPlanningApartmentSchedulePage = () => {
         hasMonteurName: '', 
         complaintDetails: '' 
     });
-
     const [flatAppointments, setFlatAppointments] = useState({});
-
     const calculateWeekNumber = (date) => {
         const currentDate = new Date(date);
         const startDate = new Date(currentDate.getFullYear(), 0, 1);
@@ -34,37 +29,29 @@ const HASPlanningApartmentSchedulePage = () => {
         const weekNumber = Math.ceil(days / 7);
         return weekNumber;
     };
-
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toISOString().split('T')[0];
     };
-
-    
     const fetchHASMonteurs = async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-
-            
             const monteurs = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
                     user.roles.HASMonteur === 2023;
             });
-
             setHASMonteurs(monteurs);
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
         }
     };
-
     const fetchBuilding = async () => {
         try {
             const { data } = await axiosPrivate.get(`/api/building/${id}`);
             setBuilding(data);
-
             const initialFlatAppointments = {};
             data.flats.forEach((flat) => {
                 if (flat.hasMonteur?.appointmentBooked?.date) {
@@ -79,30 +66,24 @@ const HASPlanningApartmentSchedulePage = () => {
                     };
                 }
             });
-
             setFlatAppointments(initialFlatAppointments);
-
             const apartmentsWithAppointments = data.flats
                 .filter(flat => flat.hasMonteur?.appointmentBooked?.date)
                 .map(flat => flat._id);
-
             setSelectedApartments(prevSelected => {
                 const combined = [...new Set([...prevSelected, ...apartmentsWithAppointments])];
                 return combined;
             });
-
             setLoading(false);
         } catch (error) {
             console.error('Error fetching building data', error);
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchBuilding();
         fetchHASMonteurs();
     }, [id, axiosPrivate]);
-
     const handleApartmentSelection = (flatId) => {
         setSelectedApartments((prevSelected) =>
             prevSelected.includes(flatId)
@@ -110,26 +91,20 @@ const HASPlanningApartmentSchedulePage = () => {
                 : [...prevSelected, flatId]
         );
     };
-
     const handleAppointmentChange = (e) => {
         const {name, value} = e.target;
         setAppointmentData((prevData) => ({
             ...prevData,
             [name]: value,
-            
             ...(name === 'date' ? {weekNumber: calculateWeekNumber(value)} : {})
         }));
     };
-
     const handleAppointmentSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
-            
             const appointmentResults = await Promise.all(
                 selectedApartments.map(async (flatId) => {
-                    
                     const appointmentPayload = {
                         appointmentBooked: {
                             date: appointmentData.date,
@@ -140,20 +115,14 @@ const HASPlanningApartmentSchedulePage = () => {
                         },
                         hasMonteurName: appointmentData.hasMonteurName
                     };
-
-                    
                     if (appointmentData.type === 'Complaint' && appointmentData.complaintDetails) {
                         appointmentPayload.appointmentBooked.complaintDetails = appointmentData.complaintDetails;
                     }
-
                     const response = await axiosPrivate.put(`/api/apartment/${flatId}/has-monteur`, appointmentPayload);
                     return { flatId, data: response.data };
                 })
             );
-
-            
             const updatedFlatAppointments = { ...flatAppointments };
-
             appointmentResults.forEach(({ flatId, data }) => {
                 if (data.hasMonteur?.appointmentBooked) {
                     updatedFlatAppointments[flatId] = {
@@ -167,13 +136,9 @@ const HASPlanningApartmentSchedulePage = () => {
                     };
                 }
             });
-
             setFlatAppointments(updatedFlatAppointments);
-
-            
             const buildingResponse = await axiosPrivate.get(`/api/building/${id}`);
             setBuilding(buildingResponse.data);
-
             alert('Appointments saved successfully!');
         } catch (error) {
             console.error('Error saving appointments:', error);
@@ -182,9 +147,7 @@ const HASPlanningApartmentSchedulePage = () => {
             setLoading(false);
         }
     };
-
     if (loading) return <div>Loading...</div>;
-
     return (
         <div className="ts-apartmentDetailsContainer">
             <h2>HAS Appointment Schedule for {building.address}</h2>
@@ -357,5 +320,4 @@ const HASPlanningApartmentSchedulePage = () => {
         </div>
     );
 };
-
 export default HASPlanningApartmentSchedulePage;

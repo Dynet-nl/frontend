@@ -1,13 +1,12 @@
-import React, {useState} from 'react';
+// Form component for creating and editing city information.
 
+import React, {useState} from 'react';
 const CityForm = ({onAddCity}) => {
     const [cityName, setCityName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!cityName.trim()) return;
-        
         try {
             setIsSubmitting(true);
             await onAddCity({name: cityName.trim()});
@@ -18,7 +17,6 @@ const CityForm = ({onAddCity}) => {
             setIsSubmitting(false);
         }
     };
-
     return (
         <form onSubmit={handleSubmit} className="modern-form">
             <div className="modern-form-group">
@@ -56,5 +54,4 @@ const CityForm = ({onAddCity}) => {
         </form>
     );
 };
-
 export default CityForm;

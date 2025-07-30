@@ -1,0 +1,235 @@
+/* Mobile-Specific Enhancements - Touch-Friendly Components */
+
+/* Touch-friendly buttons and inputs */
+.btn,
+button,
+input[type="submit"],
+input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Tablet and desktop button adjustments */
+@media (min-width: 640px) {
+    .btn,
+    button,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* Touch-friendly form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Tablet and desktop input adjustments */
+@media (min-width: 640px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="search"],
+    textarea,
+    select {
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* Focus states for accessibility */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Mobile-friendly form groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Mobile-friendly labels */
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Tablet and desktop label adjustments */
+@media (min-width: 640px) {
+    label {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+}
+
+/* Touch-friendly checkboxes and radios */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+/* Mobile-friendly select dropdowns */
+select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Mobile navigation improvements */
+.mobile-menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
+/* Mobile-friendly tables */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+    min-width: 600px;
+}
+
+/* Mobile-friendly modals */
+.modal {
+    padding: 16px;
+}
+
+.modal-content {
+    margin: 0;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+}
+
+/* Tablet and desktop modal adjustments */
+@media (min-width: 640px) {
+    .modal {
+        padding: 20px;
+    }
+    
+    .modal-content {
+        margin: 20px auto;
+        max-height: calc(100vh - 120px);
+    }
+}
+
+/* Touch-friendly spacing */
+.mobile-spacing {
+    padding: 16px;
+}
+
+@media (min-width: 640px) {
+    .mobile-spacing {
+        padding: 20px;
+    }
+}
+
+/* Prevent text selection on touch targets */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Smooth scrolling for mobile */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent horizontal scroll */
+body {
+    overflow-x: hidden;
+}
+
+/* Mobile-friendly card stacking */
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (min-width: 640px) {
+    .card-stack {
+        gap: 20px;
+    }
+}
+
+@media (min-width: 768px) {
+    .card-stack {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+/* Touch-friendly loading states */
+.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* Mobile-friendly error states */
+.error-input {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Success states */
+.success-input {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1) !important;
+}

@@ -1,6 +1,7 @@
+// Component for inputting and managing individual apartment/flat details and information.
+
 import React from 'react'
 import '../styles/flatInputDetails.css'
-
 const FlatInputDetails = ({
                               index,
                               parentIndex,
@@ -29,7 +30,6 @@ const FlatInputDetails = ({
                         )
                     })}
             </select>
-            
             <input
                 id={`cableNumber${index}`}
                 placeholder="CN"
@@ -55,5 +55,4 @@ const FlatInputDetails = ({
         </div>
     )
 }
-
 export default FlatInputDetails

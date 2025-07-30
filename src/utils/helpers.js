@@ -1,9 +1,6 @@
-// Enhanced utility functions for better code reusability and performance
-import { VALIDATION_RULES, UI_CONFIG } from './constants';
+// Utility functions including validation helpers, formatting functions, and common operations.
 
-/**
- * Debounced function wrapper for performance optimization
- */
+import { VALIDATION_RULES, UI_CONFIG } from './constants';
 export const debounce = (func, delay = UI_CONFIG.DEBOUNCE_DELAY) => {
     let timeoutId;
     return (...args) => {
@@ -11,10 +8,6 @@ export const debounce = (func, delay = UI_CONFIG.DEBOUNCE_DELAY) => {
         timeoutId = setTimeout(() => func.apply(null, args), delay);
     };
 };
-
-/**
- * Validation utilities
- */
 export const validators = {
     name: (value) => {
         if (!value || value.trim().length < VALIDATION_RULES.NAME_MIN_LENGTH) {
@@ -25,7 +18,6 @@ export const validators = {
         }
         return null;
     },
-    
     email: (value) => {
         if (!value) return 'Email is required';
         if (!VALIDATION_RULES.EMAIL_REGEX.test(value)) {
@@ -33,7 +25,6 @@ export const validators = {
         }
         return null;
     },
-    
     required: (value, fieldName = 'This field') => {
         if (!value || (typeof value === 'string' && !value.trim())) {
             return `${fieldName} is required`;
@@ -41,10 +32,6 @@ export const validators = {
         return null;
     }
 };
-
-/**
- * Format utilities
- */
 export const formatters = {
     currency: (amount, currency = 'EUR') => {
         return new Intl.NumberFormat('nl-NL', {
@@ -52,7 +39,6 @@ export const formatters = {
             currency: currency
         }).format(amount);
     },
-    
     date: (date, options = {}) => {
         const defaultOptions = {
             year: 'numeric',
@@ -62,11 +48,9 @@ export const formatters = {
         };
         return new Intl.DateTimeFormat('nl-NL', defaultOptions).format(new Date(date));
     },
-    
     percentage: (value, decimals = 1) => {
         return `${Number(value).toFixed(decimals)}%`;
     },
-    
     fileSize: (bytes) => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -75,10 +59,6 @@ export const formatters = {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 };
-
-/**
- * Array utilities for better performance
- */
 export const arrayUtils = {
     groupBy: (array, key) => {
         return array.reduce((groups, item) => {
@@ -87,7 +67,6 @@ export const arrayUtils = {
             return groups;
         }, {});
     },
-    
     sortBy: (array, key, direction = 'asc') => {
         return [...array].sort((a, b) => {
             const aVal = a[key];
@@ -98,7 +77,6 @@ export const arrayUtils = {
             return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
         });
     },
-    
     unique: (array, key) => {
         if (key) {
             const seen = new Set();
@@ -112,10 +90,6 @@ export const arrayUtils = {
         return [...new Set(array)];
     }
 };
-
-/**
- * Error handling utilities
- */
 export const errorHandlers = {
     getErrorMessage: (error) => {
         if (error.response?.data?.message) {
@@ -126,19 +100,13 @@ export const errorHandlers = {
         }
         return 'An unexpected error occurred';
     },
-    
     isNetworkError: (error) => {
         return !error.response && error.request;
     },
-    
     isAuthError: (error) => {
         return error.response?.status === 401;
     }
 };
-
-/**
- * Local storage utilities with error handling
- */
 export const storage = {
     get: (key, defaultValue = null) => {
         try {
@@ -149,7 +117,6 @@ export const storage = {
             return defaultValue;
         }
     },
-    
     set: (key, value) => {
         try {
             localStorage.setItem(key, JSON.stringify(value));
@@ -159,7 +126,6 @@ export const storage = {
             return false;
         }
     },
-    
     remove: (key) => {
         try {
             localStorage.removeItem(key);
@@ -170,22 +136,16 @@ export const storage = {
         }
     }
 };
-
-/**
- * DOM utilities
- */
 export const domUtils = {
     scrollToTop: (behavior = 'smooth') => {
         window.scrollTo({ top: 0, behavior });
     },
-    
     scrollToElement: (element, offset = 0) => {
         if (element) {
             const elementPosition = element.offsetTop - offset;
             window.scrollTo({ top: elementPosition, behavior: 'smooth' });
         }
     },
-    
     copyToClipboard: async (text) => {
         try {
             await navigator.clipboard.writeText(text);

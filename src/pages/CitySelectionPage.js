@@ -1,16 +1,16 @@
+// Page for selecting cities in the geographical navigation hierarchy.
+
 import React, {useEffect, useState, useCallback} from 'react';
 import {Link} from 'react-router-dom';
 import CityForm from '../components/CityForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
-
 const CitySelectionPage = () => {
     const [cities, setCities] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isDeleting, setIsDeleting] = useState(null);
     const axiosPrivate = useAxiosPrivate();
-
     const fetchCities = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -28,31 +28,24 @@ const CitySelectionPage = () => {
             setIsLoading(false);
         }
     }, [axiosPrivate]);
-
     useEffect(() => {
         fetchCities();
     }, [fetchCities]);
-
     const handleAddCity = useCallback(async (newCity) => {
         try {
             const response = await axiosPrivate.post('/api/city', newCity);
             const addedCity = response.data;
-            
-            // Optimized: Just set numberOfAreas to 0 for new cities instead of making extra API call
             addedCity.numberOfAreas = 0;
-            
             setCities(prevCities => [...prevCities, addedCity]);
         } catch (error) {
             console.error('Failed to add city:', error);
             setError('Failed to add city. Please try again.');
         }
     }, [axiosPrivate]);
-
     const handleDeleteCity = useCallback(async (cityId) => {
         if (!window.confirm('Are you sure you want to delete this city? This will also delete all associated areas and districts.')) {
             return;
         }
-        
         try {
             setIsDeleting(cityId);
             await axiosPrivate.delete(`/api/city/${cityId}`);
@@ -64,16 +57,14 @@ const CitySelectionPage = () => {
             setIsDeleting(null);
         }
     }, [axiosPrivate]);
-
     return (
         <div className="modern-container">
-            {/* Header Section */}
+            {}
             <div className="modern-header" style={{marginBottom: '32px'}}>
                 <h1 className="modern-title">City Management</h1>
                 <p className="modern-subtitle">Manage cities and their areas for fiber installation projects</p>
             </div>
-
-            {/* Add New City Section */}
+            {}
             <div className="modern-card" style={{marginBottom: '32px'}}>
                 <div className="modern-card-header">
                     <h2 className="modern-card-title">
@@ -85,8 +76,7 @@ const CitySelectionPage = () => {
                     <CityForm onAddCity={handleAddCity}/>
                 </div>
             </div>
-
-            {/* Error Display */}
+            {}
             {error && (
                 <div className="modern-alert modern-alert-error" style={{marginBottom: '32px'}}>
                     <span style={{fontSize: '18px', marginRight: '8px'}}>⚠️</span>
@@ -100,8 +90,7 @@ const CitySelectionPage = () => {
                     </button>
                 </div>
             )}
-
-            {/* Cities Grid Section */}
+            {}
             <div className="modern-card">
                 <div className="modern-card-header">
                     <h2 className="modern-card-title">
@@ -170,5 +159,4 @@ const CitySelectionPage = () => {
         </div>
     );
 }
-
 export default CitySelectionPage;

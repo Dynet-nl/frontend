@@ -1,18 +1,17 @@
+// Technical inspector view for apartment details with inspection-specific information and tools.
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/tsApartmentDetails.css';
-
 const TechnicalInspectorApartmentDetailPage = () => {
   const params = useParams();
   const axiosPrivate = useAxiosPrivate();
   const { auth } = useAuth();
-
   const isTechnischePlanning = auth?.roles?.includes(1991);
   const [isEditingPlanning, setIsEditingPlanning] = useState(false);
   const [isEditingAppointment, setIsEditingAppointment] = useState(false);
-
   const [flat, setFlat] = useState({
     _id: '',
     zoeksleutel: '',
@@ -31,7 +30,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
     updatedAt: null,
     technischePlanning: null
   });
-
   const [formData, setFormData] = useState({
     vveWocoName: '',
     telephone: '',
@@ -49,23 +47,19 @@ const TechnicalInspectorApartmentDetailPage = () => {
     additionalNotes: '',
     smsSent: false
   });
-
   const [appointmentData, setAppointmentData] = useState({
     date: '',
     startTime: '',
     endTime: '',
     weekNumber: null
   });
-
   useEffect(() => {
     const fetchApartment = async () => {
       try {
         const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
         console.log('Full flat data:', data);
-
         const appointmentData = data.technischePlanning?.appointmentBooked;
         console.log('Appointment data:', appointmentData);
-
         if (appointmentData) {
           setAppointmentData({
             date: new Date(appointmentData.date).toISOString().split('T')[0],
@@ -74,7 +68,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
             weekNumber: appointmentData.weekNumber
           });
         }
-
         setFlat({
           _id: data._id,
           zoeksleutel: data.zoeksleutel,
@@ -93,7 +86,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
           updatedAt: data.updatedAt,
           technischePlanning: data.technischePlanning || null,
         });
-
         if (data.technischePlanning) {
           setFormData({
             vveWocoName: data.technischePlanning.vveWocoName || '',
@@ -117,13 +109,10 @@ const TechnicalInspectorApartmentDetailPage = () => {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchApartment();
   }, [params.id, axiosPrivate]);
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
@@ -141,7 +130,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
       }));
     }
   };
-
   const handleAppointmentChange = (e) => {
     const { name, value } = e.target;
     setAppointmentData((prevData) => ({
@@ -150,21 +138,18 @@ const TechnicalInspectorApartmentDetailPage = () => {
       weekNumber: name === 'date' ? calculateWeekNumber(value) : prevData.weekNumber
     }));
   };
-
   const calculateWeekNumber = (date) => {
     const currentDate = new Date(date);
     const startDate = new Date(currentDate.getFullYear(), 0, 1);
     const days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000));
     return Math.ceil(days / 7);
   };
-
   const handleAppointmentSubmit = async (e) => {
     e.preventDefault();
     try {
       await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, {
         appointmentBooked: appointmentData
       });
-
       const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
       if (data.technischePlanning?.appointmentBooked) {
         setFlat(prev => ({
@@ -183,19 +168,16 @@ const TechnicalInspectorApartmentDetailPage = () => {
       alert('Error saving appointment. Please try again.');
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axiosPrivate.put(`/api/apartment/${params.id}/technische-planning`, formData);
       console.log('Updated TechnischePlanning:', response.data);
-
       setFlat((prevFlat) => ({
         ...prevFlat,
         technischePlanning: response.data.technischePlanning,
         updatedAt: new Date().toISOString() 
       }));
-
       setIsEditingPlanning(false);
       alert('Planning details saved successfully!');
     } catch (error) {
@@ -205,7 +187,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
   };
   const renderAppointmentDetails = () => {
     if (!isTechnischePlanning) return null;
-
     return (
       <div className="ts-appointmentDetails">
         <div className="ts-planningHeader">
@@ -245,7 +226,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
             )}
           </button>
         </div>
-
         {isEditingAppointment ? (
           <form onSubmit={handleAppointmentSubmit} className="ts-form">
             <div className="ts-formGroup">
@@ -311,10 +291,8 @@ const TechnicalInspectorApartmentDetailPage = () => {
       </div>
     );
   };
-
   const renderPlanningDetails = () => {
     if (!isTechnischePlanning) return null;
-
     return (
       <div className="ts-planningDetails">
         <div className="ts-planningHeader">
@@ -354,7 +332,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
             )}
           </button>
         </div>
-
         {isEditingPlanning ? (
           <form onSubmit={handleSubmit}>
             <div className="ts-formGroup">
@@ -372,7 +349,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 <option value="Huurder">Huurder</option>
               </select>
             </div>
-
             <div className="ts-formGroup">
               <label>Telephone:</label>
               <input
@@ -382,7 +358,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 onChange={handleChange}
               />
             </div>
-
             <div className="ts-formGroup">
               <label>Technische Schouwer:</label>
               <input
@@ -392,7 +367,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 onChange={handleChange}
               />
             </div>
-
             <div className="ts-formGroup">
               <label>
                 <input
@@ -404,7 +378,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 Ready for Schouwer
               </label>
             </div>
-
             <div className="ts-formGroup">
               <label>
                 <input
@@ -416,7 +389,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 Signed
               </label>
             </div>
-
             <div className="ts-formGroup">
               <label>Times Called:</label>
               <input
@@ -427,7 +399,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 min="0"
               />
             </div>
-
             <div className="ts-formGroup">
               <label>Additional Notes:</label>
               <textarea
@@ -436,7 +407,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 onChange={handleChange}
               />
             </div>
-
             <button type="submit" className="ts-saveButton">Save</button>
           </form>
         ) : (
@@ -453,7 +423,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
       </div>
     );
   };
-
   return (
     <div className="ts-apartmentDetailsContainer">
       <h2 className="ts-apartmentTitle">
@@ -462,7 +431,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
           &#10004;
         </span>
       </h2>
-
       <div className="ts-columns">
         <div className="ts-leftColumn">
           <div className="ts-detailsGrid">
@@ -476,7 +444,6 @@ const TechnicalInspectorApartmentDetailPage = () => {
               <p><b>Complex Name:</b> {flat.complexNaam || 'N/A'}</p>
               <p><b>Search Key:</b> {flat.zoeksleutel || 'N/A'}</p>
             </div>
-
             <div className="ts-statusSection">
               <h4>Status Overview</h4>
               <div className="ts-statusGrid">
@@ -494,14 +461,12 @@ const TechnicalInspectorApartmentDetailPage = () => {
                 </div>
               </div>
             </div>
-
             <div className="ts-timestamps">
               <p><b>Created:</b> {flat.createdAt ? new Date(flat.createdAt).toLocaleString() : 'N/A'}</p>
               <p><b>Last Updated:</b> {flat.updatedAt ? new Date(flat.updatedAt).toLocaleString() : 'N/A'}</p>
             </div>
           </div>
         </div>
-
         <div className="ts-rightColumn">
           {renderPlanningDetails()}
           {renderAppointmentDetails()}
@@ -510,5 +475,4 @@ const TechnicalInspectorApartmentDetailPage = () => {
     </div>
   );
 };
-
 export default TechnicalInspectorApartmentDetailPage;

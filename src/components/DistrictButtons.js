@@ -1,14 +1,14 @@
+// Component displaying district navigation buttons with district-specific information and actions.
+
 import React from 'react';
 import Button from '@mui/material/Button';
 import {Draggable} from 'react-beautiful-dnd';
 import '../styles/districtButtons.css';
-
 const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict}) => {
     const handleDistrictClick = (district) => {
         setCurrentDistrict(district);
         getBuildings(district._id);
     };
-
     return (
         <div className="districtButtonsContainer">
             {districts.length > 0 ? (
@@ -40,5 +40,4 @@ const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict}) => 
         </div>
     );
 };
-
 export default DistrictButtons;

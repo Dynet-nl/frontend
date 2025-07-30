@@ -1,12 +1,11 @@
+// Admin interface for managing districts including creation, editing, and organizational tools.
 
-// Admin dashboard page providing district management overview with hierarchical structure visualization, progress tracking, and drag-drop reordering. Integrates with dashboard statistics API.
 import React, { useEffect, useState } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import { BounceLoader } from 'react-spinners';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import '../styles/dashboardPage.css';  
-
 const AdminDistrictManagementPage = () => {
     const axiosPrivate = useAxiosPrivate();
     const { auth } = useAuth();
@@ -25,7 +24,6 @@ const AdminDistrictManagementPage = () => {
         scheduledAppointments: 0
     });
     const [dashboardLoading, setDashboardLoading] = useState(true);
-
     const fetchAllDistricts = async () => {
         setIsLoading(true);
         setError(null);
@@ -39,7 +37,6 @@ const AdminDistrictManagementPage = () => {
             setIsLoading(false);
         }
     };
-
     const fetchDashboardData = async () => {
         try {
             const response = await axiosPrivate.get('/api/dashboard/stats');
@@ -60,22 +57,17 @@ const AdminDistrictManagementPage = () => {
             setDashboardLoading(false);
         }
     };
-
     useEffect(() => {
         fetchAllDistricts();
         fetchDashboardData();
     }, []);
-
     const onDragEnd = async (result) => {
         if (!result.destination) return;
-
         const items = Array.from(districts);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
-        
         setDistricts(items);
         setIsSaving(true);
-
         try {
             await axiosPrivate.post('/api/district/priority', {
                 districts: items.map((district) => ({
@@ -84,13 +76,11 @@ const AdminDistrictManagementPage = () => {
             });
         } catch (error) {
             console.error('Failed to update priorities', error);
-            
             fetchAllDistricts();
         } finally {
             setIsSaving(false);
         }
     };
-
     const getProgressBarColor = (percentage) => {
         if (percentage === 100) return '#4CAF50';  
         if (percentage >= 75) return '#8BC34A';   
@@ -98,13 +88,11 @@ const AdminDistrictManagementPage = () => {
         if (percentage >= 25) return '#FF9800';   
         return '#F44336';  
     };
-
     const ProcessFlowDiagram = () => (
         <div className="process-flow-container">
             <h2 className="process-flow-title">
                 Fiber Installation Process Overview
             </h2>
-            
             <div className="hierarchy-section">
                 <h3 className="hierarchy-title">Location Hierarchy</h3>
                 <div className="hierarchy-container">
@@ -139,7 +127,6 @@ const AdminDistrictManagementPage = () => {
                     </div>
                 </div>
             </div>
-
             <div className="process-section">
                 <h3 className="process-title">Installation Process Flow</h3>
                 <div className="process-container">
@@ -174,7 +161,6 @@ const AdminDistrictManagementPage = () => {
                     </div>
                 </div>
             </div>
-
             <div className="status-section">
                 <h3 className="status-title">Installation Status Overview</h3>
                 <div className="status-container">
@@ -201,7 +187,6 @@ const AdminDistrictManagementPage = () => {
                     </div>
                 </div>
             </div>
-
             <div className="overall-progress">
                 <div className="overall-progress-title">
                     Overall Installation Progress
@@ -221,45 +206,37 @@ const AdminDistrictManagementPage = () => {
             </div>
         </div>
     );
-
     return (
         <div className="dashboard-container">
             {!dashboardLoading && <ProcessFlowDiagram />}
-            
             {dashboardLoading && (
                 <div className="dashboard-loading">
                     Loading dashboard data...
                 </div>
             )}
-
             <div className="district-management-section">
                 <h1>District Management Dashboard</h1>
                 <p className="instructions">
                     Drag and drop districts to reorder their priority. First district gets highest priority.
                 </p>
-                
                 {isLoading && (
                     <div className="loading-overlay">
                         <BounceLoader color="#3498db" />
                     </div>
                 )}
-
                 {error && (
                     <div className="error-message">
                         {error}
                     </div>
                 )}
-
                 {isSaving && (
                     <div className="saving-message">
                         Saving priority changes...
                     </div>
                 )}
-
                 {!isLoading && districts.length === 0 && !error && (
                     <p>No districts found.</p>
                 )}
-
                 {districts.length > 0 && (
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="districts">
@@ -301,7 +278,6 @@ const AdminDistrictManagementPage = () => {
                                                         </div>
                                                         <div className="drag-handle">⋮⋮</div>
                                                     </div>
-
                                                     <div className="stats-container">
                                                         <div className="stat-item">
                                                             <span className="stat-label">Total Flats:</span>
@@ -316,7 +292,6 @@ const AdminDistrictManagementPage = () => {
                                                             <span className="stat-value">{district.stats?.remainingFlats || 0}</span>
                                                         </div>
                                                     </div>
-
                                                     <div className="progress-section">
                                                         <div className="progress-header">
                                                             <span>Progress</span>
@@ -346,5 +321,4 @@ const AdminDistrictManagementPage = () => {
         </div>
     );
 };
-
 export default AdminDistrictManagementPage;

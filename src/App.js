@@ -1,4 +1,4 @@
-// Main App component with routing configuration, authentication checks, and cache invalidation provider. Handles all page routes and role-based access control.
+// Main React application component with routing configuration, authentication checks, and global providers.
 
 import './App.css';
 import { useEffect } from 'react';
@@ -20,6 +20,8 @@ import TechnicalPlanningApartmentDetailPage from './pages/TechnicalPlanningApart
 import HASPlanningApartmentDetailPage from './pages/HASPlanningApartmentDetailPage';
 import TechnicalInspectorApartmentDetailPage from './pages/TechnicalInspectorApartmentDetailPage';
 import HASInstallerApartmentDetailPage from './pages/HASInstallerApartmentDetailPage';
+import OptimizedApartmentDetails from './components/OptimizedApartmentDetails';
+import AppointmentSystemValidator from './components/AppointmentSystemValidator';
 import TechnicalPlanningApartmentSchedulePage from './pages/TechnicalPlanningApartmentSchedulePage';
 import TechnicalPlanningAgendaCalendarPage from './pages/TechnicalPlanningAgendaCalendarPage';
 import HASInstallerAgendaCalendarPage from './pages/HASInstallerAgendaCalendarPage';
@@ -32,10 +34,8 @@ import HASPlanningApartmentSchedulePage from "./pages/HASPlanningApartmentSchedu
 import UnifiedAppointmentPage from "./pages/UnifiedAppointmentPage";
 import AdminSchedulingSelectionPage from "./pages/AdminSchedulingSelectionPage";
 import { ROLES } from './utils/constants';
-
 function App() {
     const { setAuth } = useAuth();
-
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
         const roles = JSON.parse(localStorage.getItem('roles')) || [];
@@ -43,7 +43,6 @@ function App() {
             setAuth({ accessToken: token, roles: roles });
         }
     }, [setAuth]);
-
     return (
         <ErrorBoundary>
             <NotificationProvider>
@@ -57,38 +56,32 @@ function App() {
                                     <Route element={<AdminDashboardPage />} path='/admin' />
                                     <Route element={<AdminDistrictManagementPage />} path='/dashboard' />
                                     <Route element={<DistrictManagementPage />} path='/district-management/:areaId' />
-                                    <Route element={<AdminApartmentDetailPage />} path='/admin-apartment/:id' />
+                                    <Route element={<OptimizedApartmentDetails />} path='/admin-apartment/:id' />
                                     <Route element={<AdminSchedulingSelectionPage />} path='/admin-scheduling-selection/:id' />
+                                    <Route element={<AppointmentSystemValidator />} path='/appointment-validator' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING]} />}>
-                                    <Route element={<TechnicalPlanningApartmentDetailPage />} path='/planning-apartment/:id' />
+                                    <Route element={<OptimizedApartmentDetails />} path='/planning-apartment/:id' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING, ROLES.ADMIN]} />}>
-                                    <Route element={<HASPlanningApartmentDetailPage />} path='/has-planning-apartment/:id' />
+                                    <Route element={<OptimizedApartmentDetails />} path='/has-planning-apartment/:id' />
                                     <Route element={<HASPlanningApartmentSchedulePage />} path='/has-planning-apartment-schedule/:id' />
                                     <Route element={<UnifiedAppointmentPage />} path='/has-appointment-scheduler/:id' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_INSPECTOR]} />}>
-                                    <Route element={<TechnicalInspectorApartmentDetailPage />} path='/ts-apartment/:id' />
+                                    <Route element={<OptimizedApartmentDetails />} path='/ts-apartment/:id' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.HAS_MONTEUR, ROLES.ADMIN, ROLES.HAS_PLANNING]} />}>
-                                    <Route element={<HASInstallerApartmentDetailPage />} path='/hm-apartment/:id' />
+                                    <Route element={<OptimizedApartmentDetails />} path='/hm-apartment/:id' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING, ROLES.ADMIN, ROLES.TECHNICAL_INSPECTOR, ROLES.HAS_MONTEUR]} />}>
                                     <Route element={<HASInstallerAgendaCalendarPage />} path='/has-agenda' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING, ROLES.ADMIN]} />}>
                                     <Route element={<TechnicalPlanningApartmentSchedulePage />} path='/planning-apartment-schedule/:id' />
                                     <Route element={<TechnicalPlanningAgendaCalendarPage />} path='/agenda' />
                                     <Route element={<UnifiedAppointmentPage />} path='/appointment-scheduler/:id' />
                                 </Route>
-
                                 <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.TECHNICAL_INSPECTOR, ROLES.WERKVOORBEREIDER, ROLES.HAS_PLANNING, ROLES.HAS_MONTEUR]} />}>
                                     <Route element={<DashboardHomePage />} path='/' />
                                     <Route element={<CitySelectionPage />} path='/city' />
@@ -105,5 +98,4 @@ function App() {
         </ErrorBoundary>
     );
 }
-
 export default App;

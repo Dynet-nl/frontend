@@ -1,4 +1,4 @@
-// Main districts page with in-memory caching (5min expiry) and scroll position restoration. Manages district/building navigation and integrates with ImportDistrict for uploads.
+// Page for selecting districts within an area for navigation and organization.
 
 import {useCallback, useEffect, useState} from 'react';
 import {useParams, Link} from 'react-router-dom';
@@ -9,20 +9,16 @@ import DistrictButtons from '../components/DistrictButtons';
 import BuildingsList from '../components/BuildingsList';
 import {BounceLoader} from 'react-spinners';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
-
 const cache = {
     districts: new Map(),
     buildings: new Map(),
     timestamps: new Map()
 };
-
 const CACHE_DURATION = 5 * 60 * 1000;
-
 const isCacheValid = (key) => {
     const timestamp = cache.timestamps.get(key);
     return timestamp && (Date.now() - timestamp < CACHE_DURATION);
 };
-
 const DistrictSelectionPage = () => {
     const axiosPrivate = useAxiosPrivate();
     const { auth } = useAuth();
@@ -32,12 +28,10 @@ const DistrictSelectionPage = () => {
     const [buildings, setBuildings] = useState([]);
     const [isLoadingDistricts, setIsLoadingDistricts] = useState(true);
     const [isLoadingBuildings, setIsLoadingBuildings] = useState(false);
-
     const saveScrollPosition = useCallback(() => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         localStorage.setItem(`scroll_district_${areaId}`, scrollTop.toString());
     }, [areaId]);
-
     const restoreScrollPosition = useCallback(() => {
         const savedPosition = localStorage.getItem(`scroll_district_${areaId}`);
         if (savedPosition && savedPosition !== '0') {
@@ -49,70 +43,53 @@ const DistrictSelectionPage = () => {
             }
         }
     }, [areaId]);
-
     const fetchDistricts = useCallback(async () => {
         const cacheKey = `districts_${areaId}`;
-        
         if (isCacheValid(cacheKey) && cache.districts.has(cacheKey)) {
             const cachedDistricts = cache.districts.get(cacheKey);
             setDistricts(cachedDistricts);
             setIsLoadingDistricts(false);
-            
             if (!currentDistrict && cachedDistricts.length > 0) {
                 setCurrentDistrict(cachedDistricts[0]);
             }
             return;
         }
-
         try {
             setIsLoadingDistricts(true);
             const response = await axiosPrivate.get(`/api/district/area/${areaId}`);
-            
             cache.districts.set(cacheKey, response.data);
             cache.timestamps.set(cacheKey, Date.now());
-            
             setDistricts(response.data);
-            
             if (!currentDistrict && response.data.length > 0) {
                 setCurrentDistrict(response.data[0]);
             }
-            
         } catch (error) {
             console.error('Error fetching districts:', error);
         } finally {
             setIsLoadingDistricts(false);
         }
     }, [areaId, axiosPrivate, currentDistrict]);
-
     const fetchBuildings = useCallback(async (districtId) => {
         if (!districtId) {
             setBuildings([]);
             return;
         }
-
         const cacheKey = `buildings_${districtId}`;
-        
         if (isCacheValid(cacheKey) && cache.buildings.has(cacheKey)) {
             const cachedBuildings = cache.buildings.get(cacheKey);
             setBuildings(cachedBuildings);
             setIsLoadingBuildings(false);
-            
             setTimeout(restoreScrollPosition, 10);
             return;
         }
-
         try {
             setIsLoadingBuildings(true);
             const response = await axiosPrivate.get(`/api/district/${districtId}`);
             const buildingsData = response.data.buildings || [];
-            
             cache.buildings.set(cacheKey, buildingsData);
             cache.timestamps.set(cacheKey, Date.now());
-            
             setBuildings(buildingsData);
-            
             setTimeout(restoreScrollPosition, 50);
-            
         } catch (error) {
             console.error('Error fetching buildings:', error);
             setBuildings([]);
@@ -120,47 +97,37 @@ const DistrictSelectionPage = () => {
             setIsLoadingBuildings(false);
         }
     }, [axiosPrivate, restoreScrollPosition]);
-
     useEffect(() => {
         fetchDistricts();
     }, [fetchDistricts]);
-
     useEffect(() => {
         if (currentDistrict?._id) {
             fetchBuildings(currentDistrict._id);
         }
     }, [currentDistrict?._id, fetchBuildings]);
-
     const getBuildings = useCallback(async (id) => {
         saveScrollPosition();
-        
         const newDistrict = districts.find(district => district._id === id);
         if (newDistrict) {
             setCurrentDistrict(newDistrict);
         }
     }, [districts, saveScrollPosition]);
-
     useEffect(() => {
         const handleCacheInvalidation = () => {
             cache.buildings.clear();
             cache.timestamps.clear();
         };
-        
         window.addEventListener('invalidate-buildings-cache', handleCacheInvalidation);
         return () => {
             window.removeEventListener('invalidate-buildings-cache', handleCacheInvalidation);
         };
     }, []);
-
     const onDragEnd = async (result) => {
         if (!result.destination) return;
-        
         const items = Array.from(districts);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
-        
         setDistricts(items);
-        
         try {
             await axiosPrivate.post('/api/district/reorder', {
                 districts: items.map((district, index) => ({
@@ -168,32 +135,25 @@ const DistrictSelectionPage = () => {
                     priority: index + 1,
                 })),
             });
-            
             const cacheKey = `districts_${areaId}`;
             cache.districts.set(cacheKey, items);
             cache.timestamps.set(cacheKey, Date.now());
-            
         } catch (error) {
             console.error('Failed to reorder districts', error);
             fetchDistricts();
         }
     };
-
     useEffect(() => {
         const handleBeforeUnload = () => {
             saveScrollPosition();
         };
-
         window.addEventListener('beforeunload', handleBeforeUnload);
-        
         return () => {
             saveScrollPosition();
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [saveScrollPosition]);
-
     const isLoading = isLoadingDistricts || isLoadingBuildings;
-
     return (
         <div className="districtPageContainer" style={{padding: '20px'}}>
             {isLoading && (
@@ -202,7 +162,6 @@ const DistrictSelectionPage = () => {
                 </div>
             )}
             <h1 style={{marginBottom: '20px'}}>Districts Page</h1>
-            
             <div className="cacheStatus">
                 <span>📊 Districts: {districts.length} loaded</span>
                 <span>🏢 Buildings: {buildings.length} loaded</span>
@@ -213,8 +172,7 @@ const DistrictSelectionPage = () => {
                     <span className="loadingIndicator">⟳ Loading buildings...</span>
                 )}
             </div>
-            
-            {/* Modern District Management Section */}
+            {}
             <div className="modern-card" style={{marginBottom: '32px'}}>
                 <div className="modern-card-header">
                     <h2 className="modern-card-title">
@@ -229,7 +187,7 @@ const DistrictSelectionPage = () => {
                         gap: '20px',
                         alignItems: 'start'
                     }}>
-                        {/* Enhanced District Management - Available for Admins */}
+                        {}
                         {auth?.roles?.includes(5150) && (
                             <div className="modern-action-card">
                                 <div className="modern-action-card-icon" style={{backgroundColor: '#e8f5e8'}}>
@@ -254,8 +212,7 @@ const DistrictSelectionPage = () => {
                                 </Link>
                             </div>
                         )}
-                        
-                        {/* Quick Actions - Available for All Users */}
+                        {}
                         <div className="modern-action-card">
                             <div className="modern-action-card-icon" style={{backgroundColor: '#e8f4fd'}}>
                                 📋
@@ -290,7 +247,6 @@ const DistrictSelectionPage = () => {
                     </div>
                 </div>
             </div>
-            
             <div style={{marginTop: '20px'}}>
                 <h2 style={{marginBottom: '15px'}}>Current District Name: {currentDistrict?.name || 'Loading...'}</h2>
                 <DragDropContext onDragEnd={onDragEnd}>
@@ -312,5 +268,4 @@ const DistrictSelectionPage = () => {
         </div>
     );
 };
-
 export default DistrictSelectionPage;

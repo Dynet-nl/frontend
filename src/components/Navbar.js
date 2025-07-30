@@ -1,4 +1,6 @@
-import React from 'react'
+// Navigation bar component with role-based menu items and user authentication status.
+
+import React, { useState } from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
@@ -8,7 +10,7 @@ import ROLES_LIST from "../context/roles_list";
 const Navbar = () => {
     const {auth, setAuth} = useAuth()
     const navigate = useNavigate()
-    
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     
     const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin) 
     const hasTechnischePlanningRole = auth?.roles?.includes(ROLES_LIST.TechnischePlanning)
@@ -16,10 +18,7 @@ const Navbar = () => {
     const hasTechnischeSchouwerRole = auth?.roles?.includes(ROLES_LIST.TechnischeSchouwer)
     const hasHASMonteurRole = auth?.roles?.includes(ROLES_LIST.HASMonteur)
     
-    
     const canSeeHASAgenda = isAdmin || hasHASPlanningRole || hasTechnischeSchouwerRole || hasHASMonteurRole
-    
-    
     const canSeePlanningAgenda = isAdmin || hasTechnischePlanningRole
     
     const getRoleName = (roleId) => {
@@ -36,32 +35,57 @@ const Navbar = () => {
         localStorage.removeItem('roles')
     }
     
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen)
+    }
+    
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false)
+    }
+    
+    const NavigationLinks = ({ mobile = false, onLinkClick = () => {} }) => (
+        <>
+            <Link to='/' onClick={onLinkClick}>Home</Link>
+            {isAdmin && (
+                <Link to='/dashboard' onClick={onLinkClick}>Dashboard</Link>
+            )}
+            <Link to='/city' onClick={onLinkClick}>Cities</Link>
+            {canSeePlanningAgenda && (
+                <Link to='/agenda' onClick={onLinkClick}>Planning Agenda</Link>
+            )}
+            {canSeeHASAgenda && (
+                <Link to='/has-agenda' onClick={onLinkClick}>HAS Agenda</Link>
+            )}
+            {isAdmin && (
+                <Link to='/admin' onClick={onLinkClick}>Admin</Link>
+            )}
+        </>
+    )
+    
     return (
         <nav>
-            <div className="nav-brand">
+            <div className="nav-brand" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
                 <span style={{fontSize: '24px'}}>🌐</span>
                 Dynet
             </div>
             
+            {/* Desktop Navigation */}
             <div className="nav-links">
-                <Link to='/'>Home</Link>
-                
-                {isAdmin && (
-                    <Link to='/dashboard'>Dashboard</Link>
-                )}
-                
-                <Link to='/city'>Cities</Link>
-                {canSeePlanningAgenda && (
-                    <Link to='/agenda'>Planning Agenda</Link>
-                )}
-                {canSeeHASAgenda && (
-                    <Link to='/has-agenda'>HAS Agenda</Link>
-                )}
-                {isAdmin && (
-                    <Link to='/admin'>Admin</Link>
-                )}
+                <NavigationLinks />
             </div>
             
+            {/* Mobile Menu Toggle */}
+            <button 
+                className={`nav-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
+                onClick={toggleMobileMenu}
+                aria-label="Toggle navigation menu"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            {/* User Section */}
             <div className="nav-user-section">
                 <div className="nav-user-info">
                     <div className="nav-user-role">
@@ -81,6 +105,11 @@ const Navbar = () => {
                         textTransform: 'none',
                         fontSize: '14px',
                         boxShadow: '0 2px 8px rgba(231, 76, 60, 0.3)',
+                        minWidth: 'auto',
+                        '@media (max-width: 767px)': {
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                        },
                         '&:hover': {
                             background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
                             transform: 'translateY(-1px)',
@@ -93,6 +122,42 @@ const Navbar = () => {
                 >
                     Sign Out
                 </Button>
+            </div>
+            
+            {/* Mobile Navigation Menu */}
+            <div className={`nav-mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
+                <div className="nav-mobile-links">
+                    <NavigationLinks mobile={true} onLinkClick={closeMobileMenu} />
+                </div>
+                <div className="nav-user-mobile">
+                    <div className="nav-user-info">
+                        <div className="nav-user-role">
+                            Role: {currentRoles}
+                        </div>
+                    </div>
+                    <Button 
+                        onClick={() => {
+                            logout()
+                            closeMobileMenu()
+                        }}
+                        fullWidth
+                        sx={{
+                            background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            fontWeight: '600',
+                            textTransform: 'none',
+                            fontSize: '14px',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
+                            },
+                        }}
+                    >
+                        Sign Out
+                    </Button>
+                </div>
             </div>
         </nav>
     )

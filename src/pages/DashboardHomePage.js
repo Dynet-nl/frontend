@@ -1,14 +1,13 @@
-// Dashboard home page providing main entry point with navigation to city selection. Modern welcome interface for the Fiber Installation Management System.
+// Main dashboard page showing role-specific information, statistics, and navigation options.
+
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-
 const DashboardHomePage = () => {
     const navigate = useNavigate();
-    
     return (
         <div className="modern-card" style={{margin: '40px auto', maxWidth: '800px'}}>
             <div className="modern-card-header" style={{textAlign: 'center', position: 'relative'}}>
-                {/* Modern decorative line */}
+                {}
                 <div style={{
                     position: 'absolute',
                     top: 0,
@@ -19,7 +18,6 @@ const DashboardHomePage = () => {
                     backgroundSize: '200% 100%',
                     animation: 'shimmer 3s ease-in-out infinite'
                 }}></div>
-                
                 <h1 className="modern-title" style={{fontSize: '2.5rem', marginBottom: '16px'}}>
                     Dynet
                 </h1>
@@ -27,7 +25,6 @@ const DashboardHomePage = () => {
                     Fiber Installation Management System
                 </p>
             </div>
-            
             <div className="modern-card-body" style={{textAlign: 'center', padding: '48px 24px'}}>
                 <div style={{marginBottom: '40px'}}>
                     <img 
@@ -43,7 +40,6 @@ const DashboardHomePage = () => {
                         }}
                     />
                 </div>
-                
                 <div style={{
                     background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
                     padding: '32px',
@@ -59,7 +55,6 @@ const DashboardHomePage = () => {
                         From planning to completion, manage every aspect of your fiber network deployment.
                     </p>
                 </div>
-
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -77,7 +72,6 @@ const DashboardHomePage = () => {
                         <br />
                         <small>Plan and track installations</small>
                     </div>
-                    
                     <div className="status-indicator scheduled" style={{
                         padding: '16px',
                         borderRadius: '12px',
@@ -89,7 +83,6 @@ const DashboardHomePage = () => {
                         <br />
                         <small>Coordinate appointments</small>
                     </div>
-                    
                     <div className="status-indicator pending" style={{
                         padding: '16px',
                         borderRadius: '12px',
@@ -102,7 +95,6 @@ const DashboardHomePage = () => {
                         <small>Engineering oversight</small>
                     </div>
                 </div>
-                
                 <button
                     onClick={() => navigate('/city')}
                     className="modern-button modern-button-primary"
@@ -117,7 +109,6 @@ const DashboardHomePage = () => {
                     Select City to Begin
                 </button>
             </div>
-            
             <div className="modern-card-footer" style={{textAlign: 'center'}}>
                 <p className="modern-text-muted" style={{fontSize: '14px', margin: 0}}>
                     🔒 Secure • Efficient • Professional

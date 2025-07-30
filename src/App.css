@@ -1,9 +1,15 @@
-/* Modern Global Styles - Matching Login and UnifiedScheduler Design */
+/* Modern Global Styles - Mobile-First Responsive Design */
+
+/* Import responsive framework */
+/* Import responsive design system */
+@import './styles/responsive.css';
+@import './styles/mobile.css';
 
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -11,13 +17,18 @@ body {
     background: #f5f7fa;
     color: #2c3e50;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 .App {
     min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
 }
 
-/* Modern Building Container */
+/* Modern Building Container - Mobile First */
 .buildingContainer {
     margin: 20px 0;
     padding: 20px;

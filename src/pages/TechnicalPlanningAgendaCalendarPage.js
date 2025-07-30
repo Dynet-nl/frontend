@@ -1,3 +1,5 @@
+// Calendar view for technical planning showing appointment schedules and availability.
+
 import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
 import {format, parse, startOfWeek, getDay} from 'date-fns';
@@ -5,11 +7,9 @@ import {nl} from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
-
 const locales = {
     'nl': nl
 };
-
 const localizer = dateFnsLocalizer({
     format,
     parse,
@@ -17,7 +17,6 @@ const localizer = dateFnsLocalizer({
     getDay,
     locales,
 });
-
 const TechnicalPlanningAgendaCalendarPage = () => {
     const axiosPrivate = useAxiosPrivate();
     const [events, setEvents] = useState([]);
@@ -27,44 +26,35 @@ const TechnicalPlanningAgendaCalendarPage = () => {
     const [technischeSchouwers, setTechnischeSchouwers] = useState([]);
     const [selectedSchouwer, setSelectedSchouwer] = useState('');
     const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date());
-
     const fetchTechnischeSchouwers = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-
             const schouwers = users.filter(user => {
                 return user.roles &&
                     typeof user.roles === 'object' &&
                     user.roles.TechnischeSchouwer === 8687;
             });
-
             console.log('Found Technische Schouwers:', schouwers);
             setTechnischeSchouwers(schouwers);
         } catch (error) {
             console.error('Error fetching technische schouwers:', error);
         }
     }, [axiosPrivate]);
-
     const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
             console.log('Fetching all appointments without date filtering.');
-
-            
             const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                 params: {
                     limit: 500,  
                 }
             });
-
             if (response?.data?.length > 0) {
                 console.log('Appointments fetched successfully:', response.data);
             } else {
                 console.log('No appointments found.');
             }
-
-            
             const calendarEvents = response.data
                 .filter(flat =>
                     flat.technischePlanning?.appointmentBooked?.date &&
@@ -76,14 +66,10 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                     const [endHours, endMinutes] = flat.technischePlanning.appointmentBooked.endTime
                         ? flat.technischePlanning.appointmentBooked.endTime.split(':')
                         : [startHours, startMinutes]; 
-
-                    
                     const startDateTime = new Date(appointmentDate);
                     startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
-
                     const endDateTime = new Date(appointmentDate);
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
-
                     return {
                         id: flat._id,
                         title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
@@ -99,7 +85,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                         }
                     };
                 });
-
             setOriginalEvents(calendarEvents);
             setEvents(calendarEvents);
         } catch (error) {
@@ -108,52 +93,30 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             setLoading(false);
         }
     }, [axiosPrivate]);
-
-    
     useEffect(() => {
-        
         setCurrentRange({start: null, end: null});
-
-        
         fetchTechnischeSchouwers();
-        
-        
         fetchAppointments();
     }, [fetchTechnischeSchouwers, fetchAppointments]);
-
-    
-    
-    
-    
-    
-    
-
     const handleSchouwerFilter = (e) => {
         const selectedName = e.target.value;
         setSelectedSchouwer(selectedName);
-
         if (!selectedName) {
-            
             setEvents(originalEvents);
         } else {
-            
             const filteredEvents = originalEvents.filter(event =>
                 event.personName === selectedName
             );
             setEvents(filteredEvents);
         }
     };
-
     const handleRangeChange = (range) => {
-        
-        
         if (range.start && range.end) {
             setCurrentRange(range);
             setCurrentDisplayMonth(range.start); 
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
-
     const handleEventClick = (event) => {
         const {resource} = event;
         alert(`
@@ -165,7 +128,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             Complex Name: ${resource.complexNaam}
         `);
     };
-
     const eventStyleGetter = (event) => {
         return {
             style: {
@@ -179,7 +141,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             }
         };
     };
-
     return (
         <div style={{
             display: 'flex',
@@ -229,8 +190,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                     </div>
                 )}
             </div>
-
-            
             <div style={{
                 backgroundColor: '#e8f4fd',
                 padding: '10px',
@@ -248,8 +207,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                     Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: locales.nl })}
                 </span>
             </div>
-
-            
             <div style={{
                 flex: 1,
                 position: 'relative',
@@ -290,7 +247,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                             localizer.format(end, 'MMMM dd, yyyy', culture)
                     }}
                 />
-                
                 {loading && (
                     <div style={{
                         position: 'absolute',
@@ -310,5 +266,4 @@ const TechnicalPlanningAgendaCalendarPage = () => {
         </div>
     );
 };
-
 export default TechnicalPlanningAgendaCalendarPage;

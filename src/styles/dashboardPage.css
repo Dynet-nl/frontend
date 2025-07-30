@@ -1,14 +1,31 @@
-/* src/styles/dashboardPage.css */
+/* Dashboard Page Styles - Mobile-First Responsive Design */
 .dashboard-container {
-    padding: 20px;
+    padding: 16px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
+/* Tablet and desktop dashboard */
+@media (min-width: 640px) {
+    .dashboard-container {
+        padding: 20px;
+    }
+}
+
 .instructions {
     color: #666;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     font-style: italic;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Tablet and desktop instructions */
+@media (min-width: 640px) {
+    .instructions {
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
 }
 
 .loading-overlay {
@@ -27,32 +44,72 @@
 .error-message {
     color: #F44336;
     background: #FFEBEE;
-    padding: 10px 20px;
-    border-radius: 4px;
-    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    border-left: 4px solid #F44336;
+}
+
+/* Tablet and desktop error message */
+@media (min-width: 640px) {
+    .error-message {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
 }
 
 .saving-message {
     color: #2196F3;
     background: #E3F2FD;
-    padding: 10px 20px;
-    border-radius: 4px;
-    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    border-left: 4px solid #2196F3;
+}
+
+/* Tablet and desktop saving message */
+@media (min-width: 640px) {
+    .saving-message {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
 }
 
 .districts-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+}
+
+/* Tablet and desktop districts list */
+@media (min-width: 640px) {
+    .districts-list {
+        gap: 20px;
+    }
 }
 
 .district-card {
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 20px;
+    padding: 16px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Tablet and desktop district card */
+@media (min-width: 640px) {
+    .district-card {
+        padding: 20px;
+    }
+}
+
+.district-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .district-card.dragging {

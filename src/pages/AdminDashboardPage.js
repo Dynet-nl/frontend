@@ -1,8 +1,9 @@
+// Admin dashboard page displaying system statistics, user management, and administrative tools.
+
 import React, {useEffect, useState} from 'react';
 import {Button, FormControl, InputLabel, MenuItem, Select, TextField} from '@mui/material';
 import axiosPrivate from '../api/axios';
 import Users from '../components/Users';
-
 const AdminDashboardPage = () => {
     const [errors, setErrors] = useState({
         name: false,
@@ -10,16 +11,13 @@ const AdminDashboardPage = () => {
         password: false,
         role: false,
     });
-
     const [userData, setUserData] = useState({
         name: '',
         email: '',
         password: '',
         roles: [],
     });
-
     const [roles, setRoles] = useState([]);
-
     useEffect(() => {
         const fetchRoles = async () => {
             try {
@@ -30,37 +28,29 @@ const AdminDashboardPage = () => {
                 console.error('Failed to fetch roles:', error);
             }
         };
-
         fetchRoles();
     }, []);
-
     const handleChange = (e) => {
         const {name, value} = e.target;
         setUserData({...userData, [name]: value});
     };
-
     const handleRoleChange = (e) => {
         const {value} = e.target;
         setUserData({...userData, roles: [value]}); 
     };
-
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const newErrors = {
             name: !userData.name,
             email: !userData.email || !validateEmail(userData.email),
             password: !userData.password,
             role: !userData.roles.length,
         };
-
         setErrors(newErrors);
-
         const allFieldsFilled = !Object.values(newErrors).some((error) => error);
         if (allFieldsFilled) {
             try {
@@ -71,13 +61,11 @@ const AdminDashboardPage = () => {
             }
         }
     };
-
     return (
         <div>
             <div>
                 <Users/>
             </div>
-
             <form onSubmit={handleSubmit}
                   style={{display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '300px', margin: 'auto'}}>
                 <TextField
@@ -89,7 +77,6 @@ const AdminDashboardPage = () => {
                     error={errors.name}
                     helperText={errors.name ? "Name is required" : ""}
                 />
-
                 <TextField
                     label="Email"
                     variant="outlined"
@@ -100,7 +87,6 @@ const AdminDashboardPage = () => {
                     error={errors.email}
                     helperText={errors.email ? (userData.email ? "Invalid email format" : "Email is required") : ""}
                 />
-
                 <TextField
                     label="Password"
                     variant="outlined"
@@ -111,7 +97,6 @@ const AdminDashboardPage = () => {
                     error={errors.password}
                     helperText={errors.password ? "Password is required" : ""}
                 />
-
                 <FormControl fullWidth>
                     <InputLabel id="role-select-label">Role</InputLabel>
                     <Select
@@ -134,7 +119,6 @@ const AdminDashboardPage = () => {
                     {errors.role &&
                         <p style={{color: 'red', fontSize: '0.75rem', margin: '3px 14px 0'}}>Role is required</p>}
                 </FormControl>
-
                 <Button type="submit" variant="contained" color="primary">
                     Create User
                 </Button>
@@ -142,5 +126,4 @@ const AdminDashboardPage = () => {
         </div>
     );
 };
-
 export default AdminDashboardPage;

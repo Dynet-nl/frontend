@@ -1,6 +1,7 @@
+// Building layout schema component for flat buildings without stair elements.
+
 import React from 'react'
 import FlatInputDetails from '../components/FlatInputDetails'
-
 const FlatsNoStairs = ({
                            form,
                            parentIndex,
@@ -13,7 +14,6 @@ const FlatsNoStairs = ({
             <div className="mainPart">
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        
                         if (index !== array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -25,11 +25,9 @@ const FlatsNoStairs = ({
                                         handleFlatDetails={handleFlatDetails}
                                     />
                                     <div className="noStairsLineAllFlats"></div>
-                                    
                                 </div>
                             )
                         }
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -41,7 +39,6 @@ const FlatsNoStairs = ({
                                         handleFlatDetails={handleFlatDetails}
                                     />
                                     <div className="noStairsLineHighestFlat"></div>
-                                    
                                 </div>
                             )
                         }
@@ -52,5 +49,4 @@ const FlatsNoStairs = ({
         </div>
     )
 }
-
 export default FlatsNoStairs

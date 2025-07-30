@@ -1,37 +1,30 @@
-import {useEffect, useRef, useState} from 'react'
+// User authentication page with login form, validation, and session management.
 
+import {useEffect, useRef, useState} from 'react'
 import useAuth from '../hooks/useAuth'
 import axios from 'axios'
 import '../styles/login.css'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-
 import {useLocation, useNavigate} from 'react-router-dom'
-
 const UserLoginPage = () => {
     const {setAuth} = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const from = location.state?.from?.pathname || '/'
-
     const userRef = useRef()
     const errRef = useRef()
-
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [errMsg, setErrMsg] = useState('')
-
     useEffect(() => {
         userRef.current.focus()
     }, [])
-
     useEffect(() => {
         setErrMsg('')
     }, [email, password])
-
     const handleSubmit = async (e) => {
         e.preventDefault()
-
         try {
             const response = await axios.post('/auth',
                 {email, password},
@@ -40,18 +33,13 @@ const UserLoginPage = () => {
                     withCredentials: true,
                 },
             )
-
             const roles = response?.data?.roles
             const accessToken = response?.data?.accessToken
-
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('roles', JSON.stringify(roles))
-
             setAuth({email, password, roles, accessToken})
-
             setEmail('')
             setPassword('')
-
             navigate(from, {replace: true})
         } catch (err) {
             if (!err?.response) {
@@ -66,17 +54,19 @@ const UserLoginPage = () => {
             errRef.current.focus()
         }
     }
-
     return (
         <div className="login-page">
             <div className="login-background">
                 <div className="login-card">
                     <div className="login-header">
-                        <img src="/dynetLogo.png" alt="Dynet Logo" className="login-logo"/>
+                        <img 
+                            src="/dynetLogo.png" 
+                            alt="Dynet Logo" 
+                            className="login-logo"
+                        />
                         <h1 className="login-title">Welcome Back</h1>
                         <p className="login-subtitle">Sign in to your Fiber Installation Management System</p>
                     </div>
-
                     <div 
                         className={`error-message ${errMsg ? 'show' : ''}`}
                         ref={errRef}
@@ -84,14 +74,13 @@ const UserLoginPage = () => {
                     >
                         {errMsg}
                     </div>
-
                     <form className="login-form" onSubmit={handleSubmit}>
                         <div className="input-group">
                             <TextField
                                 label="Email"
                                 type="email"
                                 id="username"
-                                autoComplete="off"
+                                autoComplete="email"
                                 onChange={(e) => setEmail(e.target.value)}
                                 value={email}
                                 required
@@ -100,11 +89,14 @@ const UserLoginPage = () => {
                                 inputRef={userRef}
                                 className="modern-input"
                                 sx={{
+                                    marginBottom: '20px',
                                     '& .MuiOutlinedInput-root': {
-                                        borderRadius: '8px',
+                                        borderRadius: '10px',
+                                        backgroundColor: '#ffffff',
+                                        height: '54px',
                                         '& fieldset': {
-                                            borderColor: '#e9ecef',
-                                            borderWidth: '2px',
+                                            borderColor: '#e1e5e9',
+                                            borderWidth: '1px',
                                         },
                                         '&:hover fieldset': {
                                             borderColor: '#3498db',
@@ -116,19 +108,30 @@ const UserLoginPage = () => {
                                     },
                                     '& .MuiInputLabel-root': {
                                         color: '#6c757d',
+                                        fontWeight: '400',
                                         '&.Mui-focused': {
                                             color: '#3498db',
+                                        },
+                                        '&.MuiInputLabel-shrink': {
+                                            backgroundColor: '#ffffff',
+                                            padding: '0 8px',
+                                            marginLeft: '-4px',
                                         }
                                     },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '15px 16px',
+                                        fontSize: '16px',
+                                        color: '#2c3e50',
+                                    }
                                 }}
                             />
                         </div>
-
                         <div className="input-group">
                             <TextField
                                 label="Password"
                                 type="password"
                                 id="password"
+                                autoComplete="current-password"
                                 onChange={(e) => setPassword(e.target.value)}
                                 value={password}
                                 required
@@ -136,11 +139,14 @@ const UserLoginPage = () => {
                                 fullWidth
                                 className="modern-input"
                                 sx={{
+                                    marginBottom: '20px',
                                     '& .MuiOutlinedInput-root': {
-                                        borderRadius: '8px',
+                                        borderRadius: '10px',
+                                        backgroundColor: '#ffffff',
+                                        height: '54px',
                                         '& fieldset': {
-                                            borderColor: '#e9ecef',
-                                            borderWidth: '2px',
+                                            borderColor: '#e1e5e9',
+                                            borderWidth: '1px',
                                         },
                                         '&:hover fieldset': {
                                             borderColor: '#3498db',
@@ -152,14 +158,24 @@ const UserLoginPage = () => {
                                     },
                                     '& .MuiInputLabel-root': {
                                         color: '#6c757d',
+                                        fontWeight: '400',
                                         '&.Mui-focused': {
                                             color: '#3498db',
+                                        },
+                                        '&.MuiInputLabel-shrink': {
+                                            backgroundColor: '#ffffff',
+                                            padding: '0 8px',
+                                            marginLeft: '-4px',
                                         }
                                     },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '15px 16px',
+                                        fontSize: '16px',
+                                        color: '#2c3e50',
+                                    }
                                 }}
                             />
                         </div>
-
                         <Button 
                             type="submit" 
                             variant="contained" 
@@ -187,7 +203,6 @@ const UserLoginPage = () => {
                             Sign In
                         </Button>
                     </form>
-
                     <div className="login-footer">
                         <p>Secure access to your workspace</p>
                     </div>
@@ -196,5 +211,4 @@ const UserLoginPage = () => {
         </div>
     )
 }
-
 export default UserLoginPage

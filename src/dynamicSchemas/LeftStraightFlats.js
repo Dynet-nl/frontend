@@ -1,6 +1,7 @@
+// Building layout schema component for left-side straight flat configurations.
+
 import React from 'react'
 import FlatInputDetails from '../components/FlatInputDetails'
-
 const LeftStraightFlats = ({
                                form,
                                parentIndex,
@@ -12,10 +13,8 @@ const LeftStraightFlats = ({
         <div className="block">
             <div className="mainPart mainPartReversed">
                 <div className="stairs"></div>
-
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        
                         if (index == 0) {
                             return (
                                 <div key={index} className="flat">
@@ -30,12 +29,9 @@ const LeftStraightFlats = ({
                                     </div>
                                     <div className="leftStraightFlatBasementLine"></div>
                                     <div className="leftStraightFlatVerticalLine"></div>
-                                    
                                 </div>
                             )
                         }
-                        
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -52,8 +48,6 @@ const LeftStraightFlats = ({
                                 </div>
                             )
                         }
-                        
-                        
                         if (index !== 0 || index !== array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -77,5 +71,4 @@ const LeftStraightFlats = ({
         </div>
     )
 }
-
 export default LeftStraightFlats

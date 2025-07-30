@@ -1,5 +1,6 @@
-import React from 'react'
+// Mockup building layout schema for configurations without stair elements.
 
+import React from 'react'
 const NoStairs = ({form}) => {
     return (
         <div className="block">
@@ -13,7 +14,6 @@ const NoStairs = ({form}) => {
                                 </div>
                             )
                         }
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -28,5 +28,4 @@ const NoStairs = ({form}) => {
         </div>
     )
 }
-
 export default NoStairs

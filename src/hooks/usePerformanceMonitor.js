@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+// Custom hook for monitoring application performance including render times and API response times.
 
-/**
- * Custom hook for performance monitoring and optimization
- */
+import { useEffect, useRef, useState } from 'react';
 const usePerformanceMonitor = (componentName) => {
     const mountTime = useRef(Date.now());
     const renderCount = useRef(0);
@@ -11,30 +9,22 @@ const usePerformanceMonitor = (componentName) => {
         averageRenderTime: 0,
         slowRenders: 0
     });
-
     useEffect(() => {
         renderCount.current += 1;
         const renderStart = performance.now();
-
         return () => {
             const renderEnd = performance.now();
             const renderTime = renderEnd - renderStart;
-            
-            // Track slow renders (> 16ms for 60fps)
             const isSlowRender = renderTime > 16;
-            
             setPerformanceData(prev => ({
                 renderCount: renderCount.current,
                 averageRenderTime: (prev.averageRenderTime * (renderCount.current - 1) + renderTime) / renderCount.current,
                 slowRenders: prev.slowRenders + (isSlowRender ? 1 : 0)
             }));
-
-            // Log performance warnings in development
             if (process.env.NODE_ENV === 'development') {
                 if (isSlowRender) {
                     console.warn(`🐌 Slow render detected in ${componentName}: ${renderTime.toFixed(2)}ms`);
                 }
-                
                 if (renderCount.current % 50 === 0) {
                     console.info(`📊 Performance stats for ${componentName}:`, {
                         renders: renderCount.current,
@@ -46,13 +36,8 @@ const usePerformanceMonitor = (componentName) => {
             }
         };
     });
-
     return performanceData;
 };
-
-/**
- * Hook for optimized API calls with caching and deduplication
- */
 export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) => {
     const {
         cacheKey,
@@ -60,17 +45,13 @@ export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) 
         retryAttempts = 3,
         retryDelay = 1000
     } = options;
-
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    
     const requestRef = useRef(null);
     const cacheRef = useRef(new Map());
     const retryCountRef = useRef(0);
-
     const fetchData = useCallback(async (force = false) => {
-        // Check cache first
         if (!force && cacheKey) {
             const cached = cacheRef.current.get(cacheKey);
             if (cached && Date.now() - cached.timestamp < cacheDuration) {
@@ -79,47 +60,35 @@ export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) 
                 return cached.data;
             }
         }
-
-        // Cancel previous request
         if (requestRef.current) {
             requestRef.current.cancel?.();
         }
-
         setLoading(true);
         setError(null);
-
         try {
             const abortController = new AbortController();
             requestRef.current = {
                 cancel: () => abortController.abort()
             };
-
             const result = await fetchFunction(abortController.signal);
-            
-            // Cache the result
             if (cacheKey) {
                 cacheRef.current.set(cacheKey, {
                     data: result,
                     timestamp: Date.now()
                 });
             }
-
             setData(result);
             retryCountRef.current = 0;
             return result;
-
         } catch (err) {
             if (err.name === 'AbortError') {
                 return; // Request was cancelled
             }
-
-            // Retry logic
             if (retryCountRef.current < retryAttempts) {
                 retryCountRef.current += 1;
                 setTimeout(() => fetchData(force), retryDelay * retryCountRef.current);
                 return;
             }
-
             setError(err);
             console.error('API call failed:', err);
         } finally {
@@ -127,17 +96,14 @@ export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) 
             requestRef.current = null;
         }
     }, [fetchFunction, cacheKey, cacheDuration, retryAttempts, retryDelay]);
-
     useEffect(() => {
         fetchData();
-        
         return () => {
             if (requestRef.current) {
                 requestRef.current.cancel?.();
             }
         };
     }, dependencies);
-
     return {
         data,
         loading,
@@ -146,5 +112,4 @@ export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) 
         clearCache: () => cacheRef.current.clear()
     };
 };
-
 export default usePerformanceMonitor;

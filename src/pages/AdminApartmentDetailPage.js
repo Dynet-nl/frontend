@@ -1,14 +1,14 @@
+// Admin view for detailed apartment information with full editing capabilities and comprehensive data display.
+
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {saveAs} from 'file-saver';
 import {createEvent} from 'ics';
 import '../styles/adminApartmentDetails.css';
-
 const AdminApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
-
     const [apartment, setApartment] = useState({
         _id: '',
         zoeksleutel: '',
@@ -54,7 +54,6 @@ const AdminApartmentDetailPage = () => {
         HASDatum3e: '',
         redenNA: '',
         plaats: '',
-        
         telephone: '',
         vveWocoName: '',
         technischeSchouwerName: '',
@@ -69,13 +68,11 @@ const AdminApartmentDetailPage = () => {
         additionalNotes: '',
         smsSent: false,
     });
-
     useEffect(() => {
         const fetchApartment = async () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
                 const flatData = data;
-
                 setApartment({
                     _id: flatData._id,
                     zoeksleutel: flatData.zoeksleutel,
@@ -121,7 +118,6 @@ const AdminApartmentDetailPage = () => {
                     HASDatum3e: flatData.HASDatum3e,
                     redenNA: flatData.redenNA,
                     plaats: flatData.plaats,
-                    
                     telephone: flatData.technischePlanning?.telephone || '',
                     vveWocoName: flatData.technischePlanning?.vveWocoName || '',
                     technischeSchouwerName: flatData.technischePlanning?.technischeSchouwerName || '',
@@ -140,10 +136,8 @@ const AdminApartmentDetailPage = () => {
                 console.error("Failed to fetch apartment details:", error);
             }
         };
-
         fetchApartment();
     }, [axiosPrivate, params.id]);
-
     const formatFieldName = (fieldName) => {
         return fieldName
             .replace(/([a-zA-Z])(\d+)/g, '$1 $2')
@@ -151,27 +145,22 @@ const AdminApartmentDetailPage = () => {
             .replace(/([a-z])([A-Z])/g, '$1 $2')
             .replace(/\b\w/g, (char) => char.toUpperCase());
     };
-
     const checkmark = (
         <span className={apartment.FCStatusHAS === "2" ? "greenCheckmark" : "redCheckmark"}>
       &#10004;
     </span>
     );
-
     const handleExportToICS = () => {
         if (!apartment.appointmentDate || !apartment.appointmentStartTime) {
             console.error("Appointment date or start time is missing");
             return;
         }
-
         const startDate = apartment.appointmentDate.split('-');
         const startTime = apartment.appointmentStartTime.split(':');
-
         if (startDate.length !== 3 || startTime.length !== 2) {
             console.error("Invalid date or time format");
             return;
         }
-
         const event = {
             start: [
                 parseInt(startDate[0], 10),
@@ -189,18 +178,15 @@ const AdminApartmentDetailPage = () => {
             organizer: {name: 'Organizer', email: apartment.eMail},
             attendees: [{name: apartment.achternaam, email: apartment.eMail}]
         };
-
         createEvent(event, (error, value) => {
             if (error) {
                 console.error('Error creating calendar event:', error);
                 return;
             }
-
             const blob = new Blob([value], {type: 'text/calendar;charset=utf-8'});
             saveAs(blob, 'appointment.ics');
         });
     };
-
     const leftColumnFields = [
         'zoeksleutel', 'complexNaam', 'soortBouw', 'adres', 'huisNummer',
         'toevoeging', 'kamer', 'postcode', 'achternaam', 'tel1',
@@ -208,7 +194,6 @@ const AdminApartmentDetailPage = () => {
         'team', 'FCStatusHAS', 'IPVezelwaarde', 'sorAanwezig', 'toelichtingStatus',
         'typeNT', 'civielStatus', 'AP', 'DP', 'laswerkAP'
     ];
-
     const rightColumnFields = [
         'laswerkDP', 'geschouwd', 'schouwAkkoord', 'schouwDatum', 'opmerkingSchouwer',
         'schouwdatum1e', 'schouwdatum2e', 'schouwdatum3e', 'kast', 'ODF',
@@ -218,7 +203,6 @@ const AdminApartmentDetailPage = () => {
         'timesCalled', 'appointmentDate', 'appointmentStartTime', 'appointmentEndTime',
         'appointmentWeekNumber', 'additionalNotes', 'smsSent'
     ];
-
     return (
         <div className="apartmentDetailsContainer">
             <h2 className="apartmentTitle">
@@ -228,14 +212,12 @@ const AdminApartmentDetailPage = () => {
                 <div className="leftColumn">
                     {leftColumnFields.map((key) => {
                         if (!apartment[key] && apartment[key] !== false && apartment[key] !== 0) return null;
-
                         let formattedValue = apartment[key];
                         if (key === 'HASDatum' || key.includes('Datum')) {
                             formattedValue = new Date(formattedValue).toLocaleDateString();
                         } else if (typeof formattedValue === 'boolean') {
                             formattedValue = formattedValue ? 'Yes' : 'No';
                         }
-
                         return (
                             <p key={key}><b>{formatFieldName(key)}:</b> {formattedValue}</p>
                         );
@@ -244,14 +226,12 @@ const AdminApartmentDetailPage = () => {
                 <div className="rightColumn">
                     {rightColumnFields.map((key) => {
                         if (!apartment[key] && apartment[key] !== false && apartment[key] !== 0) return null;
-
                         let formattedValue = apartment[key];
                         if (key === 'HASDatum' || key.includes('Datum')) {
                             formattedValue = new Date(formattedValue).toLocaleDateString();
                         } else if (typeof formattedValue === 'boolean') {
                             formattedValue = formattedValue ? 'Yes' : 'No';
                         }
-
                         return (
                             <p key={key}><b>{formatFieldName(key)}:</b> {formattedValue}</p>
                         );
@@ -262,5 +242,4 @@ const AdminApartmentDetailPage = () => {
         </div>
     );
 }
-
 export default AdminApartmentDetailPage;

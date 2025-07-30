@@ -1,25 +1,21 @@
-import React from 'react'
+// Mockup building layout schema for right wing flat configurations.
 
+import React from 'react'
 const RightWingFlat = ({form}) => {
     return (
         <div className="block">
             <div className="mainPart">
                 <div className="stairs"></div>
-
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        
                         if (index == 0) {
                             return (
                                 <div key={index} className="flat">
                                     <div className="rightStraightFlatBasementLine"></div>
                                     <div className="rightStraightFlatVerticalLine"></div>
-                                    
                                 </div>
                             )
                         }
-                        
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -27,14 +23,10 @@ const RightWingFlat = ({form}) => {
                                 </div>
                             )
                         }
-                        
-                        
                         if (index !== 0 || index !== array.length - 1) {
                             return (
                                 <div key={index} className="flat">
                                     <div className="rightStraightFlatVerticalLine"></div>
-                                    
-                                    
                                 </div>
                             )
                         }
@@ -45,5 +37,4 @@ const RightWingFlat = ({form}) => {
         </div>
     )
 }
-
 export default RightWingFlat

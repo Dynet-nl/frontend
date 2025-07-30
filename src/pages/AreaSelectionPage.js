@@ -1,9 +1,10 @@
+// Page for selecting geographical areas within a city for navigation and organization.
+
 import React, {useEffect, useState, useCallback} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import AreaForm from '../components/AreaForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
-
 const AreaSelectionPage = () => {
     const {cityId} = useParams();
     const [areas, setAreas] = useState([]);
@@ -12,10 +13,8 @@ const AreaSelectionPage = () => {
     const [error, setError] = useState(null);
     const [isDeleting, setIsDeleting] = useState(null);
     const axiosPrivate = useAxiosPrivate();
-
     const fetchAreas = useCallback(async () => {
         if (!cityId) return;
-        
         try {
             setIsLoading(true);
             setError(null);
@@ -25,8 +24,6 @@ const AreaSelectionPage = () => {
                 numberOfDistricts: area.districts.length
             }));
             setAreas(areasWithDistricts);
-            
-            // Fetch city name for breadcrumb
             try {
                 const cityResponse = await axiosPrivate.get(`/api/city/${cityId}`);
                 setCityName(cityResponse.data.name);
@@ -40,31 +37,24 @@ const AreaSelectionPage = () => {
             setIsLoading(false);
         }
     }, [axiosPrivate, cityId]);
-
     useEffect(() => {
         fetchAreas();
     }, [fetchAreas]);
-
     const handleAddArea = useCallback(async (newArea) => {
         try {
             const response = await axiosPrivate.post(`/api/area/${cityId}`, newArea);
             const addedArea = response.data;
-
-            // Optimized: Just set numberOfDistricts to 0 for new areas instead of making extra API call
             addedArea.numberOfDistricts = 0;
-
             setAreas(prevAreas => [...prevAreas, addedArea]);
         } catch (error) {
             console.error('Failed to add area:', error);
             setError('Failed to add area. Please try again.');
         }
     }, [axiosPrivate, cityId]);
-
     const handleDeleteArea = useCallback(async (areaId) => {
         if (!window.confirm('Are you sure you want to delete this area? This will also delete all associated districts.')) {
             return;
         }
-        
         try {
             setIsDeleting(areaId);
             await axiosPrivate.delete(`/api/area/${areaId}`);
@@ -76,25 +66,22 @@ const AreaSelectionPage = () => {
             setIsDeleting(null);
         }
     }, [axiosPrivate]);
-
     return (
         <div className="modern-container">
-            {/* Breadcrumb Navigation */}
+            {}
             <div className="modern-breadcrumb" style={{marginBottom: '24px'}}>
                 <Link to="/city" className="modern-breadcrumb-link">Cities</Link>
                 <span className="modern-breadcrumb-separator">→</span>
                 <span className="modern-breadcrumb-current">{cityName || 'Loading...'}</span>
             </div>
-
-            {/* Header Section */}
+            {}
             <div className="modern-header" style={{marginBottom: '32px'}}>
                 <h1 className="modern-title">Area Management</h1>
                 <p className="modern-subtitle">
                     Manage areas within <strong>{cityName}</strong> for organized district planning
                 </p>
             </div>
-
-            {/* Add New Area Section */}
+            {}
             <div className="modern-card" style={{marginBottom: '32px'}}>
                 <div className="modern-card-header">
                     <h2 className="modern-card-title">
@@ -106,8 +93,7 @@ const AreaSelectionPage = () => {
                     <AreaForm cityId={cityId} onAddArea={handleAddArea}/>
                 </div>
             </div>
-
-            {/* Error Display */}
+            {}
             {error && (
                 <div className="modern-alert modern-alert-error" style={{marginBottom: '32px'}}>
                     <span style={{fontSize: '18px', marginRight: '8px'}}>⚠️</span>
@@ -121,8 +107,7 @@ const AreaSelectionPage = () => {
                     </button>
                 </div>
             )}
-
-            {/* Areas Grid Section */}
+            {}
             <div className="modern-card">
                 <div className="modern-card-header">
                     <h2 className="modern-card-title">
@@ -191,5 +176,4 @@ const AreaSelectionPage = () => {
         </div>
     );
 };
-
 export default AreaSelectionPage;

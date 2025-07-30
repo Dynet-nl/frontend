@@ -1,23 +1,21 @@
+// HAS installer view for apartment details with installation-specific information and tools.
+
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/tsApartmentDetails.css';
-
 const calculateWeekNumber = (date) => {
     const currentDate = new Date(date);
     const startDate = new Date(currentDate.getFullYear(), 0, 1);
     const days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000));
     return Math.ceil(days / 7);
 };
-
 const HASInstallerApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
     const {auth} = useAuth();
-
     const hasHASPlanningRole = auth?.roles?.includes(1959);
-
     const [isEditingHASAppointment, setIsEditingHASAppointment] = useState(false);
     const [availableHASMonteurs, setAvailableHASMonteurs] = useState([]);
     const [hasAppointmentData, setHASAppointmentData] = useState({
@@ -28,7 +26,6 @@ const HASInstallerApartmentDetailPage = () => {
         type: 'HAS',
         hasMonteurName: ''
     });
-
     const [flat, setFlat] = useState({
         _id: '',
         zoeksleutel: '',
@@ -53,30 +50,24 @@ const HASInstallerApartmentDetailPage = () => {
         odf: '',
         odfPositie: '',
     });
-
     const fetchAvailableHASMonteurs = async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-            
             const hasMonteurs = users.filter(user => 
                 user.roles && typeof user.roles === 'object' && 
                 user.roles.HASMonteur === 2023
             );
-            
             setAvailableHASMonteurs(hasMonteurs);
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
         }
     };
-
     useEffect(() => {
         const fetchApartment = async () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
-
                 const today = new Date().toISOString().split('T')[0];
-
                 setFlat({
                     _id: data._id,
                     zoeksleutel: data.zoeksleutel,
@@ -101,7 +92,6 @@ const HASInstallerApartmentDetailPage = () => {
                     odf: data.odf || '',
                     odfPositie: data.odfPositie || '',
                 });
-
                 const hasAppointment = data.hasMonteur?.appointmentBooked || {};
                 setHASAppointmentData({
                     date: hasAppointment.date ? new Date(hasAppointment.date).toISOString().split('T')[0] : today,
@@ -115,11 +105,9 @@ const HASInstallerApartmentDetailPage = () => {
                 console.error('Error fetching data:', error);
             }
         };
-
         fetchApartment();
         fetchAvailableHASMonteurs();
     }, [params.id, axiosPrivate]);
-
     const handleHASAppointmentChange = (e) => {
         const {name, value} = e.target;
         setHASAppointmentData((prevData) => ({
@@ -128,7 +116,6 @@ const HASInstallerApartmentDetailPage = () => {
             weekNumber: name === 'date' ? calculateWeekNumber(value) : prevData.weekNumber
         }));
     };
-
     const handleHASAppointmentSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -142,10 +129,8 @@ const HASInstallerApartmentDetailPage = () => {
                 },
                 hasMonteurName: hasAppointmentData.hasMonteurName
             });
-
             if (response.data) {
                 setFlat(response.data);
-
                 if (response.data.hasMonteur?.appointmentBooked) {
                     setHASAppointmentData({
                         date: new Date(response.data.hasMonteur.appointmentBooked.date).toISOString().split('T')[0],
@@ -156,7 +141,6 @@ const HASInstallerApartmentDetailPage = () => {
                     });
                 }
             }
-
             setIsEditingHASAppointment(false);
             alert('HAS Monteur appointment saved successfully!');
         } catch (error) {
@@ -164,7 +148,6 @@ const HASInstallerApartmentDetailPage = () => {
             alert('Error saving appointment. Please try again.');
         }
     };
-
     return (
         <div className="ts-apartmentDetailsContainer">
             <h2 className="ts-apartmentTitle">
@@ -173,7 +156,6 @@ const HASInstallerApartmentDetailPage = () => {
                     &#10004;
                 </span>
             </h2>
-
             <div className="ts-columns">
                 <div className="ts-leftColumn">
                     <div className="ts-detailsGrid">
@@ -200,7 +182,6 @@ const HASInstallerApartmentDetailPage = () => {
                             <p><b>ODF:</b> {flat.odf || 'N/A'}</p>
                             <p><b>ODF Positie:</b> {flat.odfPositie || 'N/A'}</p>
                         </div>
-
                         <div className="ts-timestamps">
                             <p><b>Created:</b> {flat.createdAt ? new Date(flat.createdAt).toLocaleString() : 'N/A'}</p>
                             <p><b>Last Updated:</b> {flat.updatedAt ? new Date(flat.updatedAt).toLocaleString() : 'N/A'}
@@ -208,7 +189,6 @@ const HASInstallerApartmentDetailPage = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="ts-rightColumn">
                     <div className="ts-appointmentDetails">
                         <div className="ts-planningHeader">
@@ -234,7 +214,6 @@ const HASInstallerApartmentDetailPage = () => {
                                 </button>
                             )}
                         </div>
-
                         {isEditingHASAppointment && hasHASPlanningRole ? (
                             <form onSubmit={handleHASAppointmentSubmit} className="ts-form">
                                 <div className="ts-formGroup">
@@ -352,5 +331,4 @@ const HASInstallerApartmentDetailPage = () => {
         </div>
     );
 };
-
 export default HASInstallerApartmentDetailPage;

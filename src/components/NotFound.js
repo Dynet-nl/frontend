@@ -1,6 +1,7 @@
+// Component displayed when users navigate to non-existent routes (404 error page).
+
 import React from 'react'
 import {useNavigate} from 'react-router-dom'
-
 const NotFound = () => {
     const navigate = useNavigate()
     return (
@@ -10,5 +11,4 @@ const NotFound = () => {
         </div>
     )
 }
-
 export default NotFound

@@ -1,6 +1,7 @@
+// React error boundary component for catching and handling application errors gracefully.
+
 import React from 'react';
 import { errorHandlers } from '../utils/helpers';
-
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
@@ -11,14 +12,12 @@ class ErrorBoundary extends React.Component {
             errorId: null
         };
     }
-
     static getDerivedStateFromError(error) {
         return { 
             hasError: true,
             errorId: Date.now().toString(36)
         };
     }
-
     componentDidCatch(error, errorInfo) {
         const errorDetails = {
             error: error.toString(),
@@ -27,13 +26,10 @@ class ErrorBoundary extends React.Component {
             userAgent: navigator.userAgent,
             url: window.location.href
         };
-
         this.setState({
             error: error,
             errorInfo: errorInfo
         });
-
-        // Log error to console in development
         if (process.env.NODE_ENV === 'development') {
             console.group('🚨 Error Boundary Caught an Error');
             console.error('Error:', error);
@@ -41,11 +37,7 @@ class ErrorBoundary extends React.Component {
             console.error('Error Details:', errorDetails);
             console.groupEnd();
         }
-
-        // In production, you could send this to an error reporting service
-        // Example: Sentry, LogRocket, etc.
     }
-
     handleRetry = () => {
         this.setState({ 
             hasError: false, 
@@ -54,15 +46,12 @@ class ErrorBoundary extends React.Component {
             errorId: null 
         });
     };
-
     handleReload = () => {
         window.location.reload();
     };
-
     render() {
         if (this.state.hasError) {
             const { fallback: Fallback } = this.props;
-            
             if (Fallback) {
                 return (
                     <Fallback 
@@ -73,7 +62,6 @@ class ErrorBoundary extends React.Component {
                     />
                 );
             }
-
             return (
                 <div className="error-boundary">
                     <div className="error-boundary-content">
@@ -86,7 +74,6 @@ class ErrorBoundary extends React.Component {
                         <p className="error-boundary-message">
                             We're sorry, but something unexpected happened. Our team has been notified.
                         </p>
-                        
                         {process.env.NODE_ENV === 'development' && (
                             <details className="error-boundary-details">
                                 <summary>Error Details (Development Only)</summary>
@@ -98,7 +85,6 @@ class ErrorBoundary extends React.Component {
                                 </div>
                             </details>
                         )}
-                        
                         <div className="error-boundary-actions">
                             <button 
                                 onClick={this.handleRetry}
@@ -113,7 +99,6 @@ class ErrorBoundary extends React.Component {
                                 Reload Page
                             </button>
                         </div>
-                        
                         <div className="error-boundary-footer">
                             <small>Error ID: {this.state.errorId}</small>
                         </div>
@@ -121,9 +106,7 @@ class ErrorBoundary extends React.Component {
                 </div>
             );
         }
-
         return this.props.children;
     }
 }
-
 export default ErrorBoundary;

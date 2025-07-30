@@ -1,3 +1,5 @@
+// Component that conditionally renders different building layout schemas based on building configuration.
+
 import React from 'react'
 import DoubleNoBGs from '../dynamicSchemas/DoubleNoBGs'
 import DoubleNoRightBG from '../dynamicSchemas/DoubleNoRightBG'
@@ -11,7 +13,6 @@ import LeftStraightFlats from '../dynamicSchemas/LeftStraightFlats'
 import RightStraightFlats from '../dynamicSchemas/RightStraightFlats'
 import LeftFlatApart from '../dynamicSchemas/LeftFlatApart'
 import RightFlatApart from '../dynamicSchemas/RightFlatApart'
-
 const blockTypeComponents = {
     leftWing: LeftFlatsStairs,
     noStairs: FlatsNoStairs,
@@ -25,9 +26,7 @@ const blockTypeComponents = {
     doubleNoLeftBGWing: DoubleNoLeftBG,
     leftWingFlat: LeftStraightFlats,
     rightWingFlat: RightStraightFlats,
-    
 };
-
 const ConditionalFullSchema = ({
                                    form,
                                    building,
@@ -36,7 +35,6 @@ const ConditionalFullSchema = ({
                                    handleFlatDetails,
                                }) => {
     const Component = blockTypeComponents[form.blockType];
-
     if (Component) {
         return (
             <Component
@@ -48,9 +46,6 @@ const ConditionalFullSchema = ({
             />
         );
     }
-
-    
     return null;
 };
-
 export default ConditionalFullSchema;

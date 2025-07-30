@@ -1,13 +1,12 @@
-import React, {useState} from 'react';
+// Form component for creating and editing geographical area information.
 
+import React, {useState} from 'react';
 const AreaForm = ({cityId, onAddArea}) => {
     const [areaName, setAreaName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!areaName.trim()) return;
-        
         try {
             setIsSubmitting(true);
             await onAddArea({name: areaName.trim(), cityId: cityId});
@@ -18,7 +17,6 @@ const AreaForm = ({cityId, onAddArea}) => {
             setIsSubmitting(false);
         }
     };
-
     return (
         <form onSubmit={handleSubmit} className="modern-form">
             <div className="modern-form-group">
@@ -56,5 +54,4 @@ const AreaForm = ({cityId, onAddArea}) => {
         </form>
     );
 };
-
 export default AreaForm;

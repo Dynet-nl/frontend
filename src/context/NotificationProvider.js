@@ -1,8 +1,8 @@
+// React context provider for managing global notification system with toast messages.
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { UI_CONFIG } from '../utils/constants';
-
 const NotificationContext = createContext();
-
 export const useNotification = () => {
     const context = useContext(NotificationContext);
     if (!context) {
@@ -10,10 +10,8 @@ export const useNotification = () => {
     }
     return context;
 };
-
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
-
     const addNotification = useCallback((notification) => {
         const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
         const newNotification = {
@@ -22,26 +20,20 @@ export const NotificationProvider = ({ children }) => {
             duration: UI_CONFIG.TOAST_DURATION,
             ...notification
         };
-
         setNotifications(prev => [...prev, newNotification]);
-
         if (newNotification.duration > 0) {
             setTimeout(() => {
                 removeNotification(id);
             }, newNotification.duration);
         }
-
         return id;
     }, []);
-
     const removeNotification = useCallback((id) => {
         setNotifications(prev => prev.filter(notification => notification.id !== id));
     }, []);
-
     const clearAll = useCallback(() => {
         setNotifications([]);
     }, []);
-
     const showSuccess = useCallback((message, options = {}) => {
         return addNotification({
             type: 'success',
@@ -49,7 +41,6 @@ export const NotificationProvider = ({ children }) => {
             ...options
         });
     }, [addNotification]);
-
     const showError = useCallback((message, options = {}) => {
         return addNotification({
             type: 'error',
@@ -58,7 +49,6 @@ export const NotificationProvider = ({ children }) => {
             ...options
         });
     }, [addNotification]);
-
     const showWarning = useCallback((message, options = {}) => {
         return addNotification({
             type: 'warning',
@@ -67,7 +57,6 @@ export const NotificationProvider = ({ children }) => {
             ...options
         });
     }, [addNotification]);
-
     const showInfo = useCallback((message, options = {}) => {
         return addNotification({
             type: 'info',
@@ -75,7 +64,6 @@ export const NotificationProvider = ({ children }) => {
             ...options
         });
     }, [addNotification]);
-
     const value = {
         notifications,
         addNotification,
@@ -86,7 +74,6 @@ export const NotificationProvider = ({ children }) => {
         showWarning,
         showInfo
     };
-
     return (
         <NotificationContext.Provider value={value}>
             {children}
@@ -94,12 +81,9 @@ export const NotificationProvider = ({ children }) => {
         </NotificationContext.Provider>
     );
 };
-
 const NotificationContainer = () => {
     const { notifications, removeNotification } = useNotification();
-
     if (notifications.length === 0) return null;
-
     return (
         <div className="notification-container">
             {notifications.map((notification) => (
@@ -112,7 +96,6 @@ const NotificationContainer = () => {
         </div>
     );
 };
-
 const NotificationItem = ({ notification, onClose }) => {
     const getIcon = () => {
         switch (notification.type) {
@@ -122,7 +105,6 @@ const NotificationItem = ({ notification, onClose }) => {
             default: return 'ℹ️';
         }
     };
-
     return (
         <div className={`notification notification-${notification.type}`}>
             <div className="notification-content">

@@ -1,18 +1,15 @@
-// Cache invalidation context providing global cache management across components. Enables selective cache clearing by pattern matching keys.
+// React context provider for managing cache invalidation across the application.
+
 import { createContext, useContext, useState, useCallback } from 'react';
-
 const CacheInvalidationContext = createContext();
-
 export const CacheInvalidationProvider = ({ children }) => {
     const [cacheInvalidationCallbacks, setCacheInvalidationCallbacks] = useState(new Map());
-
     const registerCacheInvalidation = useCallback((key, callback) => {
         setCacheInvalidationCallbacks(prev => {
             const newMap = new Map(prev);
             newMap.set(key, callback);
             return newMap;
         });
-
         return () => {
             setCacheInvalidationCallbacks(prev => {
                 const newMap = new Map(prev);
@@ -21,7 +18,6 @@ export const CacheInvalidationProvider = ({ children }) => {
             });
         };
     }, []);
-
     const invalidateCache = useCallback((pattern) => {
         cacheInvalidationCallbacks.forEach((callback, key) => {
             if (pattern === '*' || key.includes(pattern) || pattern.includes(key)) {
@@ -30,19 +26,16 @@ export const CacheInvalidationProvider = ({ children }) => {
             }
         });
     }, [cacheInvalidationCallbacks]);
-
     const value = {
         registerCacheInvalidation,
         invalidateCache
     };
-
     return (
         <CacheInvalidationContext.Provider value={value}>
             {children}
         </CacheInvalidationContext.Provider>
     );
 };
-
 export const useCacheInvalidation = () => {
     const context = useContext(CacheInvalidationContext);
     if (!context) {
@@ -50,5 +43,4 @@ export const useCacheInvalidation = () => {
     }
     return context;
 };
-
 export default CacheInvalidationContext;

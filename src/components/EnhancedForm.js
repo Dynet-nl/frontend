@@ -1,10 +1,8 @@
+// Enhanced form component with validation, error handling, and improved user experience features.
+
 import React, { useState, useCallback } from 'react';
 import { validators, debounce } from '../utils/helpers';
 import { useNotification } from '../context/NotificationProvider';
-
-/**
- * Enhanced form component with built-in validation, error handling, and accessibility
- */
 const EnhancedForm = ({ 
     children, 
     onSubmit, 
@@ -19,8 +17,6 @@ const EnhancedForm = ({
     const [touched, setTouched] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { showSuccess, showError } = useNotification();
-
-    // Debounced validation for better performance
     const debouncedValidate = useCallback(
         debounce((name, value) => {
             if (validationSchema[name]) {
@@ -33,26 +29,20 @@ const EnhancedForm = ({
         }, 300),
         [validationSchema]
     );
-
     const handleInputChange = useCallback((name, value) => {
         setValues(prev => ({
             ...prev,
             [name]: value
         }));
-
-        // Validate on change if field was previously touched
         if (touched[name]) {
             debouncedValidate(name, value);
         }
     }, [touched, debouncedValidate]);
-
     const handleInputBlur = useCallback((name) => {
         setTouched(prev => ({
             ...prev,
             [name]: true
         }));
-
-        // Validate on blur
         if (validationSchema[name]) {
             const error = validationSchema[name](values[name]);
             setErrors(prev => ({
@@ -61,11 +51,9 @@ const EnhancedForm = ({
             }));
         }
     }, [values, validationSchema]);
-
     const validateAll = useCallback(() => {
         const newErrors = {};
         let isValid = true;
-
         Object.keys(validationSchema).forEach(name => {
             const error = validationSchema[name](values[name]);
             if (error) {
@@ -73,37 +61,27 @@ const EnhancedForm = ({
                 isValid = false;
             }
         });
-
         setErrors(newErrors);
         setTouched(Object.keys(validationSchema).reduce((acc, key) => {
             acc[key] = true;
             return acc;
         }, {}));
-
         return isValid;
     }, [values, validationSchema]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         if (isSubmitting) return;
-        
         const isValid = validateAll();
-        
         if (!isValid) {
             showError('Please fix the errors before submitting');
             return;
         }
-
         setIsSubmitting(true);
-        
         try {
             await onSubmit(values);
-            
             if (showSuccessMessage) {
                 showSuccess('Form submitted successfully!');
             }
-            
             if (resetOnSuccess) {
                 setValues({});
                 setErrors({});
@@ -115,14 +93,11 @@ const EnhancedForm = ({
             setIsSubmitting(false);
         }
     };
-
     const reset = useCallback(() => {
         setValues({});
         setErrors({});
         setTouched({});
     }, []);
-
-    // Clone children and inject form props
     const enhancedChildren = React.Children.map(children, child => {
         if (React.isValidElement(child) && child.props.name) {
             return React.cloneElement(child, {
@@ -142,7 +117,6 @@ const EnhancedForm = ({
         }
         return child;
     });
-
     return (
         <form 
             className={`enhanced-form ${className}`} 
@@ -150,7 +124,6 @@ const EnhancedForm = ({
             noValidate
         >
             {enhancedChildren}
-            
             <div className="enhanced-form-actions">
                 <button
                     type="submit"
@@ -166,7 +139,6 @@ const EnhancedForm = ({
                         submitButtonText
                     )}
                 </button>
-                
                 <button
                     type="button"
                     onClick={reset}
@@ -179,10 +151,6 @@ const EnhancedForm = ({
         </form>
     );
 };
-
-/**
- * Enhanced input component with built-in validation display
- */
 export const EnhancedInput = ({ 
     label, 
     name, 
@@ -196,7 +164,6 @@ export const EnhancedInput = ({
     ...props 
 }) => {
     const hasError = error && touched;
-    
     return (
         <div className={`enhanced-input-group ${className}`}>
             {label && (
@@ -208,7 +175,6 @@ export const EnhancedInput = ({
                     {required && <span className="required-indicator">*</span>}
                 </label>
             )}
-            
             <input
                 id={name}
                 name={name}
@@ -220,13 +186,11 @@ export const EnhancedInput = ({
                 required={required}
                 {...props}
             />
-            
             {helpText && (
                 <small id={`${name}-help`} className="enhanced-help-text">
                     {helpText}
                 </small>
             )}
-            
             {hasError && (
                 <div id={`${name}-error`} className="enhanced-error-text" role="alert">
                     {error}
@@ -235,10 +199,6 @@ export const EnhancedInput = ({
         </div>
     );
 };
-
-/**
- * Enhanced textarea component
- */
 export const EnhancedTextarea = ({ 
     label, 
     name, 
@@ -252,7 +212,6 @@ export const EnhancedTextarea = ({
     ...props 
 }) => {
     const hasError = error && touched;
-    
     return (
         <div className={`enhanced-input-group ${className}`}>
             {label && (
@@ -264,7 +223,6 @@ export const EnhancedTextarea = ({
                     {required && <span className="required-indicator">*</span>}
                 </label>
             )}
-            
             <textarea
                 id={name}
                 name={name}
@@ -276,13 +234,11 @@ export const EnhancedTextarea = ({
                 required={required}
                 {...props}
             />
-            
             {helpText && (
                 <small id={`${name}-help`} className="enhanced-help-text">
                     {helpText}
                 </small>
             )}
-            
             {hasError && (
                 <div id={`${name}-error`} className="enhanced-error-text" role="alert">
                     {error}
@@ -291,5 +247,4 @@ export const EnhancedTextarea = ({
         </div>
     );
 };
-
 export default EnhancedForm;

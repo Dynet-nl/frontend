@@ -1,6 +1,7 @@
+// Building layout schema component for double-sided buildings without background elements.
+
 import React from 'react'
 import FlatInputDetails from '../components/FlatInputDetails'
-
 const DoubleNoBGs = ({
                          form,
                          parentIndex,
@@ -9,7 +10,6 @@ const DoubleNoBGs = ({
                          handleFlat,
                      }) => {
     const floors = form.floors.length
-
     return (
         <div>
             <div className="block">
@@ -23,8 +23,6 @@ const DoubleNoBGs = ({
                                     </div>
                                 )
                             }
-                            
-                            
                             if (index === array.length - 1) {
                                 return (
                                     <div key={index} className="flat">
@@ -35,14 +33,11 @@ const DoubleNoBGs = ({
                                             formFields={formFields}
                                             handleFlat={handleFlat}
                                         />
-
                                         <div className="doubleSideTopLine"></div>
                                         <div className="doubleSideEntranceLineLeft"></div>
                                     </div>
                                 )
                             }
-                            
-                            
                             if (index !== 0 || index === array.length - 1) {
                                 return (
                                     <div key={index} className="flat">
@@ -61,22 +56,14 @@ const DoubleNoBGs = ({
                         })}
                     </div>
                     <div className="stairs"></div>
-
                     <div className="flatsContainer">
                         {form?.floors?.map((element, i, array) => {
-                            
                             if (i == 0) {
                                 return (
                                     <div key={i} className="emptyFlat">
-                                        
-                                        
-                                        
-                                        
                                     </div>
                                 )
                             }
-                            
-                            
                             if (i === array.length - 1) {
                                 return (
                                     <div key={i} className="flat">
@@ -91,8 +78,6 @@ const DoubleNoBGs = ({
                                     </div>
                                 )
                             }
-                            
-                            
                             if (i !== 0 || i === array.length - 1) {
                                 return (
                                     <div key={i} className="flat">
@@ -110,11 +95,9 @@ const DoubleNoBGs = ({
                         })}
                     </div>
                 </div>
-
                 <div className="basement"></div>
             </div>
         </div>
     )
 }
-
 export default DoubleNoBGs

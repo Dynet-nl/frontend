@@ -1,25 +1,21 @@
-// HAS Planning apartment detail page with inline editing for installation details and appointments. Integrates with UnifiedAppointmentScheduler and invalidates cache on updates.
+// HAS planning view for apartment details with planning-specific information and scheduling tools.
 
 import React, {useEffect, useState} from 'react';
 import {useParams, Link} from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/tsApartmentDetails.css';
-
 const calculateWeekNumber = (date) => {
     const currentDate = new Date(date);
     const startDate = new Date(currentDate.getFullYear(), 0, 1);
     const days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000));
     return Math.ceil(days / 7);
 };
-
 const HASPlanningApartmentDetailPage = () => {
     const params = useParams();
     const axiosPrivate = useAxiosPrivate();
     const {auth} = useAuth();
-
     const hasHASPlanningRole = auth?.roles?.includes(1959);
-
     const [isEditingHASAppointment, setIsEditingHASAppointment] = useState(false);
     const [availableHASMonteurs, setAvailableHASMonteurs] = useState([]);
     const [hasAppointmentData, setHASAppointmentData] = useState({
@@ -30,7 +26,6 @@ const HASPlanningApartmentDetailPage = () => {
         type: 'HAS',
         hasMonteurName: ''
     });
-
     const [flat, setFlat] = useState({
         _id: '',
         zoeksleutel: '',
@@ -55,30 +50,24 @@ const HASPlanningApartmentDetailPage = () => {
         odf: '',
         odfPositie: '',
     });
-
     const fetchAvailableHASMonteurs = async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-            
             const hasMonteurs = users.filter(user => 
                 user.roles && typeof user.roles === 'object' && 
                 user.roles.HASMonteur === 2023
             );
-            
             setAvailableHASMonteurs(hasMonteurs);
         } catch (error) {
             console.error('Error fetching HAS Monteurs:', error);
         }
     };
-
     useEffect(() => {
         const fetchApartment = async () => {
             try {
                 const {data} = await axiosPrivate.get(`/api/apartment/${params.id}`);
-
                 const today = new Date().toISOString().split('T')[0];
-
                 setFlat({
                     _id: data._id,
                     zoeksleutel: data.zoeksleutel,
@@ -103,7 +92,6 @@ const HASPlanningApartmentDetailPage = () => {
                     odf: data.odf || '',
                     odfPositie: data.odfPositie || '',
                 });
-
                 const hasAppointment = data.hasMonteur?.appointmentBooked || {};
                 setHASAppointmentData({
                     date: hasAppointment.date ? new Date(hasAppointment.date).toISOString().split('T')[0] : today,
@@ -117,11 +105,9 @@ const HASPlanningApartmentDetailPage = () => {
                 console.error('Error fetching data:', error);
             }
         };
-
         fetchApartment();
         fetchAvailableHASMonteurs();
     }, [params.id, axiosPrivate]);
-
     const handleHASAppointmentChange = (e) => {
         const {name, value} = e.target;
         setHASAppointmentData((prevData) => ({
@@ -130,7 +116,6 @@ const HASPlanningApartmentDetailPage = () => {
             weekNumber: name === 'date' ? calculateWeekNumber(value) : prevData.weekNumber
         }));
     };
-
     const handleHASAppointmentSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -144,10 +129,8 @@ const HASPlanningApartmentDetailPage = () => {
                 },
                 hasMonteurName: hasAppointmentData.hasMonteurName
             });
-
             if (response.data) {
                 setFlat(response.data);
-
                 if (response.data.hasMonteur?.appointmentBooked) {
                     setHASAppointmentData({
                         date: new Date(response.data.hasMonteur.appointmentBooked.date).toISOString().split('T')[0],
@@ -158,18 +141,14 @@ const HASPlanningApartmentDetailPage = () => {
                     });
                 }
             }
-
             setIsEditingHASAppointment(false);
-            
             window.dispatchEvent(new CustomEvent('invalidate-buildings-cache'));
-            
             alert('HAS Monteur appointment saved successfully!');
         } catch (error) {
             console.error('Error saving HAS Monteur appointment:', error);
             alert('Error saving appointment. Please try again.');
         }
     };
-
     return (
         <div className="ts-apartmentDetailsContainer">
             <h2 className="ts-apartmentTitle">
@@ -178,7 +157,6 @@ const HASPlanningApartmentDetailPage = () => {
                     &#10004;
                 </span>
             </h2>
-
             <div className="ts-columns">
                 <div className="ts-leftColumn">
                     <div className="ts-detailsGrid">
@@ -205,7 +183,6 @@ const HASPlanningApartmentDetailPage = () => {
                             <p><b>ODF:</b> {flat.odf || 'N/A'}</p>
                             <p><b>ODF Positie:</b> {flat.odfPositie || 'N/A'}</p>
                         </div>
-
                         <div className="ts-timestamps">
                             <p><b>Created:</b> {flat.createdAt ? new Date(flat.createdAt).toLocaleString() : 'N/A'}</p>
                             <p><b>Last Updated:</b> {flat.updatedAt ? new Date(flat.updatedAt).toLocaleString() : 'N/A'}
@@ -213,7 +190,6 @@ const HASPlanningApartmentDetailPage = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="ts-rightColumn">
                     <div className="ts-appointmentDetails">
                         <div className="ts-planningHeader">
@@ -250,7 +226,6 @@ const HASPlanningApartmentDetailPage = () => {
                                 )}
                             </div>
                         </div>
-
                         {isEditingHASAppointment && hasHASPlanningRole ? (
                             <form onSubmit={handleHASAppointmentSubmit} className="ts-form">
                                 <div className="ts-formGroup">
@@ -368,5 +343,4 @@ const HASPlanningApartmentDetailPage = () => {
         </div>
     );
 };
-
 export default HASPlanningApartmentDetailPage;

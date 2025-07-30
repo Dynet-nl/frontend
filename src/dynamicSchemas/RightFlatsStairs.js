@@ -1,6 +1,7 @@
+// Building layout schema component for right-side flats with stair elements.
+
 import React from 'react'
 import FlatInputDetails from '../components/FlatInputDetails'
-
 const RightFlatsStairs = ({
                               form,
                               parentIndex,
@@ -13,10 +14,8 @@ const RightFlatsStairs = ({
         <div className="block">
             <div className="mainPart">
                 <div className="stairs"></div>
-
                 <div className="flatsContainer">
                     {form?.floors?.map((element, index, array) => {
-                        
                         if (index == 0) {
                             return (
                                 <div key={index} className="flat">
@@ -31,8 +30,6 @@ const RightFlatsStairs = ({
                                 </div>
                             )
                         }
-                        
-                        
                         if (index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -45,12 +42,9 @@ const RightFlatsStairs = ({
                                     />
                                     <div className="rightFlatLineStairsLast"></div>
                                     <div className="rightFlatEntranceLine"></div>
-                                    
                                 </div>
                             )
                         }
-                        
-                        
                         if (index !== 0 || index === array.length - 1) {
                             return (
                                 <div key={index} className="flat">
@@ -63,7 +57,6 @@ const RightFlatsStairs = ({
                                     />
                                     <div className="rightFlatLineStairs"></div>
                                     <div className="rightFlatEntranceLine"></div>
-                                    
                                 </div>
                             )
                         }
@@ -80,5 +73,4 @@ const RightFlatsStairs = ({
         </div>
     )
 }
-
 export default RightFlatsStairs
