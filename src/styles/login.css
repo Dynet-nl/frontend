@@ -1,44 +1,6 @@
-/* Modern Login Page Styles - Mobile-First Responsive Design */
+/* Modern Login Page Styles - Cleaned Up Version */
 
-.login-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 16px;
-}
-
-.login-background {
-    width: 100%;
-    max-width: 400px;
-    position: relative;
-}
-
-.login-card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    animation: fadeInUp 0.6s ease-out;
-}
-
-/* Tablet and desktop adjustments */
-@media (min-width: 640px) {
-    .login-page {
-        padding: 20px;
-    }
-    
-    .login-background {
-        max-width: 450px;
-    }
-    
-    .login-card {
-        border-radius: 16px;
-    }
-}
-
+/* Animation for fade in effect */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -50,347 +12,96 @@
     }
 }
 
-.login-header {
-    text-align: center;
-    padding: 24px 20px 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-/* Tablet and desktop header */
-@media (min-width: 640px) {
-    .login-header {
-        padding: 40px 30px 30px;
-    }
-}
-
-.login-logo {
-    width: 60px;
-    height: auto;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-.login-logo.clickable-logo {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.login-logo.clickable-logo:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-}
-
-.login-logo.clickable-logo:active {
-    transform: scale(0.98);
-}
-
-/* Tablet and desktop logo */
-@media (min-width: 640px) {
-    .login-logo {
-        width: 80px;
-        margin-bottom: 20px;
-    }
-}
-
-.login-title {
-    color: #2c3e50;
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Tablet and desktop title */
-@media (min-width: 640px) {
-    .login-title {
-        font-size: 28px;
-        margin: 0 0 10px 0;
-    }
-}
-
-.login-subtitle {
-    color: #6c757d;
-    font-size: 14px;
-    margin: 0;
-    font-weight: 400;
-    line-height: 1.4;
-}
-
-/* Tablet and desktop subtitle */
-@media (min-width: 640px) {
-    .login-subtitle {
-        font-size: 16px;
-    }
-}
-
-.login-form {
-    padding: 24px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-/* Tablet and desktop form */
-@media (min-width: 640px) {
-    .login-form {
-        padding: 30px;
-        gap: 8px;
-    }
-}
-
-.input-group {
-    position: relative;
-    margin-bottom: 0;
-}
-
-.modern-input {
-    transition: all 0.2s ease;
-}
-
-/* Clean Material-UI TextField styling */
-.input-group .MuiTextField-root {
-    width: 100%;
-}
-
-.input-group .MuiOutlinedInput-notchedOutline {
-    transition: border-color 0.2s ease;
-}
-
-.input-group .MuiInputLabel-outlined {
-    z-index: 1;
-    pointer-events: none;
-    transform-origin: top left;
-    transition: all 0.2s ease;
-}
-
-.input-group .MuiInputLabel-outlined.MuiInputLabel-shrink {
-    background-color: #ffffff !important;
-    padding: 0 8px !important;
-    margin-left: -4px !important;
-}
-
-/* Simple focus and hover effects */
-.input-group .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-    border-color: #3498db !important;
-}
-
-.input-group .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-    border-color: #3498db !important;
-    border-width: 2px !important;
-}
-
-.input-group .MuiInputLabel-root.Mui-focused {
-    color: #3498db !important;
-}
-
-.error-message {
-    margin: 0 20px;
-    padding: 12px;
-    border-radius: 8px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    font-weight: 500;
-    font-size: 13px;
-    text-align: center;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    max-height: 0;
-    overflow: hidden;
-}
-
-/* Tablet and desktop error message */
-@media (min-width: 640px) {
-    .error-message {
-        margin: 0 30px;
-        padding: 15px;
-        font-size: 14px;
-    }
-}
-
-.error-message.show {
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 100px;
-    margin-top: 16px;
-    margin-bottom: 8px;
-}
-
-/* Tablet and desktop error message show */
-@media (min-width: 640px) {
-    .error-message.show {
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }
-}
-
-.login-button {
-    margin-top: 8px !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    text-transform: none !important;
-    letter-spacing: 0.5px;
-    padding: 12px !important;
-    border-radius: 8px !important;
-    min-height: 44px;
-}
-
-/* Tablet and desktop button */
-@media (min-width: 640px) {
-    .login-button {
-        margin-top: 10px !important;
-        font-size: 16px !important;
-        padding: 14px !important;
-        min-height: 48px;
-    }
-}
-
-.login-footer {
-    text-align: center;
-    padding: 16px 20px 20px;
-    background: #f8f9fa;
-    border-top: 1px solid #e9ecef;
-}
-
-/* Tablet and desktop footer */
-@media (min-width: 640px) {
-    .login-footer {
-        padding: 20px 30px 30px;
-    }
-}
-
-.login-footer p {
-    color: #6c757d;
-    font-size: 12px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-/* Tablet and desktop footer text */
-@media (min-width: 640px) {
-    .login-footer p {
-        font-size: 13px;
-        gap: 8px;
-    }
-}
-
-.login-footer p::before {
-    content: "🔒";
-    font-size: 14px;
-}
-
-/* Tablet and desktop footer icon */
-@media (min-width: 640px) {
-    .login-footer p::before {
-        font-size: 16px;
-    }
-}
-
-/* Touch-friendly input styles for mobile */
-.input-group input {
-    min-height: 44px;
-    font-size: 16px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid #e1e5e9;
-    transition: all 0.2s ease;
-    -webkit-appearance: none;
-    appearance: none;
-    box-sizing: border-box;
-}
-
-/* Tablet and desktop input adjustments */
-@media (min-width: 640px) {
-    .input-group input {
-        min-height: 48px;
-        padding: 14px 16px;
-    }
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Prevent zoom on iOS */
-@media screen and (max-width: 639px) {
-    .input-group input,
-    .input-group select,
-    .input-group textarea {
-        font-size: 16px !important;
-    }
-}
-
-/* Extra small mobile devices */
-@media (max-width: 480px) {
-    .login-page {
-        padding: 12px;
-    }
-    
-    .login-header {
-        padding: 25px 20px 20px;
-    }
-    
-    .login-form {
-        padding: 20px;
-    }
-    
-    .login-footer {
-        padding: 15px 20px 20px;
-    }
-    
-    .login-title {
-        font-size: 22px;
-    }
-}
-
-/* Loading animation for button */
-.login-button:disabled {
-    background-color: #95a5a6 !important;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-}
-
-/* Accessibility improvements */
-.login-card:focus-within {
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* Hover effects for better interactivity */
-.login-card {
-    transition: all 0.3s ease;
-}
-
-.login-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-}
-
-/* Additional modern touches */
-.login-header::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #3498db, #2980b9, #3498db);
-    background-size: 200% 100%;
-    animation: shimmer 3s ease-in-out infinite;
-}
-
+/* Shimmer animation for header accent */
 @keyframes shimmer {
     0%, 100% { background-position: -200% 0; }
     50% { background-position: 200% 0; }
 }
 
-/* Legacy styles for backwards compatibility - hidden by default */
+/* Clean, minimal login page styling that works with inline styles and modern CSS classes */
+.modern-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modern-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modern-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.modern-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.modern-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.modern-input:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.modern-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+.modern-button-primary {
+    background-color: #3498db;
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.modern-button-primary:hover:not(:disabled) {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+}
+
+.modern-button:disabled {
+    background-color: #bdc3c7 !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.modern-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Legacy style cleanup - hide any old styles that might interfere */
 .loginContainer,
 form.login,
 input[type='email'].login,

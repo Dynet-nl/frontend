@@ -161,75 +161,267 @@ const TechnicalPlanningApartmentSchedulePage = () => {
                     ))}
                 </div>
                 <div className="ts-rightColumn">
-                    <h3>Set Appointment Details</h3>
-                    <form onSubmit={handleAppointmentSubmit} className="ts-form">
-                        <div className="ts-formGroup">
-                            <label>Appointment Date:</label>
-                            <input
-                                type="date"
-                                name="date"
-                                value={appointmentData.date}
-                                onChange={handleAppointmentChange}
-                                className="ts-input"
-                                required
-                            />
-                        </div>
-                        <div className="ts-formGroup">
-                            <label>Start Time:</label>
-                            <input
-                                type="time"
-                                name="startTime"
-                                value={appointmentData.startTime}
-                                onChange={handleAppointmentChange}
-                                className="ts-input"
-                                required
-                            />
-                        </div>
-                        <div className="ts-formGroup">
-                            <label>End Time:</label>
-                            <input
-                                type="time"
-                                name="endTime"
-                                value={appointmentData.endTime}
-                                onChange={handleAppointmentChange}
-                                className="ts-input"
-                                required
-                            />
-                        </div>
-                        <div className="ts-formGroup">
-                            <label>Week Number:</label>
-                            <input
-                                type="number"
-                                name="weekNumber"
-                                value={appointmentData.weekNumber || ''}
-                                readOnly
-                                className="ts-input"
-                            />
-                        </div>
-                        <div className="ts-formGroup">
-                            <label>Technische Schouwer:</label>
-                            <select
-                                name="technischeSchouwerName"
-                                value={appointmentData.technischeSchouwerName}
-                                onChange={handleAppointmentChange}
-                                className="ts-input"
+                    <div style={{
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+                    }}>
+                        <h3 style={{
+                            color: '#1e293b',
+                            fontSize: '24px',
+                            fontWeight: '600',
+                            margin: '0 0 24px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}>
+                            <span style={{fontSize: '24px'}}>📅</span>
+                            Schedule Technical Inspection
+                        </h3>
+                        <form onSubmit={handleAppointmentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <label 
+                                    style={{
+                                        display: 'block',
+                                        marginBottom: '8px',
+                                        color: '#374151',
+                                        fontSize: '16px',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    📅 Inspection Date
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    value={appointmentData.date}
+                                    onChange={handleAppointmentChange}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        fontSize: '16px',
+                                        fontFamily: 'inherit',
+                                        transition: 'all 0.2s ease',
+                                        backgroundColor: '#ffffff',
+                                        color: '#374151',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#667eea';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
+                                />
+                            </div>
+                            <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: '1fr 1fr' }}>
+                                <div>
+                                    <label 
+                                        style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            color: '#374151',
+                                            fontSize: '16px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        🕐 Start Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="startTime"
+                                        value={appointmentData.startTime}
+                                        onChange={handleAppointmentChange}
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 16px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '10px',
+                                            fontSize: '16px',
+                                            fontFamily: 'inherit',
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: '#ffffff',
+                                            color: '#374151',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                        onFocus={(e) => {
+                                            e.target.style.borderColor = '#667eea';
+                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.borderColor = '#e5e7eb';
+                                            e.target.style.boxShadow = 'none';
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label 
+                                        style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            color: '#374151',
+                                            fontSize: '16px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        🕐 End Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="endTime"
+                                        value={appointmentData.endTime}
+                                        onChange={handleAppointmentChange}
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 16px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '10px',
+                                            fontSize: '16px',
+                                            fontFamily: 'inherit',
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: '#ffffff',
+                                            color: '#374151',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                        onFocus={(e) => {
+                                            e.target.style.borderColor = '#667eea';
+                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.borderColor = '#e5e7eb';
+                                            e.target.style.boxShadow = 'none';
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label 
+                                    style={{
+                                        display: 'block',
+                                        marginBottom: '8px',
+                                        color: '#374151',
+                                        fontSize: '16px',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    📊 Week Number (Auto-calculated)
+                                </label>
+                                <input
+                                    type="number"
+                                    name="weekNumber"
+                                    value={appointmentData.weekNumber || ''}
+                                    readOnly
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        fontSize: '16px',
+                                        fontFamily: 'inherit',
+                                        backgroundColor: '#f9fafb',
+                                        color: '#6b7280',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label 
+                                    style={{
+                                        display: 'block',
+                                        marginBottom: '8px',
+                                        color: '#374151',
+                                        fontSize: '16px',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    👷 Technical Inspector
+                                </label>
+                                <select
+                                    name="technischeSchouwerName"
+                                    value={appointmentData.technischeSchouwerName}
+                                    onChange={handleAppointmentChange}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 16px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        fontSize: '16px',
+                                        fontFamily: 'inherit',
+                                        transition: 'all 0.2s ease',
+                                        backgroundColor: '#ffffff',
+                                        color: '#374151',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#667eea';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
+                                >
+                                    <option value="">Select a Technical Inspector</option>
+                                    {technischeSchouwers.map(schouwer => (
+                                        <option key={schouwer._id} value={schouwer.name}>
+                                            {schouwer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading || selectedApartments.length === 0}
+                                style={{
+                                    background: loading || selectedApartments.length === 0
+                                        ? 'linear-gradient(135deg, #9ca3af, #6b7280)' 
+                                        : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '14px 28px',
+                                    borderRadius: '10px',
+                                    fontSize: '16px',
+                                    fontWeight: '600',
+                                    cursor: loading || selectedApartments.length === 0 ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    justifyContent: 'center',
+                                    alignSelf: 'flex-start'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!loading && selectedApartments.length > 0) {
+                                        e.target.style.transform = 'translateY(-2px)';
+                                        e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = 'none';
+                                }}
                             >
-                                <option value="">Select a Technische Schouwer</option>
-                                {technischeSchouwers.map(schouwer => (
-                                    <option key={schouwer._id} value={schouwer.name}>
-                                        {schouwer.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <button
-                            type="submit"
-                            className="ts-saveButton"
-                            disabled={loading || selectedApartments.length === 0}
-                        >
-                            {loading ? 'Saving...' : 'Save Appointment'}
-                        </button>
-                    </form>
+                                <span style={{fontSize: '18px'}}>
+                                    {loading ? '⏳' : '💾'}
+                                </span>
+                                {loading ? 'Saving Appointment...' : 'Save Appointment'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

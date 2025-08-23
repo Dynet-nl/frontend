@@ -4,8 +4,6 @@ import {useEffect, useRef, useState} from 'react'
 import useAuth from '../hooks/useAuth'
 import axios from 'axios'
 import '../styles/login.css'
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import {useLocation, useNavigate} from 'react-router-dom'
 const UserLoginPage = () => {
     const {setAuth} = useAuth()
@@ -55,157 +53,113 @@ const UserLoginPage = () => {
         }
     }
     return (
-        <div className="login-page">
-            <div className="login-background">
-                <div className="login-card">
-                    <div className="login-header">
-                        <img 
-                            src="/dynetLogo.png" 
-                            alt="Dynet Logo" 
-                            className="login-logo"
-                        />
-                        <h1 className="login-title">Welcome Back</h1>
-                        <p className="login-subtitle">Sign in to your Fiber Installation Management System</p>
-                    </div>
+        <div style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            padding: '20px'
+        }}>
+            <div style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+                padding: '40px',
+                width: '100%',
+                maxWidth: '400px'
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                    <img 
+                        src="/dynetLogo.png" 
+                        alt="Dynet Logo" 
+                        style={{ width: '80px', marginBottom: '20px' }}
+                    />
+                    <h1 style={{ 
+                        color: '#2c3e50', 
+                        fontSize: '28px', 
+                        fontWeight: '700', 
+                        margin: '0 0 10px 0' 
+                    }}>
+                        Welcome Back
+                    </h1>
+                    <p style={{ 
+                        color: '#6c757d', 
+                        fontSize: '16px', 
+                        margin: '0' 
+                    }}>
+                        Sign in to your Fiber Installation Management System
+                    </p>
+                </div>
+                
+                {errMsg && (
                     <div 
-                        className={`error-message ${errMsg ? 'show' : ''}`}
                         ref={errRef}
+                        style={{
+                            marginBottom: '20px',
+                            padding: '15px',
+                            borderRadius: '8px',
+                            backgroundColor: '#f8d7da',
+                            border: '1px solid #f5c6cb',
+                            color: '#721c24',
+                            textAlign: 'center'
+                        }}
                         aria-live="assertive"
                     >
                         {errMsg}
                     </div>
-                    <form className="login-form" onSubmit={handleSubmit}>
-                        <div className="input-group">
-                            <TextField
-                                label="Email"
-                                type="email"
-                                id="username"
-                                autoComplete="email"
-                                onChange={(e) => setEmail(e.target.value)}
-                                value={email}
-                                required
-                                variant="outlined"
-                                fullWidth
-                                inputRef={userRef}
-                                className="modern-input"
-                                sx={{
-                                    marginBottom: '20px',
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: '10px',
-                                        backgroundColor: '#ffffff',
-                                        height: '54px',
-                                        '& fieldset': {
-                                            borderColor: '#e1e5e9',
-                                            borderWidth: '1px',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#3498db',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#3498db',
-                                            borderWidth: '2px',
-                                        },
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        color: '#6c757d',
-                                        fontWeight: '400',
-                                        '&.Mui-focused': {
-                                            color: '#3498db',
-                                        },
-                                        '&.MuiInputLabel-shrink': {
-                                            backgroundColor: '#ffffff',
-                                            padding: '0 8px',
-                                            marginLeft: '-4px',
-                                        }
-                                    },
-                                    '& .MuiOutlinedInput-input': {
-                                        padding: '15px 16px',
-                                        fontSize: '16px',
-                                        color: '#2c3e50',
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className="input-group">
-                            <TextField
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                onChange={(e) => setPassword(e.target.value)}
-                                value={password}
-                                required
-                                variant="outlined"
-                                fullWidth
-                                className="modern-input"
-                                sx={{
-                                    marginBottom: '20px',
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: '10px',
-                                        backgroundColor: '#ffffff',
-                                        height: '54px',
-                                        '& fieldset': {
-                                            borderColor: '#e1e5e9',
-                                            borderWidth: '1px',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#3498db',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#3498db',
-                                            borderWidth: '2px',
-                                        },
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        color: '#6c757d',
-                                        fontWeight: '400',
-                                        '&.Mui-focused': {
-                                            color: '#3498db',
-                                        },
-                                        '&.MuiInputLabel-shrink': {
-                                            backgroundColor: '#ffffff',
-                                            padding: '0 8px',
-                                            marginLeft: '-4px',
-                                        }
-                                    },
-                                    '& .MuiOutlinedInput-input': {
-                                        padding: '15px 16px',
-                                        fontSize: '16px',
-                                        color: '#2c3e50',
-                                    }
-                                }}
-                            />
-                        </div>
-                        <Button 
-                            type="submit" 
-                            variant="contained" 
-                            className="login-button"
-                            fullWidth
-                            sx={{
-                                backgroundColor: '#3498db',
-                                borderRadius: '8px',
-                                padding: '12px 0',
-                                fontSize: '16px',
-                                fontWeight: '600',
-                                textTransform: 'none',
-                                boxShadow: '0 4px 12px rgba(52, 152, 219, 0.3)',
-                                '&:hover': {
-                                    backgroundColor: '#2980b9',
-                                    boxShadow: '0 6px 16px rgba(52, 152, 219, 0.4)',
-                                    transform: 'translateY(-1px)',
-                                },
-                                '&:active': {
-                                    transform: 'translateY(0)',
-                                },
-                                transition: 'all 0.2s ease',
-                            }}
-                        >
-                            Sign In
-                        </Button>
-                    </form>
-                    <div className="login-footer">
-                        <p>Secure access to your workspace</p>
+                )}
+                
+                <form onSubmit={handleSubmit} className="modern-form">
+                    <div className="modern-form-group">
+                        <label htmlFor="email" className="modern-label">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            className="modern-input"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            ref={userRef}
+                            autoComplete="email"
+                            required
+                        />
                     </div>
+                    <div className="modern-form-group">
+                        <label htmlFor="password" className="modern-label">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="modern-input"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            autoComplete="current-password"
+                            required
+                        />
+                    </div>
+                    <button 
+                        type="submit" 
+                        className="modern-button modern-button-primary"
+                        style={{ width: '100%', marginTop: '10px' }}
+                    >
+                        Sign In
+                    </button>
+                </form>
+                
+                <div style={{ 
+                    textAlign: 'center', 
+                    marginTop: '30px',
+                    padding: '20px 0',
+                    borderTop: '1px solid #e9ecef'
+                }}>
+                    <p style={{ 
+                        color: '#6c757d', 
+                        fontSize: '13px', 
+                        margin: '0' 
+                    }}>
+                        🔒 Secure access to your workspace
+                    </p>
                 </div>
             </div>
         </div>

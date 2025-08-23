@@ -33,14 +33,51 @@ const HASInstallerAgendaCalendarPage = () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
-            const monteurs = users.filter(user => {
-                return user.roles &&
-                    typeof user.roles === 'object' &&
-                    user.roles.HASMonteur === 2023;
+            
+            // Debug: Log all users and their roles in detail
+            console.log('All users from API:', users);
+            users.forEach(user => {
+                console.log(`User: ${user.name}, Roles:`, user.roles);
+                if (user.roles) {
+                    Object.keys(user.roles).forEach(roleKey => {
+                        console.log(`  - ${roleKey}: ${user.roles[roleKey]}`);
+                    });
+                }
             });
+            
+            // Filter for HASMonteur role (installers) instead of HASPlanning
+            const monteurs = users.filter(user => {
+                if (!user.roles || typeof user.roles !== 'object') {
+                    console.log(`User ${user.name} has no roles or invalid roles structure`);
+                    return false;
+                }
+                
+                // Check for HASMonteur role (2023) - these are the actual installers
+                const hasMonteur = user.roles.HASMonteur;
+                const isHASMonteur = hasMonteur && (
+                    hasMonteur === 2023 || 
+                    hasMonteur === true || 
+                    hasMonteur === 1 ||
+                    typeof hasMonteur === 'number' && hasMonteur > 0
+                );
+                
+                console.log(`User ${user.name} - HASMonteur value: ${hasMonteur}, matches: ${isHASMonteur}`);
+                return isHASMonteur;
+            });
+            
+            console.log('Found HAS Monteur users:', monteurs);
             setHasMonteurs(monteurs);
         } catch (error) {
-            console.error('Error fetching HAS Monteurs:', error);
+            console.error('Error fetching HAS Monteur users:', error);
+            
+            // Fallback: create filter options from known appointment names
+            const fallbackUsers = [
+                { _id: 'jasper', name: 'jasper', email: 'jasper@example.com' },
+                { _id: 'john-doe', name: 'John Doe', email: 'john.doe@example.com' }
+            ];
+            
+            console.log('Using fallback users for filtering:', fallbackUsers);
+            setHasMonteurs(fallbackUsers);
         }
     }, [axiosPrivate]);
     const fetchAppointments = useCallback(async () => {
@@ -51,6 +88,8 @@ const HASInstallerAgendaCalendarPage = () => {
                     limit: 500, 
                 }
             });
+            console.log('Raw HAS appointments response:', response.data);
+            
             const calendarEvents = response.data
                 .filter(flat =>
                     flat.hasMonteur?.appointmentBooked?.date &&
@@ -68,9 +107,12 @@ const HASInstallerAgendaCalendarPage = () => {
                     const endDateTime = new Date(appointmentDate);
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
                     const duration = Math.max(differenceInMinutes(endDateTime, startDateTime), 30);
+                    
+                    console.log('Processing appointment for:', flat.hasMonteur.hasMonteurName);
+                    
                     return {
                         id: flat._id,
-                        title: `${appointmentData.type}: ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
+                        title: `${appointmentData.type} Installation - ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
                         duration: duration,
@@ -84,6 +126,7 @@ const HASInstallerAgendaCalendarPage = () => {
                         }
                     };
                 });
+            console.log('Processed calendar events:', calendarEvents);
             setOriginalEvents(calendarEvents);
             setEvents(calendarEvents);
         } catch (error) {
@@ -100,32 +143,78 @@ const HASInstallerAgendaCalendarPage = () => {
     const handleHASMonteurFilter = (e) => {
         const selectedName = e.target.value;
         setSelectedHASMonteur(selectedName);
+        
         if (!selectedName) {
+            // Show all events when no filter is selected
             setEvents(originalEvents);
         } else {
-            const filteredEvents = originalEvents.filter(event =>
-                event.personName === selectedName
-            );
+            // Filter events by the selected HAS monteur name
+            const filteredEvents = originalEvents.filter(event => {
+                // Make sure we're comparing the right field and handle case sensitivity
+                const eventPersonName = event.personName || '';
+                return eventPersonName.toLowerCase().includes(selectedName.toLowerCase()) ||
+                       eventPersonName === selectedName;
+            });
             setEvents(filteredEvents);
+            
+            // Auto-navigate to first month with appointments for this person
+            if (filteredEvents.length > 0) {
+                // Find the earliest appointment for this person
+                const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+                const firstAppointment = sortedEvents[0];
+                const appointmentMonth = new Date(firstAppointment.start);
+                
+                // Navigate calendar to that month
+                setCurrentDisplayMonth(appointmentMonth);
+                
+                console.log(`Auto-navigating to ${appointmentMonth.toLocaleDateString()} for ${selectedName}'s appointments`);
+            }
+            
+            // Log for debugging
+            console.log(`Filtering for: ${selectedName}`);
+            console.log(`Found ${filteredEvents.length} events out of ${originalEvents.length} total`);
         }
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
             setCurrentRange(range);
-            setCurrentDisplayMonth(range.start); 
+            // Don't set currentDisplayMonth here to avoid navigation conflicts
         }
     };
     const handleEventClick = (event) => {
         const {resource} = event;
-        navigate(`/hm-apartment/${resource.flatId}`);
+        
+        // Show detailed popup first, then navigate
+        const confirmed = window.confirm(`
+            🔧 HAS Installation Details
+            ═══════════════════════════════
+            🏠 Address: ${resource.address}
+            🔧 Type: ${resource.type}
+            📝 Notes: ${resource.notes}
+            🏢 Complex: ${resource.complexNaam}
+            👷 Installer: ${event.personName || 'Not assigned'}
+            ⏱️ Duration: ${event.duration || 'Not specified'} minutes
+            
+            Click OK to view apartment details, or Cancel to stay on calendar.
+        `);
+        
+        if (confirmed) {
+            navigate(`/hm-apartment/${resource.flatId}`);
+        }
     };
     const eventStyleGetter = (event) => {
         const isStoring = event.resource.type === 'Storing';
-        const baseHeight = 30; 
-        const minDuration = 30; 
-        const maxDuration = 240; 
-        const normalizedDuration = Math.min(Math.max(event.duration, minDuration), maxDuration);
-        const heightMultiplier = Math.log(normalizedDuration / minDuration + 1);
+        const duration = event.duration || 30; // Default to 30 minutes if no duration
+        
+        // Calculate height based on duration - more intuitive linear scaling
+        const baseHeight = 40; // Minimum height for any appointment
+        const heightPerHour = 30; // Additional height per hour
+        const durationInHours = duration / 60;
+        const calculatedHeight = baseHeight + (durationInHours * heightPerHour);
+        
+        // Minimum height should be baseHeight, maximum reasonable height
+        const finalHeight = Math.max(baseHeight, Math.min(calculatedHeight, 120));
+        
         return {
             style: {
                 backgroundColor: isStoring ? '#e74c3c' : '#2ecc71',
@@ -135,133 +224,201 @@ const HASInstallerAgendaCalendarPage = () => {
                 border: `1px solid ${isStoring ? '#c0392b' : '#27ae60'}`,
                 display: 'block',
                 padding: '5px 10px',
-                height: `${baseHeight * heightMultiplier}px`, 
+                height: `${finalHeight}px`,
+                minHeight: `${baseHeight}px`,
                 overflow: 'hidden',
-                fontSize: `${Math.max(10, 14 - (normalizedDuration / 60))}px` 
+                fontSize: '12px',
+                fontWeight: '500',
+                lineHeight: '1.3'
             }
         };
     };
     return (
         <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100vh',
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             padding: '20px'
         }}>
             <div style={{
-                width: '100%',
-                marginBottom: '20px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#f0f0f0',
-                padding: '15px',
-                borderRadius: '8px'
-            }}>
-                {hasMonteurs.length > 0 && (
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}>
-                        <label htmlFor="hasMonteurFilter" style={{
-                            marginRight: '10px',
-                            fontWeight: 'bold'
-                        }}>
-                            Select HAS Monteur:
-                        </label>
-                        <select
-                            id="hasMonteurFilter"
-                            value={selectedHASMonteur}
-                            onChange={handleHASMonteurFilter}
-                            style={{
-                                padding: '8px',
-                                borderRadius: '4px',
-                                border: '1px solid #ccc',
-                                minWidth: '250px'
-                            }}
-                        >
-                            <option value="">All HAS Monteurs</option>
-                            {hasMonteurs.map(monteur => (
-                                <option key={monteur._id} value={monteur.name}>
-                                    {monteur.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
-            </div>
-            <div style={{
-                backgroundColor: '#e8f5e8',
-                padding: '10px',
-                borderRadius: '5px',
-                marginBottom: '10px',
-                textAlign: 'center',
-                fontSize: '14px',
-                color: '#2c6e49',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <span>💡 <strong>Navigation:</strong> Use "Vorige" and "Volgende" buttons to view appointments from different months</span>
-                <span style={{ fontWeight: 'bold' }}>
-                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: nl })}
-                </span>
-            </div>
-            <div style={{
-                flex: 1,
-                position: 'relative',
+                maxWidth: '1400px',
+                margin: '0 auto',
+                background: '#ffffff',
+                borderRadius: '20px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
                 overflow: 'hidden'
             }}>
-                <Calendar
-                    localizer={localizer}
-                    events={events}
-                    startAccessor="start"
-                    endAccessor="end"
-                    onSelectEvent={handleEventClick}
-                    eventPropGetter={eventStyleGetter}
-                    views={['month', 'week', 'day', 'agenda']}
-                    defaultView='month'
-                    step={30}
-                    timeslots={2}
-                    onRangeChange={handleRangeChange}
-                    showMultiDayTimes={true}
-                    popup={true}
-                    popupOffset={30}
-                    tooltipAccessor={event => `${event.title}\nType: ${event.resource.type}\nDuration: ${event.duration} minutes\nPerson: ${event.personName}`}
-                    messages={{
-                        next: "Volgende",
-                        previous: "Vorige",
-                        today: "Vandaag",
-                        month: "Maand",
-                        week: "Week",
-                        day: "Dag",
-                        agenda: "Agenda",
-                        noEventsInRange: "Geen afspraken in deze periode",
-                        showMore: total => `+ ${total} meer`,
-                    }}
-                    formats={{
-                        monthHeaderFormat: 'MMMM yyyy',
-                        dayHeaderFormat: 'dddd, MMMM do',
-                        dayRangeHeaderFormat: ({start, end}, culture, localizer) =>
-                            localizer.format(start, 'MMMM dd', culture) + ' - ' + 
-                            localizer.format(end, 'MMMM dd, yyyy', culture)
-                    }}
-                />
-                {loading && (
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                {/* Header Section */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                    padding: '40px',
+                    borderBottom: '1px solid #e2e8f0'
+                }}>
+                    <h1 style={{ 
+                        color: '#2c3e50', 
+                        fontSize: '32px', 
+                        fontWeight: '700',
+                        margin: '0 0 10px 0',
                         display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        gap: '12px'
                     }}>
-                        <BounceLoader color="#2ecc71"/>
+                        <span style={{fontSize: '36px'}}>🔧</span>
+                        HAS Installation Calendar
+                    </h1>
+                    <p style={{ 
+                        color: '#6c757d', 
+                        fontSize: '18px', 
+                        margin: '0',
+                        fontWeight: '400'
+                    }}>
+                        View and manage HAS installation appointments
+                    </p>
+                </div>
+
+                {/* Content Section */}
+                <div style={{ padding: '40px' }}>
+                    {/* Filter Section */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        marginBottom: '32px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '16px',
+                            flexWrap: 'wrap'
+                        }}>
+                            <label 
+                                htmlFor="hasMonteurFilter" 
+                                style={{
+                                    color: '#374151',
+                                    fontSize: '16px',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}
+                            >
+                                🔧 Filter by HAS Monteur:
+                            </label>
+                            <select
+                                id="hasMonteurFilter"
+                                value={selectedHASMonteur}
+                                onChange={handleHASMonteurFilter}
+                                style={{
+                                    padding: '12px 16px',
+                                    border: '2px solid #e5e7eb',
+                                    borderRadius: '10px',
+                                    fontSize: '16px',
+                                    fontFamily: 'inherit',
+                                    transition: 'all 0.2s ease',
+                                    backgroundColor: '#ffffff',
+                                    color: '#374151',
+                                    outline: 'none',
+                                    minWidth: '280px',
+                                    cursor: 'pointer'
+                                }}
+                                onFocus={(e) => {
+                                    e.target.style.borderColor = '#667eea';
+                                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.target.style.borderColor = '#e5e7eb';
+                                    e.target.style.boxShadow = 'none';
+                                }}
+                            >
+                                <option value="">All HAS Monteurs</option>
+                                {hasMonteurs.length === 0 ? (
+                                    <option disabled>Loading monteurs...</option>
+                                ) : (
+                                    hasMonteurs.map(monteur => (
+                                        <option key={monteur._id} value={monteur.name}>
+                                            {monteur.name}
+                                        </option>
+                                    ))
+                                )}
+                            </select>
+                            {hasMonteurs.length === 0 && (
+                                <span style={{ 
+                                    color: '#dc3545', 
+                                    fontSize: '14px',
+                                    fontStyle: 'italic'
+                                }}>
+                                    No HAS monteurs found. Check console for debug info.
+                                </span>
+                            )}
+                        </div>
                     </div>
-                )}
+
+                    {/* Calendar Section */}
+                    <div style={{
+                        background: '#ffffff',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                        minHeight: '600px'
+                    }}>
+                        {/* Info Banner */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)',
+                            padding: '16px',
+                            borderBottom: '1px solid #e2e8f0',
+                            textAlign: 'center',
+                            fontSize: '14px',
+                            color: '#2e7d32',
+                            fontWeight: '500'
+                        }}>
+                            🔧 Click on any appointment to view details • Use the filter above to view specific monteur schedules
+                            {selectedHASMonteur && (
+                                <span style={{ marginLeft: '16px', fontWeight: '600' }}>
+                                    • Currently showing: {selectedHASMonteur} ({events.length} appointments)
+                                    {events.length > 0 && (
+                                        <span style={{ marginLeft: '8px', color: '#1976d2' }}>
+                                            📅 Auto-navigated to {currentDisplayMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                        </span>
+                                    )}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Calendar Content */}
+                        <div style={{ padding: '20px', height: '500px' }}>
+                            {loading ? (
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: '100%',
+                                    gap: '20px'
+                                }}>
+                                    <BounceLoader color="#667eea" size={60}/>
+                                    <p style={{color: '#6c757d', fontSize: '16px', margin: '0'}}>Loading appointments...</p>
+                                </div>
+                            ) : (
+                                <Calendar
+                                    localizer={localizer}
+                                    events={events}
+                                    startAccessor="start"
+                                    endAccessor="end"
+                                    style={{ height: '100%' }}
+                                    date={currentDisplayMonth}
+                                    onNavigate={(newDate) => setCurrentDisplayMonth(newDate)}
+                                    onRangeChange={handleRangeChange}
+                                    onSelectEvent={handleEventClick}
+                                    eventPropGetter={eventStyleGetter}
+                                    views={['month', 'week', 'day']}
+                                    defaultView="month"
+                                />
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

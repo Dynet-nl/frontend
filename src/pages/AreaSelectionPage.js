@@ -67,110 +67,224 @@ const AreaSelectionPage = () => {
         }
     }, [axiosPrivate]);
     return (
-        <div className="modern-container">
-            {}
-            <div className="modern-breadcrumb" style={{marginBottom: '24px'}}>
-                <Link to="/city" className="modern-breadcrumb-link">Cities</Link>
-                <span className="modern-breadcrumb-separator">→</span>
-                <span className="modern-breadcrumb-current">{cityName || 'Loading...'}</span>
-            </div>
-            {}
-            <div className="modern-header" style={{marginBottom: '32px'}}>
-                <h1 className="modern-title">Area Management</h1>
-                <p className="modern-subtitle">
-                    Manage areas within <strong>{cityName}</strong> for organized district planning
-                </p>
-            </div>
-            {}
-            <div className="modern-card" style={{marginBottom: '32px'}}>
-                <div className="modern-card-header">
-                    <h2 className="modern-card-title">
-                        <span style={{fontSize: '20px', marginRight: '8px'}}>🗺️</span>
-                        Add New Area
-                    </h2>
-                </div>
-                <div className="modern-card-body">
-                    <AreaForm cityId={cityId} onAddArea={handleAddArea}/>
-                </div>
-            </div>
-            {}
-            {error && (
-                <div className="modern-alert modern-alert-error" style={{marginBottom: '32px'}}>
-                    <span style={{fontSize: '18px', marginRight: '8px'}}>⚠️</span>
-                    {error}
-                    <button 
-                        className="modern-button modern-button-ghost"
-                        onClick={() => setError(null)}
-                        style={{marginLeft: '12px', padding: '4px 8px', fontSize: '12px'}}
-                    >
-                        Dismiss
-                    </button>
-                </div>
-            )}
-            {}
-            <div className="modern-card">
-                <div className="modern-card-header">
-                    <h2 className="modern-card-title">
-                        <span style={{fontSize: '20px', marginRight: '8px'}}>📍</span>
-                        Areas in {cityName} ({areas.length})
-                    </h2>
-                    {!isLoading && (
-                        <button 
-                            className="modern-button modern-button-ghost"
-                            onClick={fetchAreas}
-                            title="Refresh areas list"
+        <div style={{
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            padding: '20px'
+        }}>
+            <div style={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                background: '#ffffff',
+                borderRadius: '20px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+                overflow: 'hidden'
+            }}>
+                {/* Header Section */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                    padding: '40px',
+                    borderBottom: '1px solid #e2e8f0'
+                }}>
+                    {/* Breadcrumb */}
+                    <div style={{
+                        marginBottom: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        fontSize: '16px'
+                    }}>
+                        <Link 
+                            to="/city" 
+                            style={{
+                                color: '#667eea',
+                                textDecoration: 'none',
+                                fontWeight: '500',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}
                         >
-                            🔄 Refresh
-                        </button>
-                    )}
+                            🏙️ Cities
+                        </Link>
+                        <span style={{color: '#6c757d'}}>→</span>
+                        <span style={{color: '#1e293b', fontWeight: '600'}}>{cityName || 'Loading...'}</span>
+                    </div>
+
+                    <div className="modern-header">
+                        <h1 style={{ 
+                            color: '#2c3e50', 
+                            fontSize: '32px', 
+                            fontWeight: '700',
+                            margin: '0 0 10px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}>
+                            <span style={{fontSize: '36px'}}>🗺️</span>
+                            Area Management
+                        </h1>
+                        <p style={{ 
+                            color: '#6c757d', 
+                            fontSize: '18px', 
+                            margin: '0',
+                            fontWeight: '400'
+                        }}>
+                            Manage areas within <strong style={{color: '#1e293b'}}>{cityName}</strong> for organized district planning
+                        </p>
+                    </div>
                 </div>
-                <div className="modern-card-body">
-                    {isLoading ? (
-                        <div className="modern-loading-container">
-                            <BounceLoader color="#3498db" size={40}/>
-                            <p className="modern-text-muted">Loading areas...</p>
-                        </div>
-                    ) : areas.length === 0 ? (
-                        <div className="modern-empty-state">
-                            <div style={{fontSize: '48px', marginBottom: '16px'}}>🗺️</div>
-                            <h3 className="modern-text-muted">No Areas Yet</h3>
-                            <p className="modern-text-muted">Create your first area to organize districts within this city.</p>
-                        </div>
-                    ) : (
-                        <div className="modern-grid">
-                            {areas.map((area) => (
-                                <div key={area._id} className="modern-card-cell">
-                                    <Link to={`/district/${area._id}`} className="modern-card-cell-content">
-                                        <div className="modern-card-cell-icon">
-                                            🗺️
-                                        </div>
-                                        <h3 className="modern-card-cell-title">{area.name}</h3>
-                                        <div className="modern-card-cell-stats">
-                                            <span className="modern-stat-number">{area.numberOfDistricts}</span>
-                                            <span className="modern-stat-label">Districts</span>
-                                        </div>
-                                    </Link>
-                                    <div className="modern-card-cell-actions">
-                                        <button
-                                            onClick={() => handleDeleteArea(area._id)}
-                                            className="modern-button-cell-action modern-button-cell-danger"
-                                            disabled={isDeleting === area._id}
-                                            title="Delete area"
-                                        >
-                                            {isDeleting === area._id ? (
-                                                <BounceLoader color="#fff" size={14}/>
-                                            ) : (
-                                                <>
-                                                    <span style={{fontSize: '14px', marginRight: '4px'}}>🗑️</span>
-                                                    Delete
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+
+                {/* Content Section */}
+                <div style={{ padding: '40px' }}>
+                    {/* Add New Area Section */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        marginBottom: '32px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+                    }}>
+                        <h2 style={{
+                            color: '#1e293b',
+                            fontSize: '24px',
+                            fontWeight: '600',
+                            margin: '0 0 24px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}>
+                            <span style={{fontSize: '24px'}}>➕</span>
+                            Add New Area
+                        </h2>
+                        <AreaForm cityId={cityId} onAddArea={handleAddArea}/>
+                    </div>
+                    {/* Error Display */}
+                    {error && (
+                        <div style={{
+                            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                            border: '2px solid #fecaca',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            marginBottom: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}>
+                            <span style={{fontSize: '24px'}}>⚠️</span>
+                            <span style={{color: '#dc2626', fontWeight: '500', flex: 1}}>{error}</span>
+                            <button 
+                                className="modern-button modern-button-ghost"
+                                onClick={() => setError(null)}
+                                style={{padding: '8px 16px', fontSize: '14px'}}
+                            >
+                                Dismiss
+                            </button>
                         </div>
                     )}
+                    {/* Existing Areas Section */}
+                    <div style={{
+                        background: '#ffffff',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+                    }}>
+                        <div style={{
+                            background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                            padding: '24px',
+                            borderBottom: '1px solid #e2e8f0',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <h2 style={{
+                                color: '#1e293b',
+                                fontSize: '22px',
+                                fontWeight: '600',
+                                margin: '0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px'
+                            }}>
+                                <span style={{fontSize: '22px'}}>📍</span>
+                                Areas in {cityName} ({areas.length})
+                            </h2>
+                            {!isLoading && (
+                                <button 
+                                    className="modern-button modern-button-ghost"
+                                    onClick={fetchAreas}
+                                    title="Refresh areas list"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    🔄 Refresh
+                                </button>
+                            )}
+                        </div>
+                        <div style={{ padding: '32px' }}>
+                            {isLoading ? (
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    padding: '60px 20px',
+                                    gap: '20px'
+                                }}>
+                                    <BounceLoader color="#667eea" size={50}/>
+                                    <p style={{color: '#6c757d', fontSize: '16px', margin: '0'}}>Loading areas...</p>
+                                </div>
+                            ) : areas.length === 0 ? (
+                                <div style={{
+                                    textAlign: 'center',
+                                    padding: '60px 20px',
+                                    color: '#6c757d'
+                                }}>
+                                    <div style={{fontSize: '64px', marginBottom: '20px'}}>🗺️</div>
+                                    <h3 style={{fontSize: '20px', fontWeight: '600', margin: '0 0 12px 0'}}>No Areas Yet</h3>
+                                    <p style={{fontSize: '16px', margin: '0'}}>Create your first area to organize districts within this city.</p>
+                                </div>
+                            ) : (
+                                <div className="modern-grid">
+                                    {areas.map((area) => (
+                                        <div key={area._id} className="modern-card-cell">
+                                            <Link to={`/district/${area._id}`} className="modern-card-cell-content">
+                                                <div className="modern-card-cell-icon">
+                                                    🗺️
+                                                </div>
+                                                <h3 className="modern-card-cell-title">{area.name}</h3>
+                                                <div className="modern-card-cell-stats">
+                                                    <span className="modern-stat-number">{area.numberOfDistricts}</span>
+                                                    <span className="modern-stat-label">Districts</span>
+                                                </div>
+                                            </Link>
+                                            <div className="modern-card-cell-actions">
+                                                <button
+                                                    onClick={() => handleDeleteArea(area._id)}
+                                                    className="modern-button-cell-action modern-button-cell-danger"
+                                                    disabled={isDeleting === area._id}
+                                                    title="Delete area"
+                                                >
+                                                    {isDeleting === area._id ? (
+                                                        <BounceLoader color="#fff" size={14}/>
+                                                    ) : (
+                                                        <>
+                                                            <span style={{fontSize: '14px', marginRight: '4px'}}>🗑️</span>
+                                                            Delete
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

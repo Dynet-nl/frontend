@@ -12,28 +12,33 @@ const UnifiedAppointmentScheduler = ({
 }) => {
     const axiosPrivate = useAxiosPrivate();
     const [loading, setLoading] = useState(false);
-    const [selectedApartments, setSelectedApartments] = useState(preselectedApartments);
-    const [appointmentData, setAppointmentData] = useState({
-        date: new Date().toISOString().split('T')[0],
-        startTime: '',
-        endTime: '',
-        weekNumber: null,
-        type: scheduleType === 'HAS' ? 'HAS' : 'Technical',
-        hasMonteurName: '',
-        technischeSchouwerName: '',
-        complaintDetails: ''
-    });
-    const [availablePersonnel, setAvailablePersonnel] = useState([]);
-    const [flatAppointments, setFlatAppointments] = useState({});
-    const isMultipleMode = apartments.length > 1;
-    const isHASScheduling = scheduleType === 'HAS';
-    const isSingleApartment = apartments.length === 1;
     const calculateWeekNumber = (date) => {
         const currentDate = new Date(date);
         const firstJan = new Date(currentDate.getFullYear(), 0, 1);
         const days = Math.floor((currentDate - firstJan) / (24 * 60 * 60 * 1000));
         return Math.ceil((currentDate.getDay() + 1 + days) / 7);
     };
+
+    const [selectedApartments, setSelectedApartments] = useState(preselectedApartments);
+    const [appointmentData, setAppointmentData] = useState(() => {
+        const today = new Date().toISOString().split('T')[0];
+        return {
+            date: today,
+            startTime: '',
+            endTime: '',
+            weekNumber: calculateWeekNumber(today),
+            type: scheduleType === 'HAS' ? 'HAS' : 'Technical',
+            hasMonteurName: '',
+            technischeSchouwerName: '',
+            complaintDetails: ''
+        };
+    });
+    const [availablePersonnel, setAvailablePersonnel] = useState([]);
+    const [flatAppointments, setFlatAppointments] = useState({});
+    const isMultipleMode = apartments.length > 1;
+    const isHASScheduling = scheduleType === 'HAS';
+    const isSingleApartment = apartments.length === 1;
+
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);

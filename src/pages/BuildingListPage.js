@@ -293,40 +293,198 @@ const BuildingListPage = () => {
                         })}
                 </div>
                 {cableNumbers.length > 0 && (
-                    <div>
-                        <form onSubmit={sendSchedule}>
-                            <div>
-                                <label htmlFor="date">Date</label>
-                                <input
-                                    onChange={(e) => {
-                                        setSchedules({...schedules, date: e.target.value})
-                                    }}
-                                    type="date"
-                                    id="date"
-                                    name="date"
-                                ></input>
+                    <div style={{
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        marginTop: '32px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+                    }}>
+                        <h3 style={{
+                            color: '#1e293b',
+                            fontSize: '24px',
+                            fontWeight: '600',
+                            margin: '0 0 24px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}>
+                            <span style={{fontSize: '24px'}}>📅</span>
+                            Schedule Installation
+                        </h3>
+                        <form onSubmit={sendSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div style={{
+                                display: 'grid',
+                                gap: '20px',
+                                gridTemplateColumns: '1fr',
+                                '@media (min-width: 768px)': {
+                                    gridTemplateColumns: '1fr 1fr 1fr'
+                                }
+                            }}>
+                                <div>
+                                    <label 
+                                        htmlFor="date" 
+                                        style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            color: '#374151',
+                                            fontSize: '16px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        📅 Installation Date
+                                    </label>
+                                    <input
+                                        onChange={(e) => {
+                                            setSchedules({...schedules, date: e.target.value})
+                                        }}
+                                        type="date"
+                                        id="date"
+                                        name="date"
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 16px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '10px',
+                                            fontSize: '16px',
+                                            fontFamily: 'inherit',
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: '#ffffff',
+                                            color: '#374151',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                        onFocus={(e) => {
+                                            e.target.style.borderColor = '#667eea';
+                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.borderColor = '#e5e7eb';
+                                            e.target.style.boxShadow = 'none';
+                                        }}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label 
+                                        htmlFor="from" 
+                                        style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            color: '#374151',
+                                            fontSize: '16px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        🕐 Start Time
+                                    </label>
+                                    <input
+                                        onChange={(e) => {
+                                            setSchedules({...schedules, from: e.target.value})
+                                        }}
+                                        type="time"
+                                        id="from"
+                                        name="from"
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 16px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '10px',
+                                            fontSize: '16px',
+                                            fontFamily: 'inherit',
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: '#ffffff',
+                                            color: '#374151',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                        onFocus={(e) => {
+                                            e.target.style.borderColor = '#667eea';
+                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.borderColor = '#e5e7eb';
+                                            e.target.style.boxShadow = 'none';
+                                        }}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label 
+                                        htmlFor="till" 
+                                        style={{
+                                            display: 'block',
+                                            marginBottom: '8px',
+                                            color: '#374151',
+                                            fontSize: '16px',
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        🕐 End Time
+                                    </label>
+                                    <input
+                                        onChange={(e) => {
+                                            setSchedules({...schedules, till: e.target.value})
+                                        }}
+                                        type="time"
+                                        id="till"
+                                        name="till"
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 16px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '10px',
+                                            fontSize: '16px',
+                                            fontFamily: 'inherit',
+                                            transition: 'all 0.2s ease',
+                                            backgroundColor: '#ffffff',
+                                            color: '#374151',
+                                            outline: 'none',
+                                            boxSizing: 'border-box'
+                                        }}
+                                        onFocus={(e) => {
+                                            e.target.style.borderColor = '#667eea';
+                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.borderColor = '#e5e7eb';
+                                            e.target.style.boxShadow = 'none';
+                                        }}
+                                        required
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="from">From </label>
-                                <input
-                                    onChange={(e) => {
-                                        setSchedules({...schedules, from: e.target.value})
-                                    }}
-                                    type="time"
-                                    id="from"
-                                    name="from"
-                                />
-                                <label htmlFor="till">Till </label>
-                                <input
-                                    onChange={(e) => {
-                                        setSchedules({...schedules, till: e.target.value})
-                                    }}
-                                    type="time"
-                                    id="till"
-                                    name="till"
-                                />
-                            </div>
-                            <button type="submit">Create Schedule</button>
+                            <button 
+                                type="submit"
+                                style={{
+                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '14px 28px',
+                                    borderRadius: '10px',
+                                    fontSize: '16px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    justifyContent: 'center',
+                                    alignSelf: 'flex-start'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = 'none';
+                                }}
+                            >
+                                <span style={{fontSize: '18px'}}>✅</span>
+                                Create Schedule
+                            </button>
                         </form>
                     </div>
                 )}

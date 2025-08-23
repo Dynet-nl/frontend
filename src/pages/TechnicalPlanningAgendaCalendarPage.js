@@ -72,7 +72,7 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
                     return {
                         id: flat._id,
-                        title: `Appointment at ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
+                        title: `Technical Inspection - ${flat.complexNaam || `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`}`,
                         start: startDateTime,
                         end: endDateTime,
                         personName: flat.technischePlanning.technischeSchouwerName, 
@@ -108,27 +108,50 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                 event.personName === selectedName
             );
             setEvents(filteredEvents);
+            
+            // Auto-navigate to the month of the first appointment for this schouwer
+            if (filteredEvents.length > 0) {
+                const firstAppointment = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start))[0];
+                const appointmentMonth = new Date(firstAppointment.start);
+                setCurrentDisplayMonth(appointmentMonth);
+                console.log(`Auto-navigated to ${appointmentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} for ${selectedName}'s first appointment`);
+            }
         }
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
             setCurrentRange(range);
-            setCurrentDisplayMonth(range.start); 
+            // Don't set currentDisplayMonth here to avoid navigation conflicts
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
     const handleEventClick = (event) => {
         const {resource} = event;
         alert(`
-            Appointment Details:
-            -------------------
-            Address: ${resource.address}
-            Phone: ${resource.phone}
-            Notes: ${resource.notes}
-            Complex Name: ${resource.complexNaam}
+            📋 Technical Inspection Details
+            ═══════════════════════════════
+            🏠 Address: ${resource.address}
+            📞 Phone: ${resource.phone}
+            📝 Notes: ${resource.notes}
+            🏢 Complex: ${resource.complexNaam}
+            👷 Inspector: ${event.personName || 'Not assigned'}
         `);
     };
     const eventStyleGetter = (event) => {
+        // Calculate duration in minutes
+        const duration = event.end && event.start 
+            ? (event.end - event.start) / (1000 * 60) // Convert milliseconds to minutes
+            : 60; // Default to 60 minutes if no end time
+        
+        // Calculate height based on duration - same logic as HAS calendar
+        const baseHeight = 40; // Minimum height for any appointment
+        const heightPerHour = 30; // Additional height per hour
+        const durationInHours = duration / 60;
+        const calculatedHeight = baseHeight + (durationInHours * heightPerHour);
+        
+        // Minimum height should be baseHeight, maximum reasonable height
+        const finalHeight = Math.max(baseHeight, Math.min(calculatedHeight, 120));
+        
         return {
             style: {
                 backgroundColor: '#3498db',
@@ -137,131 +160,188 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                 color: 'white',
                 border: '1px solid #2980b9',
                 display: 'block',
-                padding: '5px 10px'
+                padding: '5px 10px',
+                height: `${finalHeight}px`,
+                minHeight: `${baseHeight}px`,
+                overflow: 'hidden',
+                fontSize: '12px',
+                fontWeight: '500',
+                lineHeight: '1.3'
             }
         };
     };
     return (
         <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100vh',
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             padding: '20px'
         }}>
             <div style={{
-                width: '100%',
-                marginBottom: '20px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#f0f0f0',
-                padding: '15px',
-                borderRadius: '8px'
-            }}>
-                {technischeSchouwers.length > 0 && (
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}>
-                        <label htmlFor="schouwerFilter" style={{
-                            marginRight: '10px',
-                            fontWeight: 'bold'
-                        }}>
-                            Select Technische Schouwer:
-                        </label>
-                        <select
-                            id="schouwerFilter"
-                            value={selectedSchouwer}
-                            onChange={handleSchouwerFilter}
-                            style={{
-                                padding: '8px',
-                                borderRadius: '4px',
-                                border: '1px solid #ccc',
-                                minWidth: '250px'
-                            }}
-                        >
-                            <option value="">All Technische Schouwers</option>
-                            {technischeSchouwers.map(schouwer => (
-                                <option key={schouwer._id} value={schouwer.name}>
-                                    {schouwer.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
-            </div>
-            <div style={{
-                backgroundColor: '#e8f4fd',
-                padding: '10px',
-                borderRadius: '5px',
-                marginBottom: '10px',
-                textAlign: 'center',
-                fontSize: '14px',
-                color: '#1e3a5f',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <span>💡 <strong>Navigation:</strong> Use "Vorige" and "Volgende" buttons to view appointments from different months</span>
-                <span style={{ fontWeight: 'bold' }}>
-                    Viewing: {format(currentDisplayMonth, 'MMMM yyyy', { locale: locales.nl })}
-                </span>
-            </div>
-            <div style={{
-                flex: 1,
-                position: 'relative',
+                maxWidth: '1400px',
+                margin: '0 auto',
+                background: '#ffffff',
+                borderRadius: '20px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
                 overflow: 'hidden'
             }}>
-                <Calendar
-                    localizer={localizer}
-                    events={events}
-                    startAccessor="start"
-                    endAccessor="end"
-                    onSelectEvent={handleEventClick}
-                    eventPropGetter={eventStyleGetter}
-                    views={['month', 'week', 'day', 'agenda']}
-                    defaultView='month' 
-                    step={30}
-                    timeslots={2}
-                    onRangeChange={handleRangeChange} 
-                    showMultiDayTimes={true}
-                    popup={true}
-                    popupOffset={30}
-                    tooltipAccessor={event => `${event.title}\nPhone: ${event.resource.phone}\nSchouwer: ${event.personName}`}
-                    messages={{
-                        next: "Volgende",
-                        previous: "Vorige",
-                        today: "Vandaag",
-                        month: "Maand",
-                        week: "Week",
-                        day: "Dag",
-                        agenda: "Agenda",
-                        noEventsInRange: "Geen afspraken in deze periode",
-                        showMore: total => `+ ${total} meer`,
-                    }}
-                    formats={{
-                        monthHeaderFormat: 'MMMM yyyy',
-                        dayHeaderFormat: 'dddd, MMMM do',
-                        dayRangeHeaderFormat: ({start, end}, culture, localizer) =>
-                            localizer.format(start, 'MMMM dd', culture) + ' - ' + 
-                            localizer.format(end, 'MMMM dd, yyyy', culture)
-                    }}
-                />
-                {loading && (
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                {/* Header Section */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                    padding: '40px',
+                    borderBottom: '1px solid #e2e8f0'
+                }}>
+                    <h1 style={{ 
+                        color: '#2c3e50', 
+                        fontSize: '32px', 
+                        fontWeight: '700',
+                        margin: '0 0 10px 0',
                         display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        gap: '12px'
                     }}>
-                        <BounceLoader color="#3498db"/>
+                        <span style={{fontSize: '36px'}}>📅</span>
+                        Technical Planning Calendar
+                    </h1>
+                    <p style={{ 
+                        color: '#6c757d', 
+                        fontSize: '18px', 
+                        margin: '0',
+                        fontWeight: '400'
+                    }}>
+                        View and manage technical inspection appointments
+                    </p>
+                </div>
+
+                {/* Content Section */}
+                <div style={{ padding: '40px' }}>
+                    {/* Filter Section */}
+                    {technischeSchouwers.length > 0 && (
+                        <div style={{
+                            background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+                            border: '2px solid #e2e8f0',
+                            borderRadius: '16px',
+                            padding: '24px',
+                            marginBottom: '32px',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px',
+                                flexWrap: 'wrap'
+                            }}>
+                                <label 
+                                    htmlFor="schouwerFilter" 
+                                    style={{
+                                        color: '#374151',
+                                        fontSize: '16px',
+                                        fontWeight: '600',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    👷 Filter by Inspector:
+                                </label>
+                                <select
+                                    id="schouwerFilter"
+                                    value={selectedSchouwer}
+                                    onChange={handleSchouwerFilter}
+                                    style={{
+                                        padding: '12px 16px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '10px',
+                                        fontSize: '16px',
+                                        fontFamily: 'inherit',
+                                        transition: 'all 0.2s ease',
+                                        backgroundColor: '#ffffff',
+                                        color: '#374151',
+                                        outline: 'none',
+                                        minWidth: '280px',
+                                        cursor: 'pointer'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#667eea';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = '#e5e7eb';
+                                        e.target.style.boxShadow = 'none';
+                                    }}
+                                >
+                                    <option value="">All Technical Inspectors</option>
+                                    {technischeSchouwers.map(schouwer => (
+                                        <option key={schouwer._id} value={schouwer.name}>
+                                            {schouwer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Calendar Section */}
+                    <div style={{
+                        background: '#ffffff',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                        minHeight: '600px'
+                    }}>
+                        {/* Info Banner */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%)',
+                            padding: '16px',
+                            borderBottom: '1px solid #e2e8f0',
+                            textAlign: 'center',
+                            fontSize: '14px',
+                            color: '#0277bd',
+                            fontWeight: '500'
+                        }}>
+                            📋 Click on any appointment to view details • Use the filter above to view specific inspector schedules
+                            {selectedSchouwer && (
+                                <div style={{ marginTop: '8px', fontSize: '13px', color: '#1565c0' }}>
+                                    • Currently showing: {selectedSchouwer} ({events.length} appointments)
+                                    <br />
+                                    📅 Auto-navigated to {currentDisplayMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Calendar Content */}
+                        <div style={{ padding: '20px', height: '500px' }}>
+                            {loading ? (
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: '100%',
+                                    gap: '20px'
+                                }}>
+                                    <BounceLoader color="#667eea" size={60}/>
+                                    <p style={{color: '#6c757d', fontSize: '16px', margin: '0'}}>Loading appointments...</p>
+                                </div>
+                            ) : (
+                                <Calendar
+                                    localizer={localizer}
+                                    events={events}
+                                    startAccessor="start"
+                                    endAccessor="end"
+                                    style={{ height: '100%' }}
+                                    date={currentDisplayMonth}
+                                    onNavigate={(newDate) => setCurrentDisplayMonth(newDate)}
+                                    onRangeChange={handleRangeChange}
+                                    onSelectEvent={handleEventClick}
+                                    eventPropGetter={eventStyleGetter}
+                                    views={['month', 'week', 'day']}
+                                    defaultView="month"
+                                />
+                            )}
+                        </div>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );

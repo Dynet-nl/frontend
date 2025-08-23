@@ -1,9 +1,10 @@
 // Admin dashboard page displaying system statistics, user management, and administrative tools.
 
 import React, {useEffect, useState} from 'react';
-import {Button, FormControl, InputLabel, MenuItem, Select, TextField} from '@mui/material';
 import axiosPrivate from '../api/axios';
 import Users from '../components/Users';
+import '../styles/login.css';
+import '../styles/admin.css';
 const AdminDashboardPage = () => {
     const [errors, setErrors] = useState({
         name: false,
@@ -18,6 +19,11 @@ const AdminDashboardPage = () => {
         roles: [],
     });
     const [roles, setRoles] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [userListKey, setUserListKey] = useState(0);
+    const [showCreateForm, setShowCreateForm] = useState(false);
     useEffect(() => {
         const fetchRoles = async () => {
             try {
@@ -44,6 +50,9 @@ const AdminDashboardPage = () => {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSuccessMessage('');
+        setErrorMessage('');
+        
         const newErrors = {
             name: !userData.name,
             email: !userData.email || !validateEmail(userData.email),
@@ -51,78 +60,168 @@ const AdminDashboardPage = () => {
             role: !userData.roles.length,
         };
         setErrors(newErrors);
+        
         const allFieldsFilled = !Object.values(newErrors).some((error) => error);
         if (allFieldsFilled) {
             try {
-                const response = await axiosPrivate.post('/api/users', userData);
+                setIsLoading(true);
+                await axiosPrivate.post('/api/users', userData);
                 setUserData({name: '', email: '', password: '', roles: []});
+                setSuccessMessage('User created successfully!');
+                setUserListKey(prev => prev + 1); // Trigger refresh of users list
+                setShowCreateForm(false); // Hide form after successful creation
+                setTimeout(() => setSuccessMessage(''), 3000);
             } catch (error) {
                 console.error('Error adding user:', error.response ? error.response.data : error);
+                setErrorMessage(error.response?.data?.message || 'Failed to create user. Please try again.');
+                setTimeout(() => setErrorMessage(''), 5000);
+            } finally {
+                setIsLoading(false);
             }
         }
     };
     return (
-        <div>
-            <div>
-                <Users/>
+        <div className="admin-dashboard">
+            <div className="admin-container">
+                <div className="admin-header">
+                    <h1 className="admin-title">Admin Dashboard</h1>
+                    <p className="admin-subtitle">Manage users and system settings</p>
+                </div>
+
+                <div className="admin-content">
+                    <div className="admin-card users-main-card">
+                        <div className="card-header">
+                            <div className="card-header-content">
+                                <div>
+                                    <h2 className="card-title">User Management</h2>
+                                    <p className="card-subtitle">Manage existing users and create new ones</p>
+                                </div>
+                                <button 
+                                    className={`toggle-create-btn ${showCreateForm ? 'active' : ''}`}
+                                    onClick={() => setShowCreateForm(!showCreateForm)}
+                                >
+                                    {showCreateForm ? '− Cancel' : '+ Create User'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Collapsible Create Form */}
+                        <div className={`create-form-container ${showCreateForm ? 'expanded' : ''}`}>
+                            <div className="create-form-content">
+                                <h3 className="create-form-title">Create New User</h3>
+                                <form className="modern-form" onSubmit={handleSubmit}>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label htmlFor="name" className="form-label">Full Name</label>
+                                            <input
+                                                id="name"
+                                                type="text"
+                                                className="modern-input"
+                                                placeholder="Enter full name"
+                                                name="name"
+                                                value={userData.name}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            {errors.name && <span className="form-error">Name is required</span>}
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label htmlFor="email" className="form-label">Email Address</label>
+                                            <input
+                                                id="email"
+                                                type="email"
+                                                className="modern-input"
+                                                placeholder="Enter email address"
+                                                name="email"
+                                                value={userData.email}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            {errors.email && (
+                                                <span className="form-error">
+                                                    {userData.email ? "Invalid email format" : "Email is required"}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label htmlFor="password" className="form-label">Password</label>
+                                            <input
+                                                id="password"
+                                                type="password"
+                                                className="modern-input"
+                                                placeholder="Enter password"
+                                                name="password"
+                                                value={userData.password}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            {errors.password && <span className="form-error">Password is required</span>}
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label htmlFor="role" className="form-label">Role</label>
+                                            <select
+                                                id="role"
+                                                className="modern-select"
+                                                name="roles"
+                                                value={userData.roles[0] || ''}
+                                                onChange={handleRoleChange}
+                                                required
+                                            >
+                                                <option value="" disabled>Select a role</option>
+                                                {roles.map((role) => (
+                                                    <option key={role.value} value={role.role}>
+                                                        {role.role}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.role && <span className="form-error">Role is required</span>}
+                                        </div>
+                                    </div>
+
+                                    {successMessage && (
+                                        <div className="success-message">
+                                            ✅ {successMessage}
+                                        </div>
+                                    )}
+
+                                    {errorMessage && (
+                                        <div className="error-message">
+                                            ❌ {errorMessage}
+                                        </div>
+                                    )}
+
+                                    <div className="form-actions">
+                                        <button 
+                                            type="button"
+                                            className="modern-button modern-button-secondary"
+                                            onClick={() => setShowCreateForm(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            type="submit" 
+                                            className="modern-button modern-button-primary"
+                                            disabled={isLoading}
+                                        >
+                                            {isLoading ? 'Creating User...' : 'Create User'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {/* Users List */}
+                        <div className="users-list-container">
+                            <Users key={userListKey} />
+                        </div>
+                    </div>
+                </div>
             </div>
-            <form onSubmit={handleSubmit}
-                  style={{display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '300px', margin: 'auto'}}>
-                <TextField
-                    label="Name"
-                    variant="outlined"
-                    name="name"
-                    value={userData.name}
-                    onChange={handleChange}
-                    error={errors.name}
-                    helperText={errors.name ? "Name is required" : ""}
-                />
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    name="email"
-                    type="email"
-                    value={userData.email}
-                    onChange={handleChange}
-                    error={errors.email}
-                    helperText={errors.email ? (userData.email ? "Invalid email format" : "Email is required") : ""}
-                />
-                <TextField
-                    label="Password"
-                    variant="outlined"
-                    name="password"
-                    type="password"
-                    value={userData.password}
-                    onChange={handleChange}
-                    error={errors.password}
-                    helperText={errors.password ? "Password is required" : ""}
-                />
-                <FormControl fullWidth>
-                    <InputLabel id="role-select-label">Role</InputLabel>
-                    <Select
-                        labelId="role-select-label"
-                        id="role-select"
-                        value={userData.roles[0] || ''}
-                        label="Role"
-                        name="roles"
-                        onChange={handleRoleChange}
-                    >
-                        <MenuItem value="" disabled>
-                            <em>Select a role</em>
-                        </MenuItem>
-                        {roles.map((role) => (
-                            <MenuItem key={role.value} value={role.role}>
-                                {role.role}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    {errors.role &&
-                        <p style={{color: 'red', fontSize: '0.75rem', margin: '3px 14px 0'}}>Role is required</p>}
-                </FormControl>
-                <Button type="submit" variant="contained" color="primary">
-                    Create User
-                </Button>
-            </form>
         </div>
     );
 };

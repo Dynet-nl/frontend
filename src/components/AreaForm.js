@@ -18,39 +18,110 @@ const AreaForm = ({cityId, onAddArea}) => {
         }
     };
     return (
-        <form onSubmit={handleSubmit} className="modern-form">
-            <div className="modern-form-group">
-                <label htmlFor="areaName" className="modern-label">
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <div style={{ marginBottom: '20px' }}>
+                <label 
+                    htmlFor="areaName" 
+                    style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        color: '#374151',
+                        fontSize: '16px',
+                        fontWeight: '500'
+                    }}
+                >
                     Area Name
                 </label>
                 <input
                     id="areaName"
                     type="text"
-                    className="modern-input"
                     value={areaName}
                     onChange={(e) => setAreaName(e.target.value)}
                     placeholder="Enter area name..."
                     required
                     disabled={isSubmitting}
+                    style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '10px',
+                        fontSize: '16px',
+                        fontFamily: 'inherit',
+                        transition: 'all 0.2s ease',
+                        backgroundColor: isSubmitting ? '#f9fafb' : '#ffffff',
+                        color: '#374151',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => {
+                        e.target.style.borderColor = '#667eea';
+                        e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                    }}
+                    onBlur={(e) => {
+                        e.target.style.borderColor = '#e5e7eb';
+                        e.target.style.boxShadow = 'none';
+                    }}
                 />
             </div>
             <button 
                 type="submit" 
-                className="modern-button modern-button-primary"
                 disabled={isSubmitting || !areaName.trim()}
+                style={{
+                    background: isSubmitting || !areaName.trim() 
+                        ? 'linear-gradient(135deg, #9ca3af, #6b7280)' 
+                        : 'linear-gradient(135deg, #667eea, #764ba2)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '10px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: isSubmitting || !areaName.trim() ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    justifyContent: 'center',
+                    minWidth: '140px'
+                }}
+                onMouseEnter={(e) => {
+                    if (!isSubmitting && areaName.trim()) {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
+                    }
+                }}
+                onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = 'none';
+                }}
             >
                 {isSubmitting ? (
                     <>
-                        <span className="modern-spinner"></span>
+                        <div style={{
+                            width: '16px',
+                            height: '16px',
+                            border: '2px solid #ffffff',
+                            borderTop: '2px solid transparent',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                        }}></div>
                         Adding Area...
                     </>
                 ) : (
                     <>
-                        <span style={{fontSize: '16px', marginRight: '8px'}}>➕</span>
+                        <span style={{fontSize: '16px'}}>➕</span>
                         Add Area
                     </>
                 )}
             </button>
+            <style>
+                {`
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}
+            </style>
         </form>
     );
 };

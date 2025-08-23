@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import ROLES_LIST from '../context/roles_list';
+import { getStatusColor, getStatusText } from '../utils/statusUtils';
 import '../styles/optimizedApartmentDetails.css';
 
 const OptimizedApartmentDetails = () => {
@@ -51,25 +52,7 @@ const OptimizedApartmentDetails = () => {
         );
     }
 
-    // Status indicators
-    const getStatusColor = (status) => {
-        switch (status) {
-            case '2': return '#4CAF50'; // Green - Completed
-            case '1': return '#FF9800'; // Orange - In Progress
-            case '0': return '#F44336'; // Red - Not Started
-            default: return '#9E9E9E'; // Gray - Unknown
-        }
-    };
-
-    const getStatusText = (status) => {
-        switch (status) {
-            case '2': return 'Completed';
-            case '1': return 'In Progress';
-            case '0': return 'Not Started';
-            default: return 'Unknown';
-        }
-    };
-
+    // Status indicators - now using centralized utility functions
     const hasAppointment = apartment.technischePlanning?.appointmentBooked?.date || apartment.hasMonteur?.appointmentBooked?.date;
     const appointmentType = apartment.technischePlanning?.appointmentBooked?.date ? 'Technical' : 
                            apartment.hasMonteur?.appointmentBooked?.date ? 'HAS' : null;
@@ -91,7 +74,7 @@ const OptimizedApartmentDetails = () => {
                         style={{ backgroundColor: getStatusColor(apartment.fcStatusHas) }}
                         title={`Status: ${getStatusText(apartment.fcStatusHas)}`}
                     >
-                        {apartment.fcStatusHas}
+                        {getStatusText(apartment.fcStatusHas)}
                     </div>
                 </div>
             </div>
