@@ -119,7 +119,8 @@ const Users = () => {
         setEditingUser({
             ...user,
             password: '', // Don't pre-fill password
-            roleToEdit: getUserRole(user.roles)
+            roleToEdit: getUserRole(user.roles),
+            color: user.color || '#3498db'
         });
     };
 
@@ -130,7 +131,8 @@ const Users = () => {
             const updateData = {
                 name: editingUser.name,
                 email: editingUser.email,
-                roles: editingUser.roleToEdit ? [editingUser.roleToEdit] : []
+                roles: editingUser.roleToEdit ? [editingUser.roleToEdit] : [],
+                color: editingUser.color || '#3498db'
             };
             
             // Only include password if it's not empty
@@ -337,6 +339,44 @@ const Users = () => {
                                     <option value="HASMonteur">HAS Monteur</option>
                                 </select>
                             </div>
+                            <div className="form-group">
+                                <label>User Color</label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <input
+                                        type="color"
+                                        className="color-picker"
+                                        value={editingUser.color || '#3498db'}
+                                        onChange={(e) => setEditingUser({...editingUser, color: e.target.value})}
+                                        style={{ 
+                                            width: '50px', 
+                                            height: '40px', 
+                                            border: '1px solid #ddd', 
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    />
+                                    <input
+                                        type="text"
+                                        className="modern-input"
+                                        value={editingUser.color || '#3498db'}
+                                        onChange={(e) => setEditingUser({...editingUser, color: e.target.value})}
+                                        placeholder="#3498db"
+                                        pattern="^#[0-9A-Fa-f]{6}$"
+                                        title="Enter a valid hex color code (e.g., #3498db)"
+                                        style={{ flex: '1' }}
+                                    />
+                                    <div 
+                                        style={{ 
+                                            width: '30px', 
+                                            height: '30px', 
+                                            backgroundColor: editingUser.color || '#3498db',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px'
+                                        }}
+                                        title="Color preview"
+                                    />
+                                </div>
+                            </div>
                             <div className="modal-actions">
                                 <button 
                                     type="button"
@@ -398,7 +438,21 @@ const Users = () => {
                 {currentUsers.map((user) => (
                     <div key={user._id} className="user-card">
                         <div className="user-info">
-                            <div className="user-name">{user?.name || 'Unknown User'}</div>
+                            <div className="user-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div 
+                                    className="user-color-indicator"
+                                    style={{ 
+                                        width: '16px', 
+                                        height: '16px', 
+                                        backgroundColor: user.color || '#3498db',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '50%',
+                                        flexShrink: 0
+                                    }}
+                                    title={`User color: ${user.color || '#3498db'}`}
+                                />
+                                {user?.name || 'Unknown User'}
+                            </div>
                             <div className="user-email">{user.email}</div>
                             <div className="user-role">
                                 <span className={`role-badge role-${getUserRole(user.roles).toLowerCase()}`}>

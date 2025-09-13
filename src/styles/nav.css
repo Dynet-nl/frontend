@@ -112,8 +112,15 @@ nav a:active {
 /* Active link styling */
 nav a.active {
     color: #3498db;
-    background-color: rgba(52, 152, 219, 0.1);
+    background-color: rgba(52, 152, 219, 0.15);
     font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(52, 152, 219, 0.2);
+}
+
+/* Hover effect should not override active state */
+nav a.active:hover {
+    color: #3498db;
+    background-color: rgba(52, 152, 219, 0.2);
 }
 
 /* Logo/Brand section - Mobile optimized */
@@ -166,6 +173,18 @@ nav a.active {
     flex-direction: column;
     gap: 4px;
     margin-bottom: 12px;
+}
+
+/* Mobile-specific active state enhancements */
+@media (max-width: 767px) {
+    nav a.active {
+        border-left: 3px solid #3498db;
+        padding-left: 13px; /* Adjust for border */
+    }
+    
+    .nav-mobile-links nav a.active {
+        background-color: rgba(52, 152, 219, 0.12);
+    }
 }
 
 /* Tablet styles: 768px and up */

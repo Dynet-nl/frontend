@@ -1,0 +1,1072 @@
+
+> dynet@0.1.0 start
+> react-scripts start
+
+(node:36258) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:36258) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view dynet in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://192.168.1.17:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+(node:36258) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 95:11:  'generateHBNumber' is assigned a value but never used                                                                    no-unused-vars
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 95:11:  'generateHBNumber' is assigned a value but never used                                                                    no-unused-vars
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 342:31:  'hbNumber' is assigned a value but never used                                                                            no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 342:31:  'hbNumber' is assigned a value but never used                                                                            no-unused-vars
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 34:11:  'generateHBNumber' is assigned a value but never used                                                                                      no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 34:11:  'generateHBNumber' is assigned a value but never used                                                                                      no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 32:11:  'generateHBNumber' is assigned a value but never used                                                                                              no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 32:11:  'generateHBNumber' is assigned a value but never used                                                                                              no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:  React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:  React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/components/BuildingsList.js
+Syntax error: Unexpected token, expected "," (419:25) (419:25)
+WARNING in [eslint] 
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+ERROR in ./src/components/BuildingsList.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/oday/Developer/Dynet/frontend/src/components/BuildingsList.js: Unexpected token, expected "," (419:25)
+
+  417 |                                 </div>
+  418 |                             );
+> 419 |                         };
+      |                          ^
+  420 |                         
+  421 |                         return (
+  422 |                             <div key={index} className="buildingContainer">
+    at instantiate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:64:32)
+    at constructor (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:361:12)
+    at FlowParserMixin.raise (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:3251:19)
+    at FlowParserMixin.unexpected (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:3281:16)
+    at FlowParserMixin.expect (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:3627:28)
+    at FlowParserMixin.parseCallExpressionArguments (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:11022:14)
+    at FlowParserMixin.parseCoverCallAndAsyncArrowHead (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10951:29)
+    at FlowParserMixin.parseSubscript (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10886:19)
+    at FlowParserMixin.parseSubscript (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:5920:18)
+    at FlowParserMixin.parseSubscripts (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10862:19)
+    at FlowParserMixin.parseSubscripts (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:5886:18)
+    at FlowParserMixin.parseExprSubscripts (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10853:17)
+    at FlowParserMixin.parseUpdate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10832:21)
+    at FlowParserMixin.parseMaybeUnary (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10808:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10646:61)
+    at FlowParserMixin.parseExprOps (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10651:23)
+    at FlowParserMixin.parseMaybeConditional (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10628:23)
+    at FlowParserMixin.parseMaybeAssign (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10589:21)
+    at FlowParserMixin.parseMaybeAssign (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:5817:18)
+    at FlowParserMixin.parseExpressionBase (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10543:23)
+    at /Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10539:39
+    at FlowParserMixin.allowInAnd (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:12238:12)
+    at FlowParserMixin.parseExpression (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10539:17)
+    at FlowParserMixin.jsxParseExpressionContainer (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:6853:31)
+    at FlowParserMixin.jsxParseElementAt (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:6932:36)
+    at FlowParserMixin.jsxParseElement (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:6976:17)
+    at FlowParserMixin.parseExprAtom (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:6988:19)
+    at FlowParserMixin.parseExprSubscripts (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10849:23)
+    at FlowParserMixin.parseUpdate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10832:21)
+    at FlowParserMixin.parseMaybeUnary (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10808:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10646:61)
+    at FlowParserMixin.parseExprOps (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10651:23)
+    at FlowParserMixin.parseMaybeConditional (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10628:23)
+    at FlowParserMixin.parseMaybeAssign (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10589:21)
+    at /Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:5762:39
+    at FlowParserMixin.tryParse (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:3634:20)
+    at FlowParserMixin.parseMaybeAssign (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:5762:18)
+    at /Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10559:39
+    at FlowParserMixin.allowInAnd (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:12238:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10559:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:11462:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:5861:18)
+    at FlowParserMixin.parseExprAtom (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:11113:23)
+    at FlowParserMixin.parseExprAtom (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:6993:20)
+    at FlowParserMixin.parseExprSubscripts (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10849:23)
+    at FlowParserMixin.parseUpdate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10832:21)
+    at FlowParserMixin.parseMaybeUnary (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10808:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10646:61)
+    at FlowParserMixin.parseExprOps (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10651:23)
+    at FlowParserMixin.parseMaybeConditional (/Users/oday/Developer/Dynet/frontend/node_modules/@babel/parser/lib/index.js:10628:23)
+
+ERROR in [eslint] 
+src/components/BuildingsList.js
+  Line 419:25:  Parsing error: Unexpected token, expected "," (419:25)
+
+webpack compiled with 2 errors and 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+  Line 357:35:  'flatsPerFloor' is assigned a value but never used                                                                       no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+  Line 357:35:  'flatsPerFloor' is assigned a value but never used                                                                       no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+  Line 357:35:  'flatsPerFloor' is assigned a value but never used                                                                       no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+  Line 357:35:  'flatsPerFloor' is assigned a value but never used                                                                       no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 356:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 358:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 358:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 358:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 170:8:   React Hook useCallback has a missing dependency: 'categorizeBuilding'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 246:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 358:35:  'floorsCount' is assigned a value but never used                                                                         no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 260:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 372:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 260:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 372:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 260:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 384:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 260:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 384:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 272:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 396:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 272:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 396:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 127:11:  'hasAnyAppointment' is assigned a value but never used                                                        no-unused-vars
+  Line 138:11:  'isFlatCompleted' is assigned a value but never used                                                          no-unused-vars
+  Line 284:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 408:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 127:11:  'hasAnyAppointment' is assigned a value but never used                                                        no-unused-vars
+  Line 138:11:  'isFlatCompleted' is assigned a value but never used                                                          no-unused-vars
+  Line 284:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 408:35:  'floorsCount' is assigned a value but never used                                                              no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 276:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 400:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 276:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 400:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 276:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 400:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 276:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 400:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 276:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 400:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 276:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 400:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 313:26:  'categorizedBuildings' is not defined  no-undef
+  Line 315:42:  'categorizedBuildings' is not defined  no-undef
+  Line 316:9:   'categorizedBuildings' is not defined  no-undef
+  Line 322:34:  'categorizedBuildings' is not defined  no-undef
+  Line 325:16:  'categorizedBuildings' is not defined  no-undef
+  Line 326:9:   'categorizedBuildings' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 141:11:  'filterBuildings' is assigned a value but never used                                                                                                                                                                                                        no-unused-vars
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array                                                                                                              react-hooks/exhaustive-deps
+  Line 275:11:  'filterCounts' is assigned a value but never used                                                                                                                                                                                                           no-unused-vars
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array                                                                                                                  react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'categorizedBuildings'. Either exclude it or remove the dependency array. Outer scope values like 'categorizedBuildings' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+  Line 326:8:   React Hook useMemo has an unnecessary dependency: 'categorizedBuildings'. Either exclude it or remove the dependency array. Outer scope values like 'categorizedBuildings' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+  Line 436:35:  'floorsCount' is assigned a value but never used                                                                                                                                                                                                            no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+ERROR in [eslint] 
+src/components/BuildingsList.js
+  Line 313:26:  'categorizedBuildings' is not defined  no-undef
+  Line 315:42:  'categorizedBuildings' is not defined  no-undef
+  Line 316:9:   'categorizedBuildings' is not defined  no-undef
+  Line 322:34:  'categorizedBuildings' is not defined  no-undef
+  Line 325:16:  'categorizedBuildings' is not defined  no-undef
+  Line 326:9:   'categorizedBuildings' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error and 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 275:11:  'filterCounts' is assigned a value but never used                                                                                               no-unused-vars
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 440:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 275:11:  'filterCounts' is assigned a value but never used                                                                                               no-unused-vars
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 440:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 440:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 440:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 440:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 200:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 312:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 316:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 440:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 59:11:   'clearAllFilters' is assigned a value but never used                                                                                            no-unused-vars
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 446:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 59:11:   'clearAllFilters' is assigned a value but never used                                                                                            no-unused-vars
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 446:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 455:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 455:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 455:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 455:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/BuildingsList.js
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 455:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/BuildingsList.js
+  Line 206:8:   React Hook useCallback has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 318:8:   React Hook useMemo has missing dependencies: 'hasAnyAppointment' and 'isFlatCompleted'. Either include them or remove the dependency array      react-hooks/exhaustive-deps
+  Line 322:8:   React Hook useMemo has an unnecessary dependency: 'filter'. Either exclude it or remove the dependency array                                    react-hooks/exhaustive-deps
+  Line 455:35:  'floorsCount' is assigned a value but never used                                                                                                no-unused-vars
+
+src/pages/HASPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                              no-unused-vars
+  Line 122:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchHASMonteurs'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/TechnicalPlanningApartmentSchedulePage.js
+  Line 9:11:   'navigate' is assigned a value but never used                                                                                                      no-unused-vars
+  Line 116:8:  React Hook useEffect has missing dependencies: 'fetchBuilding' and 'fetchTechnischeSchouwers'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning

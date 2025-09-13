@@ -17,6 +17,7 @@ const AdminDashboardPage = () => {
         email: '',
         password: '',
         roles: [],
+        color: '#3498db'
     });
     const [roles, setRoles] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +67,7 @@ const AdminDashboardPage = () => {
             try {
                 setIsLoading(true);
                 await axiosPrivate.post('/api/users', userData);
-                setUserData({name: '', email: '', password: '', roles: []});
+                setUserData({name: '', email: '', password: '', roles: [], color: '#3498db'});
                 setSuccessMessage('User created successfully!');
                 setUserListKey(prev => prev + 1); // Trigger refresh of users list
                 setShowCreateForm(false); // Hide form after successful creation
@@ -180,6 +181,48 @@ const AdminDashboardPage = () => {
                                                 ))}
                                             </select>
                                             {errors.role && <span className="form-error">Role is required</span>}
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label htmlFor="color" className="form-label">User Color</label>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <input
+                                                    id="color"
+                                                    type="color"
+                                                    className="color-picker"
+                                                    value={userData.color}
+                                                    onChange={(e) => setUserData({...userData, color: e.target.value})}
+                                                    style={{ 
+                                                        width: '50px', 
+                                                        height: '40px', 
+                                                        border: '1px solid #ddd', 
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    className="modern-input"
+                                                    value={userData.color}
+                                                    onChange={(e) => setUserData({...userData, color: e.target.value})}
+                                                    placeholder="#3498db"
+                                                    pattern="^#[0-9A-Fa-f]{6}$"
+                                                    title="Enter a valid hex color code (e.g., #3498db)"
+                                                    style={{ flex: '1' }}
+                                                />
+                                                <div 
+                                                    style={{ 
+                                                        width: '30px', 
+                                                        height: '30px', 
+                                                        backgroundColor: userData.color,
+                                                        border: '1px solid #ddd',
+                                                        borderRadius: '4px'
+                                                    }}
+                                                    title="Color preview"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 

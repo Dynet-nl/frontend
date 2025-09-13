@@ -637,6 +637,29 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 14px;
+    position: relative;
+}
+
+/* Filter count styling */
+.filter-count {
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+/* Clear filters button */
+.clear-filters {
+    background-color: #e74c3c !important;
+    border-color: #e74c3c !important;
+    color: white !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+}
+
+.clear-filters:hover {
+    background-color: #c0392b !important;
+    border-color: #c0392b !important;
 }
 
 .filterButtons button:hover {

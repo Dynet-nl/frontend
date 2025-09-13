@@ -9,6 +9,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
 import {useNavigate} from 'react-router-dom';
+import { fetchUserColors, getUserColor, darkenColor } from '../utils/userColors';
 const locales = {
     'nl': nl
 };
@@ -25,7 +26,6 @@ const HASInstallerAgendaCalendarPage = () => {
     const [events, setEvents] = useState([]);
     const [originalEvents, setOriginalEvents] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentRange, setCurrentRange] = useState({start: null, end: null});
     const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
     const [hasMonteurs, setHasMonteurs] = useState([]);
     const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); 
@@ -33,6 +33,9 @@ const HASInstallerAgendaCalendarPage = () => {
         try {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
+            
+            // Fetch and cache user colors
+            await fetchUserColors(axiosPrivate);
             
             // Debug: Log all users and their roles in detail
             console.log('All users from API:', users);
@@ -58,7 +61,7 @@ const HASInstallerAgendaCalendarPage = () => {
                     hasMonteur === 2023 || 
                     hasMonteur === true || 
                     hasMonteur === 1 ||
-                    typeof hasMonteur === 'number' && hasMonteur > 0
+                    (typeof hasMonteur === 'number' && hasMonteur > 0)
                 );
                 
                 console.log(`User ${user.name} - HASMonteur value: ${hasMonteur}, matches: ${isHASMonteur}`);
@@ -136,7 +139,6 @@ const HASInstallerAgendaCalendarPage = () => {
         }
     }, [axiosPrivate]);
     useEffect(() => {
-        setCurrentRange({start: null, end: null});
         fetchHasMonteurs();
         fetchAppointments();
     }, [fetchHasMonteurs, fetchAppointments]);
@@ -177,8 +179,8 @@ const HASInstallerAgendaCalendarPage = () => {
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
-            setCurrentRange(range);
             // Don't set currentDisplayMonth here to avoid navigation conflicts
+            console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
     const handleEventClick = (event) => {
@@ -215,13 +217,26 @@ const HASInstallerAgendaCalendarPage = () => {
         // Minimum height should be baseHeight, maximum reasonable height
         const finalHeight = Math.max(baseHeight, Math.min(calculatedHeight, 120));
         
+        // Get user-specific color based on the assigned HAS monteur
+        let backgroundColor, borderColor;
+        if (event.personName) {
+            // Use the user's assigned color
+            const userColor = getUserColor(event.personName);
+            backgroundColor = userColor;
+            borderColor = darkenColor(userColor, 15);
+        } else {
+            // Fallback to type-based colors if no person assigned
+            backgroundColor = isStoring ? '#e74c3c' : '#2ecc71';
+            borderColor = isStoring ? '#c0392b' : '#27ae60';
+        }
+        
         return {
             style: {
-                backgroundColor: isStoring ? '#e74c3c' : '#2ecc71',
+                backgroundColor,
                 borderRadius: '4px',
                 opacity: 0.9,
                 color: 'white',
-                border: `1px solid ${isStoring ? '#c0392b' : '#27ae60'}`,
+                border: `1px solid ${borderColor}`,
                 display: 'block',
                 padding: '5px 10px',
                 height: `${finalHeight}px`,

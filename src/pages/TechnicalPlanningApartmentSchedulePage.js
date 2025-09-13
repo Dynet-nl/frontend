@@ -27,6 +27,42 @@ const TechnicalPlanningApartmentSchedulePage = () => {
         const weekNumber = Math.ceil(days / 7);
         return weekNumber;
     };
+
+    // Function to generate HB-number based on building characteristics
+    const generateHBNumber = (building, flats) => {
+        if (!flats || flats.length === 0) return '';
+        
+        const totalFlats = flats.length;
+        
+        // Categorize building type based on flat count
+        let buildingType;
+        if (totalFlats === 1) {
+            buildingType = 'Laag bouw';
+        } else if (totalFlats === 2) {
+            buildingType = 'Duplex';
+        } else if (totalFlats <= 4) {
+            buildingType = 'Laag bouw';
+        } else {
+            buildingType = 'HB'; // 5+ flats = high building (Hoog Bouw)
+        }
+        
+        // Only generate HB-number for HB (High Building) types
+        if (buildingType !== 'HB') return '';
+        
+        // Get postcode from first flat for area identification
+        const postcode = flats[0]?.postcode || '';
+        const postcodeNumbers = postcode.replace(/[^0-9]/g, '').slice(0, 4);
+        
+        // Get address for unique identification
+        const address = building.address || '';
+        const addressNumbers = address.replace(/[^0-9]/g, '');
+        const firstAddressNumber = addressNumbers.slice(0, 3) || '001';
+        
+        // Generate HB-number format: HB-[postcode][flatcount][addressnumber]
+        const hbNumber = `HB-${postcodeNumbers}${totalFlats.toString().padStart(2, '0')}${firstAddressNumber.padStart(3, '0')}`;
+        
+        return hbNumber;
+    };
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -120,9 +156,15 @@ const TechnicalPlanningApartmentSchedulePage = () => {
         }
     };
     if (loading) return <div>Loading...</div>;
+    
+    // Calculate HB-number for building title
+    const flats = building.flats || [];
+    const hbNumber = generateHBNumber(building, flats);
+    const buildingTitle = `${building.address}${hbNumber ? ` (${hbNumber})` : ''}`;
+    
     return (
         <div className="ts-apartmentDetailsContainer">
-            <h2>Apartment Schedule for {building.address}</h2>
+            <h2>Apartment Schedule for {buildingTitle}</h2>
             <div className="ts-columns">
                 <div className="ts-leftColumn">
                     <h3>Select Apartments for Appointment</h3>

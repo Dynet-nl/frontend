@@ -1,10 +1,13 @@
 // Component displaying paginated building lists with filtering, search functionality, and role-based navigation.
 
-import React, {useContext, useState, useEffect, useMemo, useCallback} from 'react';
-import RoleBasedLink from './RoleBasedLink';
+import React, {useState, useEffect, useCallback, useMemo, useContext} from 'react';
 import {Link} from 'react-router-dom';
-import '../styles/buildingsList.css';
+import RoleBasedLink from './RoleBasedLink';
 import pencilIcon from '../assets/pencil_edit.png';
+import { categorizeBuilding, generateHBNumber } from '../utils/buildingCategorization';
+import { hasAnyAppointment, isFlatCompleted, calculateCompletionStatus } from '../utils/completionUtils';
+import { filterBuildings, calculateFilterCounts } from '../utils/buildingFilters';
+import '../styles/buildingsList.css';
 import AuthContext from '../context/AuthProvider';
 const BuildingsList = ({buildings, isLoading}) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -49,99 +52,23 @@ const BuildingsList = ({buildings, isLoading}) => {
     }, []);
     const handleFilterChange = useCallback((newFilter) => {
         if (filter === newFilter) {
-            setFilter('all');
+            setFilter('all'); // Clear filter if clicking same filter
         } else {
             setFilter(newFilter);
         }
         setCurrentPage(1);
     }, [filter]);
-    const categorizeBuilding = useCallback((flats) => {
-        if (!flats || flats.length === 0) return {types: [], typeString: ''};
-        
-        // Use actual soortBouw data from flats to determine building type
-        const buildingTypes = flats.map(flat => flat.soortBouw).filter(type => type);
-        const uniqueBuildingTypes = [...new Set(buildingTypes)];
-        
-        // If we have actual building type data, use it
-        if (uniqueBuildingTypes.length > 0) {
-            const typeString = uniqueBuildingTypes.join(', ');
-            return {
-                types: uniqueBuildingTypes.map(type => ({type, prefix: type})),
-                typeString
-            };
-        }
-        
-        // Fallback to flat count-based categorization if no soortBouw data
-        const totalFlats = flats.length;
-        let buildingType;
-        
-        if (totalFlats === 1) {
-            buildingType = 'Laag bouw'; // Single flat = low building
-        } else if (totalFlats === 2) {
-            buildingType = 'Duplex'; // Two flats = duplex
-        } else if (totalFlats <= 4) {
-            buildingType = 'Laag bouw'; // 3-4 flats = still low building
-        } else {
-            buildingType = 'HB'; // 5+ flats = high building (Hoog Bouw)
-        }
-        
-        return {
-            types: [{type: buildingType, prefix: buildingType}],
-            typeString: buildingType
-        };
+
+    const clearAllFilters = useCallback(() => {
+        setFilter('all');
+        setSearchQuery('');
+        setCurrentPage(1);
     }, []);
-    const hasTechnischePlanningAppointment = (flat) => {
-        return !!flat.technischePlanning?.appointmentBooked?.date;
-    };
-    const hasHasMonteurAppointment = (flat) => {
-        return !!flat.hasMonteur?.appointmentBooked?.date;
-    };
-    const hasSignatureOrReport = (flat) => {
-        return !!(flat.technischePlanning?.signature?.fileUrl ||
-            flat.technischePlanning?.report?.fileUrl);
-    };
-    const filterBuildings = useCallback((buildings, query) => {
-        let filteredBuildings = buildings;
-        if (!buildings) return [];
-        if (query) {
-            filteredBuildings = buildings.filter((building) =>
-                building.address.toLowerCase().includes(query) ||
-                (building.flats && building.flats.some((flat) =>
-                    flat.complexNaam && flat.complexNaam.toLowerCase().includes(query)
-                ))
-            );
-        }
-        switch (filter) {
-            case 'fileUrl':
-                return filteredBuildings.filter(building => building.fileUrl);
-            case 'laagBouw':
-                return filteredBuildings.filter(building =>
-                    building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'Laag bouw')
-                );
-            case 'HB':
-                return filteredBuildings.filter(building =>
-                    building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'HB')
-                );
-            case 'duplex':
-                return filteredBuildings.filter(building =>
-                    building.flats && categorizeBuilding(building.flats).types.some(type => type.type === 'Duplex')
-                );
-            case 'appointment':
-                return filteredBuildings.filter(building =>
-                        building.flats && building.flats.some(flat =>
-                            hasHasMonteurAppointment(flat) || hasTechnischePlanningAppointment(flat)
-                        )
-                );
-            case 'done':
-                return filteredBuildings.filter(building =>
-                        building.flats && building.flats.some(flat =>
-                            flat.fcStatusHas === '2' || hasSignatureOrReport(flat)
-                        )
-                );
-            default:
-                return filteredBuildings;
-        }
-    }, [filter]);
+
+
+
+
+
     const sortFlats = (a, b) => {
         if (!a.toevoeging || !b.toevoeging) return 0;
         const isANumeric = !isNaN(a.toevoeging);
@@ -165,7 +92,7 @@ const BuildingsList = ({buildings, isLoading}) => {
                 flat.zoeksleutel && flat.zoeksleutel.startsWith(laagBouwType.prefix)
             );
             if (laagBouwFlat) {
-                const hasAppt = hasHasMonteurAppointment(laagBouwFlat) || hasTechnischePlanningAppointment(laagBouwFlat);
+                const hasAppt = hasAnyAppointment(laagBouwFlat);
                 const flatClassName = hasAppt ? 'flatLink flatWithAppointment' : 'flatLink';
                 return (
                     <RoleBasedLink key={laagBouwFlat._id} flatId={laagBouwFlat._id} className={flatClassName}>
@@ -178,7 +105,7 @@ const BuildingsList = ({buildings, isLoading}) => {
         }
         return flats.map(flat => {
             if (!flat) return null;
-            const hasAppt = hasHasMonteurAppointment(flat) || hasTechnischePlanningAppointment(flat);
+            const hasAppt = hasAnyAppointment(flat);
             const flatClassName = hasAppt ? 'flatLink flatWithAppointment' : 'flatLink';
             const flatDisplay = flat.complexNaam ?
                 `${flat.complexNaam} - ${flat.toevoeging}` :
@@ -192,32 +119,15 @@ const BuildingsList = ({buildings, isLoading}) => {
             );
         });
     };
-    const calculateCompletionStatus = (buildings) => {
-        if (!buildings || buildings.length === 0) return {
-            percentage: 0,
-            completedFlats: 0,
-            totalFlats: 0
-        };
-        let totalFlats = 0;
-        let completedFlats = 0;
-        buildings.forEach(building => {
-            if (building.flats) {
-                totalFlats += building.flats.length;
-                completedFlats += building.flats.filter(flat =>
-                    flat.fcStatusHas === '2' 
-                ).length;
-            }
-        });
-        const percentage = totalFlats > 0 ? ((completedFlats / totalFlats) * 100).toFixed(2) : 0;
-        return {
-            percentage,
-            completedFlats,
-            totalFlats
-        };
-    };
+
+    // Calculate filter counts for better UX
+    const filterCounts = useMemo(() => {
+        return calculateFilterCounts(buildings);
+    }, [buildings]);
+
     const categorizedBuildings = useMemo(() => {
-        return buildings ? filterBuildings(buildings, searchQuery) : [];
-    }, [buildings, searchQuery, filter, filterBuildings]);
+        return buildings ? filterBuildings(buildings, searchQuery, filter) : [];
+    }, [buildings, searchQuery, filter]);
     const totalResults = categorizedBuildings.length;
     const completionStatus = useMemo(() => {
         return calculateCompletionStatus(categorizedBuildings);
@@ -252,44 +162,65 @@ const BuildingsList = ({buildings, isLoading}) => {
                         onClick={() => handleFilterChange('fileUrl')}
                         className={filter === 'fileUrl' ? 'active' : ''}
                     >
-                        With File URL
+                        With File URL <span className="filter-count">({filterCounts.fileUrl || 0})</span>
                     </button>
                     <button 
                         onClick={() => handleFilterChange('laagBouw')}
                         className={filter === 'laagBouw' ? 'active' : ''}
                     >
-                        Laag Bouw
+                        Laag Bouw <span className="filter-count">({filterCounts.laagBouw || 0})</span>
                     </button>
                     <button 
                         onClick={() => handleFilterChange('HB')}
                         className={filter === 'HB' ? 'active' : ''}
                     >
-                        HB
+                        HB <span className="filter-count">({filterCounts.HB || 0})</span>
                     </button>
                     <button 
                         onClick={() => handleFilterChange('duplex')}
                         className={filter === 'duplex' ? 'active' : ''}
                     >
-                        Duplex
+                        Duplex <span className="filter-count">({filterCounts.duplex || 0})</span>
                     </button>
                     <button 
                         onClick={() => handleFilterChange('appointment')}
                         className={filter === 'appointment' ? 'active' : ''}
                     >
-                        With Appointment
+                        With Appointment <span className="filter-count">({filterCounts.appointment || 0})</span>
                     </button>
                     <button 
                         onClick={() => handleFilterChange('done')}
                         className={filter === 'done' ? 'active' : ''}
                     >
-                        Done
+                        Completed <span className="filter-count">({filterCounts.done || 0})</span>
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('pending')}
+                        className={filter === 'pending' ? 'active' : ''}
+                    >
+                        Pending <span className="filter-count">({filterCounts.pending || 0})</span>
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('noappointment')}
+                        className={filter === 'noappointment' ? 'active' : ''}
+                    >
+                        No Appointment <span className="filter-count">({filterCounts.noappointment || 0})</span>
                     </button>
                     <button 
                         onClick={() => handleFilterChange('all')}
                         className={filter === 'all' ? 'active' : ''}
                     >
-                        All
+                        All <span className="filter-count">({filterCounts.all || 0})</span>
                     </button>
+                    {(filter !== 'all' || searchQuery) && (
+                        <button 
+                            onClick={clearAllFilters}
+                            className="clear-filters"
+                            title="Clear all filters and search"
+                        >
+                            ✕ Clear All
+                        </button>
+                    )}
                 </div>
                 <div className="resultsCount">
                     <strong>{totalResults}</strong> results found
@@ -310,9 +241,12 @@ const BuildingsList = ({buildings, isLoading}) => {
             ) : (
                 <div className="buildingsList">
                     {currentBuildings.map((building, index) => {
-                        const {types, typeString} = categorizeBuilding(building.flats);
-                        const sortedFlats = [...building.flats].sort(sortFlats);
+                        // Safety check: ensure building.flats exists and is an array
+                        const flats = building.flats || [];
+                        const {types, typeString} = categorizeBuilding(flats);
+                        const sortedFlats = [...flats].sort(sortFlats);
                         const flatCount = sortedFlats.length;
+                        const hbNumber = generateHBNumber(building, sortedFlats);
                         
                         // Calculate completion status
                         const completedFlats = sortedFlats.filter(flat => flat.fcStatusHas === '2').length;
@@ -320,53 +254,24 @@ const BuildingsList = ({buildings, isLoading}) => {
                         
                         // Generate building visual representation with actual floors
                         const generateBuildingStructure = (flats, type) => {
-                            // Create floors based on actual flat count and logical distribution
+                            // Create floors based on actual flat count - EACH FLOOR = 1 FLAT
                             const totalFlats = flats.length;
                             const floorGroups = {};
                             
-                            // Determine logical floor distribution based on building type and flat count
-                            let floorsCount;
-                            let flatsPerFloor;
+                            // FIXED: Each floor represents exactly 1 flat
+                            // No multiple flats per floor - each flat gets its own floor level
+                            const floorsCount = totalFlats;
                             
-                            if (type.includes('Laag bouw') || type.includes('Laag Bouw')) {
-                                // Low buildings: 1-2 floors max
-                                floorsCount = Math.min(Math.ceil(totalFlats / 2), 2);
-                                flatsPerFloor = Math.ceil(totalFlats / floorsCount);
-                            } else if (type.includes('Duplex')) {
-                                // Duplex: typically 2 floors
-                                floorsCount = Math.min(Math.ceil(totalFlats / 1), 2);
-                                flatsPerFloor = Math.ceil(totalFlats / floorsCount);
-                            } else if (type.includes('HB') || type.includes('Hoog Bouw')) {
-                                // High buildings: distribute flats across multiple floors
-                                floorsCount = Math.min(Math.ceil(totalFlats / 2), 8); // Max 8 floors
-                                flatsPerFloor = Math.ceil(totalFlats / floorsCount);
-                            } else {
-                                // Default: distribute logically
-                                if (totalFlats <= 2) {
-                                    floorsCount = totalFlats;
-                                    flatsPerFloor = 1;
-                                } else if (totalFlats <= 4) {
-                                    floorsCount = 2;
-                                    flatsPerFloor = Math.ceil(totalFlats / 2);
-                                } else {
-                                    floorsCount = Math.min(Math.ceil(totalFlats / 2), 6);
-                                    flatsPerFloor = Math.ceil(totalFlats / floorsCount);
-                                }
-                            }
-                            
-                            // Distribute flats across floors
+                            // Distribute flats across floors - one flat per floor
                             for (let i = 0; i < totalFlats; i++) {
-                                const floorNumber = Math.floor(i / flatsPerFloor) + 1;
-                                if (!floorGroups[floorNumber]) {
-                                    floorGroups[floorNumber] = [];
-                                }
-                                floorGroups[floorNumber].push(flats[i]);
+                                const floorNumber = i + 1; // Floor 1, 2, 3, etc.
+                                floorGroups[floorNumber] = [flats[i]]; // Each floor has exactly 1 flat
                             }
                             
                             const floors = [];
                             
                             // Calculate building width once for the entire building
-                            const buildingWidth = type.includes('HB') || type.includes('Hoog Bouw') ? 120 : 
+                            const buildingWidth = type.includes('Hoog bouw') ? 120 : 
                                                 type.includes('Duplex') ? 100 : 80;
                             
                             const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b - a); // Top to bottom
@@ -391,17 +296,16 @@ const BuildingsList = ({buildings, isLoading}) => {
                                             width: `${buildingWidth}px`,
                                             animationDelay: `${index * 0.2}s`
                                         }}
-                                        title={`Floor ${floorNumber} - ${floorFlats.length} flats - ${Math.round(floorCompletionPercentage)}% complete`}
+                                        title={`Floor ${floorNumber} - 1 flat - ${Math.round(floorCompletionPercentage)}% complete`}
                                     >
                                         <div className="floorNumber">{floorNumber}</div>
                                         <div className="floorWindows">
-                                            {floorFlats.slice(0, 4).map((flat, flatIndex) => (
-                                                <div 
-                                                    key={flat._id} 
-                                                    className={`window ${flat.fcStatusHas === '2' ? 'completed' : 'pending'}`}
-                                                    style={{animationDelay: `${(index * 0.2) + (flatIndex * 0.1)}s`}}
-                                                />
-                                            ))}
+                                            {/* Each floor = 1 flat, so show 1 window representation */}
+                                            <div 
+                                                className={`window ${floorFlats[0].fcStatusHas === '2' ? 'completed' : 'pending'}`}
+                                                style={{animationDelay: `${index * 0.2}s`}}
+                                                title={`Flat: ${floorFlats[0].adres} ${floorFlats[0].huisNummer}${floorFlats[0].toevoeging}`}
+                                            />
                                         </div>
                                         <div className="floorProgress" style={{width: `${floorCompletionPercentage}%`}} />
                                     </div>
@@ -440,6 +344,16 @@ const BuildingsList = ({buildings, isLoading}) => {
                                                     ? building.flats[0].complexNaam
                                                     : building.address
                                                 }
+                                                {hbNumber && (
+                                                    <div className="hbNumber" style={{
+                                                        fontSize: '0.9em',
+                                                        color: '#666',
+                                                        fontWeight: 'normal',
+                                                        marginTop: '2px'
+                                                    }}>
+                                                        {hbNumber}
+                                                    </div>
+                                                )}
                                             </div>
                                         </Link>
                                         <div className="flatCountBox">{flatCount}</div>

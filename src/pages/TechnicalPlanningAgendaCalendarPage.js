@@ -7,6 +7,7 @@ import {nl} from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
+import { fetchUserColors, getUserColor, darkenColor } from '../utils/userColors';
 const locales = {
     'nl': nl
 };
@@ -22,10 +23,10 @@ const TechnicalPlanningAgendaCalendarPage = () => {
     const [events, setEvents] = useState([]);
     const [originalEvents, setOriginalEvents] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentRange, setCurrentRange] = useState({start: null, end: null});
     const [technischeSchouwers, setTechnischeSchouwers] = useState([]);
     const [selectedSchouwer, setSelectedSchouwer] = useState('');
     const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date());
+    
     const fetchTechnischeSchouwers = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
@@ -37,6 +38,9 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             });
             console.log('Found Technische Schouwers:', schouwers);
             setTechnischeSchouwers(schouwers);
+            
+            // Also fetch and cache user colors
+            await fetchUserColors(axiosPrivate);
         } catch (error) {
             console.error('Error fetching technische schouwers:', error);
         }
@@ -94,7 +98,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
         }
     }, [axiosPrivate]);
     useEffect(() => {
-        setCurrentRange({start: null, end: null});
         fetchTechnischeSchouwers();
         fetchAppointments();
     }, [fetchTechnischeSchouwers, fetchAppointments]);
@@ -120,7 +123,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
-            setCurrentRange(range);
             // Don't set currentDisplayMonth here to avoid navigation conflicts
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
@@ -152,13 +154,17 @@ const TechnicalPlanningAgendaCalendarPage = () => {
         // Minimum height should be baseHeight, maximum reasonable height
         const finalHeight = Math.max(baseHeight, Math.min(calculatedHeight, 120));
         
+        // Get user-specific color based on the assigned technische schouwer
+        const userColor = getUserColor(event.personName, '#3498db');
+        const borderColor = darkenColor(userColor, 15);
+        
         return {
             style: {
-                backgroundColor: '#3498db',
+                backgroundColor: userColor,
                 borderRadius: '4px',
                 opacity: 0.9,
                 color: 'white',
-                border: '1px solid #2980b9',
+                border: `1px solid ${borderColor}`,
                 display: 'block',
                 padding: '5px 10px',
                 height: `${finalHeight}px`,

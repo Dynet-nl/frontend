@@ -1,7 +1,7 @@
 // Navigation bar component with role-based menu items and user authentication status.
 
 import React, { useState } from 'react'
-import {Link, useNavigate} from 'react-router-dom'
+import {Link, useNavigate, useLocation} from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
 import Button from '@mui/material/Button';
@@ -10,6 +10,7 @@ import ROLES_LIST from "../context/roles_list";
 const Navbar = () => {
     const {auth, setAuth} = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     
     const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin) 
@@ -20,6 +21,14 @@ const Navbar = () => {
     
     const canSeeHASAgenda = isAdmin || hasHASPlanningRole || hasTechnischeSchouwerRole || hasHASMonteurRole
     const canSeePlanningAgenda = isAdmin || hasTechnischePlanningRole
+    
+    // Function to check if a path is active
+    const isActivePath = (path) => {
+        if (path === '/') {
+            return location.pathname === '/'
+        }
+        return location.pathname.startsWith(path)
+    }
     
     const getRoleName = (roleId) => {
         const roleName = Object.entries(ROLES_LIST).find(([_, value]) => value === roleId)?.[0]
@@ -45,19 +54,55 @@ const Navbar = () => {
     
     const NavigationLinks = ({ mobile = false, onLinkClick = () => {} }) => (
         <>
-            <Link to='/' onClick={onLinkClick}>Home</Link>
+            <Link 
+                to='/' 
+                onClick={onLinkClick}
+                className={isActivePath('/') ? 'active' : ''}
+            >
+                Home
+            </Link>
             {isAdmin && (
-                <Link to='/dashboard' onClick={onLinkClick}>Dashboard</Link>
+                <Link 
+                    to='/dashboard' 
+                    onClick={onLinkClick}
+                    className={isActivePath('/dashboard') ? 'active' : ''}
+                >
+                    Dashboard
+                </Link>
             )}
-            <Link to='/city' onClick={onLinkClick}>Cities</Link>
+            <Link 
+                to='/city' 
+                onClick={onLinkClick}
+                className={isActivePath('/city') ? 'active' : ''}
+            >
+                Cities
+            </Link>
             {canSeePlanningAgenda && (
-                <Link to='/agenda' onClick={onLinkClick}>Planning Agenda</Link>
+                <Link 
+                    to='/agenda' 
+                    onClick={onLinkClick}
+                    className={isActivePath('/agenda') ? 'active' : ''}
+                >
+                    Planning Agenda
+                </Link>
             )}
             {canSeeHASAgenda && (
-                <Link to='/has-agenda' onClick={onLinkClick}>HAS Agenda</Link>
+                <Link 
+                    to='/has-agenda' 
+                    onClick={onLinkClick}
+                    className={isActivePath('/has-agenda') ? 'active' : ''}
+                >
+                    HAS Agenda
+                </Link>
             )}
             {isAdmin && (
-                <Link to='/admin' onClick={onLinkClick}>Admin</Link>
+                <Link 
+                    to='/admin' 
+                    onClick={onLinkClick}
+                    className={isActivePath('/admin') ? 'active' : ''}
+                >
+                    Admin
+                </Link>
             )}
         </>
     )

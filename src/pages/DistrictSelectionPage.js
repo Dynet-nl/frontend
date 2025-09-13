@@ -32,6 +32,23 @@ const DistrictSelectionPage = () => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         localStorage.setItem(`scroll_district_${areaId}`, scrollTop.toString());
     }, [areaId]);
+
+    const saveCurrentDistrict = useCallback((district) => {
+        if (district?._id) {
+            localStorage.setItem(`currentDistrict_${areaId}`, district._id);
+        }
+    }, [areaId]);
+
+    const restoreCurrentDistrict = useCallback((districts) => {
+        const savedDistrictId = localStorage.getItem(`currentDistrict_${areaId}`);
+        if (savedDistrictId && districts.length > 0) {
+            const savedDistrict = districts.find(d => d._id === savedDistrictId);
+            if (savedDistrict) {
+                return savedDistrict;
+            }
+        }
+        return districts[0]; // Fallback to first district if saved one not found
+    }, [areaId]);
     const restoreScrollPosition = useCallback(() => {
         const savedPosition = localStorage.getItem(`scroll_district_${areaId}`);
         if (savedPosition && savedPosition !== '0') {
@@ -50,7 +67,8 @@ const DistrictSelectionPage = () => {
             setDistricts(cachedDistricts);
             setIsLoadingDistricts(false);
             if (!currentDistrict && cachedDistricts.length > 0) {
-                setCurrentDistrict(cachedDistricts[0]);
+                const restoredDistrict = restoreCurrentDistrict(cachedDistricts);
+                setCurrentDistrict(restoredDistrict);
             }
             return;
         }
@@ -61,14 +79,15 @@ const DistrictSelectionPage = () => {
             cache.timestamps.set(cacheKey, Date.now());
             setDistricts(response.data);
             if (!currentDistrict && response.data.length > 0) {
-                setCurrentDistrict(response.data[0]);
+                const restoredDistrict = restoreCurrentDistrict(response.data);
+                setCurrentDistrict(restoredDistrict);
             }
         } catch (error) {
             console.error('Error fetching districts:', error);
         } finally {
             setIsLoadingDistricts(false);
         }
-    }, [areaId, axiosPrivate, currentDistrict]);
+    }, [areaId, axiosPrivate, currentDistrict, restoreCurrentDistrict]);
     const fetchBuildings = useCallback(async (districtId) => {
         if (!districtId) {
             setBuildings([]);
@@ -110,8 +129,9 @@ const DistrictSelectionPage = () => {
         const newDistrict = districts.find(district => district._id === id);
         if (newDistrict) {
             setCurrentDistrict(newDistrict);
+            saveCurrentDistrict(newDistrict);
         }
-    }, [districts, saveScrollPosition]);
+    }, [districts, saveScrollPosition, saveCurrentDistrict]);
     useEffect(() => {
         const handleCacheInvalidation = () => {
             cache.buildings.clear();
@@ -257,6 +277,8 @@ const DistrictSelectionPage = () => {
                                     districts={districts}
                                     getBuildings={getBuildings}
                                     setCurrentDistrict={setCurrentDistrict}
+                                    currentDistrict={currentDistrict}
+                                    buildings={buildings}
                                 />
                                 {provided.placeholder}
                             </div>
