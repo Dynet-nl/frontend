@@ -47,7 +47,7 @@ const DistrictSelectionPage = () => {
                 return savedDistrict;
             }
         }
-        return districts[0]; // Fallback to first district if saved one not found
+return districts[0];
     }, [areaId]);
     const restoreScrollPosition = useCallback(() => {
         const savedPosition = localStorage.getItem(`scroll_district_${areaId}`);

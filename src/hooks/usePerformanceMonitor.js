@@ -41,7 +41,7 @@ const usePerformanceMonitor = (componentName) => {
 export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) => {
     const {
         cacheKey,
-        cacheDuration = 5 * 60 * 1000, // 5 minutes
+cacheDuration = 5 * 60 * 1000,
         retryAttempts = 3,
         retryDelay = 1000
     } = options;
@@ -82,7 +82,7 @@ export const useOptimizedAPI = (fetchFunction, dependencies = [], options = {}) 
             return result;
         } catch (err) {
             if (err.name === 'AbortError') {
-                return; // Request was cancelled
+return;
             }
             if (retryCountRef.current < retryAttempts) {
                 retryCountRef.current += 1;

@@ -23,23 +23,18 @@ const AppointmentSystemValidator = () => {
         const results = {};
 
         try {
-            // 1. Test Technical Planning Appointments
             if (isAdmin || isTechnischePlanning) {
                 results.technicalAppointments = await validateTechnicalAppointments();
             }
 
-            // 2. Test HAS Planning Appointments
             if (isAdmin || isHASPlanning) {
                 results.hasAppointments = await validateHASAppointments();
             }
 
-            // 3. Test Appointment Display
             results.appointmentDisplay = await validateAppointmentDisplay();
 
-            // 4. Test Calendar Integration
             results.calendarIntegration = await validateCalendarIntegration();
 
-            // 5. Test Data Consistency
             results.dataConsistency = await validateDataConsistency();
 
             setValidationResults(results);
@@ -56,7 +51,6 @@ const AppointmentSystemValidator = () => {
         const checks = [];
         
         try {
-            // Test fetching technical appointments
             const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                 params: { limit: 10 }
             });
@@ -67,7 +61,6 @@ const AppointmentSystemValidator = () => {
                 data: response.data?.length || 0
             });
 
-            // Test appointment data structure
             if (response.data && response.data.length > 0) {
                 const appointment = response.data[0];
                 const hasValidStructure = 
@@ -104,7 +97,6 @@ const AppointmentSystemValidator = () => {
         const checks = [];
         
         try {
-            // Test fetching HAS appointments
             const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
                 params: { limit: 10 }
             });
@@ -115,7 +107,6 @@ const AppointmentSystemValidator = () => {
                 data: response.data?.length || 0
             });
 
-            // Test appointment data structure
             if (response.data && response.data.length > 0) {
                 const appointment = response.data[0];
                 const hasValidStructure = 
@@ -153,7 +144,6 @@ const AppointmentSystemValidator = () => {
         const checks = [];
         
         try {
-            // Test fetching buildings with appointments
             const response = await axiosPrivate.get('/api/building', {
                 params: { limit: 5 }
             });
@@ -198,7 +188,6 @@ const AppointmentSystemValidator = () => {
         const checks = [];
         
         try {
-            // Test calendar events for technical planning
             if (isAdmin || isTechnischePlanning) {
                 const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                     params: { limit: 50 }
@@ -229,7 +218,6 @@ const AppointmentSystemValidator = () => {
                 });
             }
 
-            // Test calendar events for HAS planning
             if (isAdmin || isHASPlanning) {
                 const response = await axiosPrivate.get('/api/apartment/appointments/all-hasmonteur', {
                     params: { limit: 50 }
@@ -276,7 +264,6 @@ const AppointmentSystemValidator = () => {
         const checks = [];
         
         try {
-            // Test week number calculation consistency
             const testDate = new Date('2024-06-15');
             const weekNumber1 = calculateWeekNumber1(testDate);
             const weekNumber2 = calculateWeekNumber2(testDate);
@@ -287,7 +274,6 @@ const AppointmentSystemValidator = () => {
                 details: { method1: weekNumber1, method2: weekNumber2 }
             });
 
-            // Test date formatting consistency
             const testDateString = '2024-06-15';
             const formattedDate1 = new Date(testDateString).toISOString().split('T')[0];
             const formattedDate2 = formatDate(testDateString);
@@ -309,7 +295,6 @@ const AppointmentSystemValidator = () => {
         return checks;
     };
 
-    // Week number calculation method 1 (used in most components)
     const calculateWeekNumber1 = (date) => {
         const currentDate = new Date(date);
         const startDate = new Date(currentDate.getFullYear(), 0, 1);
@@ -317,7 +302,6 @@ const AppointmentSystemValidator = () => {
         return Math.ceil(days / 7);
     };
 
-    // Week number calculation method 2 (used in backend)
     const calculateWeekNumber2 = (date) => {
         const firstJan = new Date(date.getFullYear(), 0, 1);
         const days = Math.floor((date - firstJan) / (24 * 60 * 60 * 1000));

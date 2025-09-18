@@ -52,7 +52,7 @@ const BuildingsList = ({buildings, isLoading}) => {
     }, []);
     const handleFilterChange = useCallback((newFilter) => {
         if (filter === newFilter) {
-            setFilter('all'); // Clear filter if clicking same filter
+setFilter('all');
         } else {
             setFilter(newFilter);
         }
@@ -120,7 +120,6 @@ const BuildingsList = ({buildings, isLoading}) => {
         });
     };
 
-    // Calculate filter counts for better UX
     const filterCounts = useMemo(() => {
         return calculateFilterCounts(buildings);
     }, [buildings]);
@@ -241,40 +240,32 @@ const BuildingsList = ({buildings, isLoading}) => {
             ) : (
                 <div className="buildingsList">
                     {currentBuildings.map((building, index) => {
-                        // Safety check: ensure building.flats exists and is an array
                         const flats = building.flats || [];
                         const {types, typeString} = categorizeBuilding(flats);
                         const sortedFlats = [...flats].sort(sortFlats);
                         const flatCount = sortedFlats.length;
                         const hbNumber = generateHBNumber(building, sortedFlats);
                         
-                        // Calculate completion status
                         const completedFlats = sortedFlats.filter(flat => flat.fcStatusHas === '2').length;
                         const completionPercentage = flatCount > 0 ? Math.round((completedFlats / flatCount) * 100) : 0;
                         
-                        // Generate building visual representation with actual floors
                         const generateBuildingStructure = (flats, type) => {
-                            // Create floors based on actual flat count - EACH FLOOR = 1 FLAT
                             const totalFlats = flats.length;
                             const floorGroups = {};
                             
-                            // FIXED: Each floor represents exactly 1 flat
-                            // No multiple flats per floor - each flat gets its own floor level
                             const floorsCount = totalFlats;
                             
-                            // Distribute flats across floors - one flat per floor
                             for (let i = 0; i < totalFlats; i++) {
-                                const floorNumber = i + 1; // Floor 1, 2, 3, etc.
-                                floorGroups[floorNumber] = [flats[i]]; // Each floor has exactly 1 flat
+const floorNumber = i + 1;
+floorGroups[floorNumber] = [flats[i]];
                             }
                             
                             const floors = [];
                             
-                            // Calculate building width once for the entire building
                             const buildingWidth = type.includes('Hoog bouw') ? 120 : 
                                                 type.includes('Duplex') ? 100 : 80;
                             
-                            const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b - a); // Top to bottom
+const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b - a);
                             
                             sortedFloorNumbers.forEach((floorNumber, index) => {
                                 const floorFlats = floorGroups[floorNumber];
@@ -283,7 +274,6 @@ const BuildingsList = ({buildings, isLoading}) => {
                                 const isCompleted = floorCompletionPercentage === 100;
                                 const isPartiallyCompleted = floorCompletionPercentage > 0 && floorCompletionPercentage < 100;
                                 
-                                // Floor height based on building type
                                 const floorHeight = type.includes('HB') || type.includes('Hoog Bouw') ? 45 : 
                                                   type.includes('Duplex') ? 40 : 35;
                                 

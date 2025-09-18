@@ -5,7 +5,6 @@ import {Draggable} from 'react-beautiful-dnd';
 import '../styles/districtButtons.css';
 
 const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict, currentDistrict, buildings = []}) => {
-    // Simplified logging
     console.log(`🏗️ [DistrictButtons] Rendered with ${districts.length} districts and ${buildings.length} buildings`);
 
     const handleDistrictClick = (district) => {
@@ -14,17 +13,14 @@ const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict, curr
     };
 
     const getDistrictStats = (district) => {
-        // Calculate accurate building count from current buildings data
         console.log(`🔍 [DistrictButtons] Calculating stats for district: ${district.name}`);
         console.log(`🔍 [DistrictButtons] Total buildings received:`, buildings.length);
-        // Check both building and flat structures for district information
         const sampleBuilding = buildings[0];
         const sampleFlat = sampleBuilding?.flats?.[0];
         
         console.log(`🔍 [DistrictButtons] Sample building keys:`, Object.keys(sampleBuilding || {}));
         console.log(`🔍 [DistrictButtons] Sample building structure:`, sampleBuilding);
         
-        // Check various possible district field names in both building and flat
         const possibleDistrictFields = ['wijk', 'district', 'wijkNaam', 'districtName', 'gebied', 'zone', 'districtId'];
         
         console.log(`🔍 [DistrictButtons] Checking for district fields in building...`);
@@ -46,7 +42,6 @@ const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict, curr
         console.log(`🔍 [DistrictButtons] Looking for district name: "${district.name}"`);
         
         const matchingBuildings = buildings.filter(building => {
-            // Match by district ID (building.district should equal district._id)
             const matches = building.district === district._id;
             if (matches) {
                 console.log(`✅ [DistrictButtons] Found matching building: ${building.address} in district ${district.name}`);

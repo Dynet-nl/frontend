@@ -15,7 +15,6 @@ export const filterBuildings = (buildings, query, filter) => {
     let filteredBuildings = buildings;
     if (!buildings) return [];
 
-    // Apply search query first
     if (query) {
         filteredBuildings = buildings.filter((building) =>
             building.address.toLowerCase().includes(query) ||
@@ -25,7 +24,6 @@ export const filterBuildings = (buildings, query, filter) => {
         );
     }
 
-    // Apply filters
     switch (filter) {
         case 'fileUrl':
             return filteredBuildings.filter(building => 

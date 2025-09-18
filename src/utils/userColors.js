@@ -2,10 +2,9 @@
 
 import axiosPrivate from '../api/axios';
 
-// Cache for storing user colors to avoid repeated API calls
 let userColorsCache = {};
 let cacheTimestamp = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000;
 
 /**
  * Fetch all user colors from the API and cache them
@@ -14,7 +13,6 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
  */
 export const fetchUserColors = async (axiosInstance = null) => {
     try {
-        // Check if cache is still valid
         const now = Date.now();
         if (cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION && Object.keys(userColorsCache).length > 0) {
             console.log('Using cached user colors');
@@ -26,7 +24,6 @@ export const fetchUserColors = async (axiosInstance = null) => {
         const response = await axiosToUse.get('/api/users');
         const users = response.data;
         
-        // Create a mapping of user names to colors
         const colorMap = {};
         users.forEach(user => {
             if (user.name && user.color) {
@@ -34,7 +31,6 @@ export const fetchUserColors = async (axiosInstance = null) => {
             }
         });
 
-        // Update cache
         userColorsCache = colorMap;
         cacheTimestamp = now;
         
@@ -54,11 +50,11 @@ export const fetchUserColors = async (axiosInstance = null) => {
  */
 export const getUserColor = (userName) => {
     if (!userName) {
-        return '#3498db'; // Default blue
+return '#3498db';
     }
     
     const color = userColorsCache[userName];
-    return color || '#3498db'; // Return user color or default blue
+return color || '#3498db';
 };
 
 /**
@@ -68,21 +64,17 @@ export const getUserColor = (userName) => {
  * @returns {string} Darkened color in hex format
  */
 export const darkenColor = (color, percent) => {
-    // Remove the hash if present
     const hex = color.replace('#', '');
     
-    // Parse RGB values
     const r = parseInt(hex.substr(0, 2), 16);
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
     
-    // Calculate darkened values
     const factor = (100 - percent) / 100;
     const newR = Math.round(r * factor);
     const newG = Math.round(g * factor);
     const newB = Math.round(b * factor);
     
-    // Convert back to hex
     const newHex = '#' + 
         newR.toString(16).padStart(2, '0') +
         newG.toString(16).padStart(2, '0') +

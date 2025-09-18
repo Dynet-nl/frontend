@@ -69,8 +69,8 @@ const AdminDashboardPage = () => {
                 await axiosPrivate.post('/api/users', userData);
                 setUserData({name: '', email: '', password: '', roles: [], color: '#3498db'});
                 setSuccessMessage('User created successfully!');
-                setUserListKey(prev => prev + 1); // Trigger refresh of users list
-                setShowCreateForm(false); // Hide form after successful creation
+setUserListKey(prev => prev + 1);
+setShowCreateForm(false);
                 setTimeout(() => setSuccessMessage(''), 3000);
             } catch (error) {
                 console.error('Error adding user:', error.response ? error.response.data : error);

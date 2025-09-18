@@ -4,7 +4,7 @@ import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/AdminSchedulingSelection.css';
 const AdminSchedulingSelectionPage = () => {
-    const { id } = useParams(); // building ID
+const { id } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const mode = searchParams.get('mode') || 'building';

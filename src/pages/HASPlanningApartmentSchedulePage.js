@@ -30,13 +30,11 @@ const HASPlanningApartmentSchedulePage = () => {
         return weekNumber;
     };
 
-    // Function to generate HB-number based on building characteristics
     const generateHBNumber = (building, flats) => {
         if (!flats || flats.length === 0) return '';
         
         const totalFlats = flats.length;
         
-        // Categorize building type based on flat count
         let buildingType;
         if (totalFlats === 1) {
             buildingType = 'Laag bouw';
@@ -45,22 +43,18 @@ const HASPlanningApartmentSchedulePage = () => {
         } else if (totalFlats <= 4) {
             buildingType = 'Laag bouw';
         } else {
-            buildingType = 'HB'; // 5+ flats = high building (Hoog Bouw)
+buildingType = 'HB';
         }
         
-        // Only generate HB-number for HB (High Building) types
         if (buildingType !== 'HB') return '';
         
-        // Get postcode from first flat for area identification
         const postcode = flats[0]?.postcode || '';
         const postcodeNumbers = postcode.replace(/[^0-9]/g, '').slice(0, 4);
         
-        // Get address for unique identification
         const address = building.address || '';
         const addressNumbers = address.replace(/[^0-9]/g, '');
         const firstAddressNumber = addressNumbers.slice(0, 3) || '001';
         
-        // Generate HB-number format: HB-[postcode][flatcount][addressnumber]
         const hbNumber = `HB-${postcodeNumbers}${totalFlats.toString().padStart(2, '0')}${firstAddressNumber.padStart(3, '0')}`;
         
         return hbNumber;
@@ -185,7 +179,6 @@ const HASPlanningApartmentSchedulePage = () => {
     };
     if (loading) return <div>Loading...</div>;
     
-    // Calculate HB-number for building title
     const flats = building.flats || [];
     const hbNumber = generateHBNumber(building, flats);
     const buildingTitle = `${building.address}${hbNumber ? ` (${hbNumber})` : ''}`;

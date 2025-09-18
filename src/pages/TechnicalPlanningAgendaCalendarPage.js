@@ -39,7 +39,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             console.log('Found Technische Schouwers:', schouwers);
             setTechnischeSchouwers(schouwers);
             
-            // Also fetch and cache user colors
             await fetchUserColors(axiosPrivate);
         } catch (error) {
             console.error('Error fetching technische schouwers:', error);
@@ -112,7 +111,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             );
             setEvents(filteredEvents);
             
-            // Auto-navigate to the month of the first appointment for this schouwer
             if (filteredEvents.length > 0) {
                 const firstAppointment = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start))[0];
                 const appointmentMonth = new Date(firstAppointment.start);
@@ -123,7 +121,6 @@ const TechnicalPlanningAgendaCalendarPage = () => {
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
-            // Don't set currentDisplayMonth here to avoid navigation conflicts
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
@@ -140,21 +137,17 @@ const TechnicalPlanningAgendaCalendarPage = () => {
         `);
     };
     const eventStyleGetter = (event) => {
-        // Calculate duration in minutes
         const duration = event.end && event.start 
-            ? (event.end - event.start) / (1000 * 60) // Convert milliseconds to minutes
-            : 60; // Default to 60 minutes if no end time
+? (event.end - event.start) / (1000 * 60)
+: 60;
         
-        // Calculate height based on duration - same logic as HAS calendar
-        const baseHeight = 40; // Minimum height for any appointment
-        const heightPerHour = 30; // Additional height per hour
+const baseHeight = 40;
+const heightPerHour = 30;
         const durationInHours = duration / 60;
         const calculatedHeight = baseHeight + (durationInHours * heightPerHour);
         
-        // Minimum height should be baseHeight, maximum reasonable height
         const finalHeight = Math.max(baseHeight, Math.min(calculatedHeight, 120));
         
-        // Get user-specific color based on the assigned technische schouwer
         const userColor = getUserColor(event.personName, '#3498db');
         const borderColor = darkenColor(userColor, 15);
         

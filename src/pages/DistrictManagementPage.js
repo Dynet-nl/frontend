@@ -35,7 +35,7 @@ const DistrictManagementPage = () => {
     const [importHistory, setImportHistory] = useState([]);
     const [dataPreview, setDataPreview] = useState(null);
     const [conflicts, setConflicts] = useState([]);
-    const [operationType, setOperationType] = useState('create'); // 'create' or 'update'
+const [operationType, setOperationType] = useState('create');
     const fetchImportHistory = useCallback(async () => {
         try {
             const response = await axiosPrivate.get(`/api/district/import-history/${areaId}`);
@@ -109,7 +109,7 @@ const DistrictManagementPage = () => {
                 formData.append('currentDistrict', districtName);
             }
             const endpoint = '/api/district/import-enhanced';
-            const method = 'post'; // Always use POST for enhanced endpoint
+const method = 'post';
             await axiosPrivate[method](endpoint, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (progressEvent) => {

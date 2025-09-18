@@ -18,7 +18,7 @@ const RoleBasedLink = ({ children, flatId, buildingId, className, type }) => {
     let path = '/';
     if (type === 'schedule' && buildingId) {
         if (!hasSchedulingPermissions) {
-            return null; // Don't render the pencil icon at all
+return null;
         }
         if (isHASPlanning) {
             path = `/has-appointment-scheduler/${buildingId}?mode=building&type=HAS`;

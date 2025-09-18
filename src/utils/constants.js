@@ -42,7 +42,7 @@ export const UI_CONFIG = {
     AUTO_SAVE_INTERVAL: 5000
 };
 export const FILE_CONSTRAINTS = {
-    MAX_SIZE: 10 * 1024 * 1024, // 10MB
+MAX_SIZE: 10 * 1024 * 1024,
     ALLOWED_TYPES: [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-excel',

@@ -35,10 +35,10 @@ export const getStatusClass = (statusCode) => {
  */
 export const getStatusColor = (statusCode) => {
     switch (statusCode) {
-        case '2': return '#4CAF50'; // Green - Completed
-        case '1': return '#FF9800'; // Orange - In Progress
-        case '0': return '#F44336'; // Red - Not Started
-        default: return '#9E9E9E'; // Gray - Unknown
+case '2': return '#4CAF50';
+case '1': return '#FF9800';
+case '0': return '#F44336';
+default: return '#9E9E9E';
     }
 };
 

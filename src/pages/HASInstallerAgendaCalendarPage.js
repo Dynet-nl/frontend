@@ -34,10 +34,8 @@ const HASInstallerAgendaCalendarPage = () => {
             const response = await axiosPrivate.get('/api/users');
             const users = response.data;
             
-            // Fetch and cache user colors
             await fetchUserColors(axiosPrivate);
             
-            // Debug: Log all users and their roles in detail
             console.log('All users from API:', users);
             users.forEach(user => {
                 console.log(`User: ${user.name}, Roles:`, user.roles);
@@ -48,14 +46,12 @@ const HASInstallerAgendaCalendarPage = () => {
                 }
             });
             
-            // Filter for HASMonteur role (installers) instead of HASPlanning
             const monteurs = users.filter(user => {
                 if (!user.roles || typeof user.roles !== 'object') {
                     console.log(`User ${user.name} has no roles or invalid roles structure`);
                     return false;
                 }
                 
-                // Check for HASMonteur role (2023) - these are the actual installers
                 const hasMonteur = user.roles.HASMonteur;
                 const isHASMonteur = hasMonteur && (
                     hasMonteur === 2023 || 
@@ -73,7 +69,6 @@ const HASInstallerAgendaCalendarPage = () => {
         } catch (error) {
             console.error('Error fetching HAS Monteur users:', error);
             
-            // Fallback: create filter options from known appointment names
             const fallbackUsers = [
                 { _id: 'jasper', name: 'jasper', email: 'jasper@example.com' },
                 { _id: 'john-doe', name: 'John Doe', email: 'john.doe@example.com' }
@@ -147,46 +142,37 @@ const HASInstallerAgendaCalendarPage = () => {
         setSelectedHASMonteur(selectedName);
         
         if (!selectedName) {
-            // Show all events when no filter is selected
             setEvents(originalEvents);
         } else {
-            // Filter events by the selected HAS monteur name
             const filteredEvents = originalEvents.filter(event => {
-                // Make sure we're comparing the right field and handle case sensitivity
                 const eventPersonName = event.personName || '';
                 return eventPersonName.toLowerCase().includes(selectedName.toLowerCase()) ||
                        eventPersonName === selectedName;
             });
             setEvents(filteredEvents);
             
-            // Auto-navigate to first month with appointments for this person
             if (filteredEvents.length > 0) {
-                // Find the earliest appointment for this person
                 const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
                 const firstAppointment = sortedEvents[0];
                 const appointmentMonth = new Date(firstAppointment.start);
                 
-                // Navigate calendar to that month
                 setCurrentDisplayMonth(appointmentMonth);
                 
                 console.log(`Auto-navigating to ${appointmentMonth.toLocaleDateString()} for ${selectedName}'s appointments`);
             }
             
-            // Log for debugging
             console.log(`Filtering for: ${selectedName}`);
             console.log(`Found ${filteredEvents.length} events out of ${originalEvents.length} total`);
         }
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
-            // Don't set currentDisplayMonth here to avoid navigation conflicts
             console.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
     const handleEventClick = (event) => {
         const {resource} = event;
         
-        // Show detailed popup first, then navigate
         const confirmed = window.confirm(`
             🔧 HAS Installation Details
             ═══════════════════════════════
@@ -206,26 +192,21 @@ const HASInstallerAgendaCalendarPage = () => {
     };
     const eventStyleGetter = (event) => {
         const isStoring = event.resource.type === 'Storing';
-        const duration = event.duration || 30; // Default to 30 minutes if no duration
+const duration = event.duration || 30;
         
-        // Calculate height based on duration - more intuitive linear scaling
-        const baseHeight = 40; // Minimum height for any appointment
-        const heightPerHour = 30; // Additional height per hour
+const baseHeight = 40;
+const heightPerHour = 30;
         const durationInHours = duration / 60;
         const calculatedHeight = baseHeight + (durationInHours * heightPerHour);
         
-        // Minimum height should be baseHeight, maximum reasonable height
         const finalHeight = Math.max(baseHeight, Math.min(calculatedHeight, 120));
         
-        // Get user-specific color based on the assigned HAS monteur
         let backgroundColor, borderColor;
         if (event.personName) {
-            // Use the user's assigned color
             const userColor = getUserColor(event.personName);
             backgroundColor = userColor;
             borderColor = darkenColor(userColor, 15);
         } else {
-            // Fallback to type-based colors if no person assigned
             backgroundColor = isStoring ? '#e74c3c' : '#2ecc71';
             borderColor = isStoring ? '#c0392b' : '#27ae60';
         }

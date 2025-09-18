@@ -13,24 +13,21 @@ const Users = () => {
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [actionLoading, setActionLoading] = useState(null);
     
-    // Filter and search states
     const [activeTab, setActiveTab] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [usersPerPage] = useState(6); // Show 6 users per page
+const [usersPerPage] = useState(6);
     
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Helper function to get role name from roles object
     const getUserRole = (rolesObj) => {
         if (!rolesObj || typeof rolesObj !== 'object') return 'No role';
         const roleKeys = Object.keys(rolesObj);
         return roleKeys.length > 0 ? roleKeys[0] : 'No role';
     };
 
-    // Get role statistics
     const getRoleStats = () => {
         const stats = {
             all: users.length,
@@ -55,11 +52,9 @@ const Users = () => {
         return stats;
     };
 
-    // Filter users based on active tab and search term
     useEffect(() => {
         let filtered = users;
 
-        // Filter by role
         if (activeTab !== 'all') {
             filtered = users.filter(user => {
                 const userRole = getUserRole(user.roles);
@@ -67,7 +62,6 @@ const Users = () => {
             });
         }
 
-        // Filter by search term
         if (searchTerm) {
             filtered = filtered.filter(user => 
                 user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -77,10 +71,9 @@ const Users = () => {
         }
 
         setFilteredUsers(filtered);
-        setCurrentPage(1); // Reset to first page when filters change
+setCurrentPage(1);
     }, [users, activeTab, searchTerm]);
 
-    // Pagination
     const indexOfLastUser = currentPage * usersPerPage;
     const indexOfFirstUser = indexOfLastUser - usersPerPage;
     const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -118,7 +111,7 @@ const Users = () => {
     const handleEdit = (user) => {
         setEditingUser({
             ...user,
-            password: '', // Don't pre-fill password
+password: '',
             roleToEdit: getUserRole(user.roles),
             color: user.color || '#3498db'
         });
@@ -135,14 +128,12 @@ const Users = () => {
                 color: editingUser.color || '#3498db'
             };
             
-            // Only include password if it's not empty
             if (editingUser.password.trim()) {
                 updateData.password = editingUser.password;
             }
 
             await axiosPrivate.put(`/api/users/${editingUser._id}`, updateData);
             
-            // Update the user in the local state
             setUsers(users.map(user => 
                 user._id === editingUser._id 
                     ? { ...user, ...updateData, roles: { [editingUser.roleToEdit]: user.roles[getUserRole(user.roles)] } }

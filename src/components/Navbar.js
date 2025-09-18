@@ -22,7 +22,6 @@ const Navbar = () => {
     const canSeeHASAgenda = isAdmin || hasHASPlanningRole || hasTechnischeSchouwerRole || hasHASMonteurRole
     const canSeePlanningAgenda = isAdmin || hasTechnischePlanningRole
     
-    // Function to check if a path is active
     const isActivePath = (path) => {
         if (path === '/') {
             return location.pathname === '/'

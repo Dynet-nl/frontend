@@ -45,7 +45,7 @@ export const NotificationProvider = ({ children }) => {
         return addNotification({
             type: 'error',
             message,
-            duration: 5000, // Longer duration for errors
+duration: 5000,
             ...options
         });
     }, [addNotification]);

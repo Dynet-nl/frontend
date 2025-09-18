@@ -15,7 +15,6 @@ const OptimizedApartmentDetails = () => {
     const [apartment, setApartment] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Role checking
     const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin);
     const isTechnischePlanning = auth?.roles?.includes(ROLES_LIST.TechnischePlanning);
     const isHASPlanning = auth?.roles?.includes(ROLES_LIST.HASPlanning);
@@ -52,7 +51,6 @@ const OptimizedApartmentDetails = () => {
         );
     }
 
-    // Status indicators - now using centralized utility functions
     const hasAppointment = apartment.technischePlanning?.appointmentBooked?.date || apartment.hasMonteur?.appointmentBooked?.date;
     const appointmentType = apartment.technischePlanning?.appointmentBooked?.date ? 'Technical' : 
                            apartment.hasMonteur?.appointmentBooked?.date ? 'HAS' : null;
