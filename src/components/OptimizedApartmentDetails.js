@@ -62,7 +62,6 @@ const OptimizedApartmentDetails = () => {
                 <div className="apartment-title">
                     <h1>{apartment.complexNaam || `${apartment.adres} ${apartment.huisNummer}${apartment.toevoeging}`}</h1>
                     <div className="apartment-subtitle">
-                        <span className="building-type">{apartment.soortBouw}</span>
                         <span className="zoeksleutel">{apartment.zoeksleutel}</span>
                     </div>
                 </div>

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
+import { categorizeBuilding, generateHBNumber } from '../utils/buildingCategorization';
 import '../styles/tsApartmentDetails.css';
 const TechnicalPlanningApartmentSchedulePage = () => {
     const { id } = useParams();
@@ -28,35 +29,7 @@ const TechnicalPlanningApartmentSchedulePage = () => {
         return weekNumber;
     };
 
-    const generateHBNumber = (building, flats) => {
-        if (!flats || flats.length === 0) return '';
-        
-        const totalFlats = flats.length;
-        
-        let buildingType;
-        if (totalFlats === 1) {
-            buildingType = 'Laag bouw';
-        } else if (totalFlats === 2) {
-            buildingType = 'Duplex';
-        } else if (totalFlats <= 4) {
-            buildingType = 'Laag bouw';
-        } else {
-buildingType = 'HB';
-        }
-        
-        if (buildingType !== 'HB') return '';
-        
-        const postcode = flats[0]?.postcode || '';
-        const postcodeNumbers = postcode.replace(/[^0-9]/g, '').slice(0, 4);
-        
-        const address = building.address || '';
-        const addressNumbers = address.replace(/[^0-9]/g, '');
-        const firstAddressNumber = addressNumbers.slice(0, 3) || '001';
-        
-        const hbNumber = `HB-${postcodeNumbers}${totalFlats.toString().padStart(2, '0')}${firstAddressNumber.padStart(3, '0')}`;
-        
-        return hbNumber;
-    };
+    // HB Number generation is now handled by the centralized generateHBNumber function
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);

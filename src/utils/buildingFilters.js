@@ -34,19 +34,19 @@ export const filterBuildings = (buildings, query, filter) => {
             return filteredBuildings.filter(building => {
                 if (!building.flats || building.flats.length === 0) return false;
                 const {typeString} = categorizeBuilding(building.flats);
-                return typeString.includes('Laag bouw');
+                return typeString === 'Laag bouw'; // Exact match for 1 floor buildings
             });
         case 'HB':
             return filteredBuildings.filter(building => {
                 if (!building.flats || building.flats.length === 0) return false;
                 const {typeString} = categorizeBuilding(building.flats);
-                return typeString.includes('Hoog bouw');
+                return typeString === 'Hoog bouw'; // Exact match for 3+ floor buildings
             });
         case 'duplex':
             return filteredBuildings.filter(building => {
                 if (!building.flats || building.flats.length === 0) return false;
                 const {typeString} = categorizeBuilding(building.flats);
-                return typeString.includes('Duplex');
+                return typeString === 'Duplex'; // Exact match for 2 floor buildings
             });
         case 'appointment':
             return filteredBuildings.filter(building =>

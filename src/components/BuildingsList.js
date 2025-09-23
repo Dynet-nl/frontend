@@ -141,22 +141,19 @@ setFilter('all');
     };
     const renderFlatLinks = (flats, types, building) => {
         if (!flats || flats.length === 0) return null;
-        const laagBouwType = types.find(type => type.type === 'Laag bouw');
-        if (laagBouwType && flats.length === 1) {
-            const laagBouwFlat = flats.find(flat =>
-                flat.zoeksleutel && flat.zoeksleutel.startsWith(laagBouwType.prefix)
+        
+        // For single-flat buildings (Laag bouw), show just the building address
+        if (flats.length === 1 && types.some(type => type.type === 'Laag bouw')) {
+            const singleFlat = flats[0];
+            const hasAppt = hasAnyAppointment(singleFlat);
+            const flatClassName = hasAppt ? 'flatLink flatWithAppointment' : 'flatLink';
+            return (
+                <RoleBasedLink key={singleFlat._id} flatId={singleFlat._id} className={flatClassName}>
+                    <div className="flatInfo" style={{backgroundColor: hasAppt ? '#90EE90' : 'inherit'}}>
+                        {building.address}
+                    </div>
+                </RoleBasedLink>
             );
-            if (laagBouwFlat) {
-                const hasAppt = hasAnyAppointment(laagBouwFlat);
-                const flatClassName = hasAppt ? 'flatLink flatWithAppointment' : 'flatLink';
-                return (
-                    <RoleBasedLink key={laagBouwFlat._id} flatId={laagBouwFlat._id} className={flatClassName}>
-                        <div className="flatInfo" style={{backgroundColor: hasAppt ? '#90EE90' : 'inherit'}}>
-                            {building.address}
-                        </div>
-                    </RoleBasedLink>
-                );
-            }
         }
         return flats.map(flat => {
             if (!flat) return null;
@@ -321,8 +318,8 @@ floorGroups[floorNumber] = [flats[i]];
                             
                             const floors = [];
                             
-                            const buildingWidth = type.includes('Hoog bouw') ? 120 : 
-                                                type.includes('Duplex') ? 100 : 80;
+                            const buildingWidth = type === 'Hoog bouw' ? 120 : 
+                                                type === 'Duplex' ? 100 : 80;
                             
 const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b - a);
                             
@@ -333,8 +330,8 @@ const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b
                                 const isCompleted = floorCompletionPercentage === 100;
                                 const isPartiallyCompleted = floorCompletionPercentage > 0 && floorCompletionPercentage < 100;
                                 
-                                const floorHeight = type.includes('HB') || type.includes('Hoog Bouw') ? 45 : 
-                                                  type.includes('Duplex') ? 40 : 35;
+                                const floorHeight = type === 'Hoog bouw' ? 45 : 
+                                                  type === 'Duplex' ? 40 : 35;
                                 
                                 floors.push(
                                     <div 
