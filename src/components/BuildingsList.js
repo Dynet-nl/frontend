@@ -5,10 +5,12 @@ import {Link} from 'react-router-dom';
 import RoleBasedLink from './RoleBasedLink';
 import pencilIcon from '../assets/pencil_edit.png';
 import { categorizeBuilding, generateHBNumber } from '../utils/buildingCategorization';
-import { hasAnyAppointment, isFlatCompleted, calculateCompletionStatus } from '../utils/completionUtils';
+import { hasAnyAppointment, calculateCompletionStatus } from '../utils/completionUtils';
 import { filterBuildings, calculateFilterCounts } from '../utils/buildingFilters';
 import '../styles/buildingsList.css';
 import AuthContext from '../context/AuthProvider';
+import ROLES_LIST from '../context/roles_list';
+import axios from 'axios';
 const BuildingsList = ({buildings, isLoading}) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState('all');
@@ -64,6 +66,59 @@ setFilter('all');
         setSearchQuery('');
         setCurrentPage(1);
     }, []);
+
+    const isWerkvoorbereider = useMemo(() => {
+        return user && user.roles && user.roles.Werkvoorbereider === ROLES_LIST.Werkvoorbereider;
+    }, [user]);
+
+    const handleBlockBuilding = async (buildingId, reason) => {
+        try {
+            const response = await axios.put(`/api/building/block/${buildingId}`, {
+                reason: reason.trim()
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            if (response.data) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error blocking building:', error);
+            alert('Failed to block building. Please try again.');
+        }
+    };
+
+    const handleUnblockBuilding = async (buildingId) => {
+        try {
+            const response = await axios.put(`/api/building/unblock/${buildingId}`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            if (response.data) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error unblocking building:', error);
+            alert('Failed to unblock building. Please try again.');
+        }
+    };
+
+    const toggleBlockBuilding = (building) => {
+        if (building.isBlocked) {
+            if (window.confirm(`Are you sure you want to unblock "${building.address}"?`)) {
+                handleUnblockBuilding(building._id);
+            }
+        } else {
+            const reason = prompt('Enter reason for blocking this building:');
+            if (reason && reason.trim()) {
+                handleBlockBuilding(building._id, reason);
+            }
+        }
+    };
 
 
 
@@ -206,6 +261,12 @@ setFilter('all');
                         No Appointment <span className="filter-count">({filterCounts.noappointment || 0})</span>
                     </button>
                     <button 
+                        onClick={() => handleFilterChange('blocked')}
+                        className={`${filter === 'blocked' ? 'active' : ''} blocked-filter`}
+                    >
+                        🚫 Blocked <span className="filter-count">({filterCounts.blocked || 0})</span>
+                    </button>
+                    <button 
                         onClick={() => handleFilterChange('all')}
                         className={filter === 'all' ? 'active' : ''}
                     >
@@ -252,8 +313,6 @@ setFilter('all');
                         const generateBuildingStructure = (flats, type) => {
                             const totalFlats = flats.length;
                             const floorGroups = {};
-                            
-                            const floorsCount = totalFlats;
                             
                             for (let i = 0; i < totalFlats; i++) {
 const floorNumber = i + 1;
@@ -326,9 +385,16 @@ const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b
                                 </div>
                                 
                                 {/* Building Information */}
-                                <div className="buildingInfo">
+                                <div className={`buildingInfo ${building.isBlocked ? 'blocked-building' : ''}`}>
+                                    {building.isBlocked && (
+                                        <div className="block-indicator">
+                                            <span className="block-icon">🚫</span>
+                                            <span className="block-text">BLOCKED</span>
+                                            <div className="block-reason">{building.blockReason}</div>
+                                        </div>
+                                    )}
                                     <div className="buildingHeaderSection">
-                                        <Link to={`/building/${building._id}`}>
+                                        <Link to={`/building/${building._id}`} style={{opacity: building.isBlocked ? 0.6 : 1}}>
                                             <div className="buildingHeader">
                                                 {building.flats && building.flats[0]?.complexNaam
                                                     ? building.flats[0].complexNaam
@@ -347,10 +413,21 @@ const sortedFloorNumbers = Object.keys(floorGroups).map(Number).sort((a, b) => b
                                             </div>
                                         </Link>
                                         <div className="flatCountBox">{flatCount}</div>
+                                        {isWerkvoorbereider && (
+                                            <button
+                                                onClick={() => toggleBlockBuilding(building)}
+                                                className={`block-toggle-btn ${building.isBlocked ? 'blocked' : 'active'}`}
+                                                title={building.isBlocked ? 'Unblock building' : 'Block building'}
+                                            >
+                                                {building.isBlocked ? '🔓' : '🔒'}
+                                            </button>
+                                        )}
                                         <RoleBasedLink
                                             buildingId={building._id}
+                                            building={building}
                                             type="schedule"
-                                            className="editIconLink">
+                                            className="editIconLink"
+                                            style={{opacity: building.isBlocked ? 0.4 : 1, pointerEvents: building.isBlocked ? 'none' : 'auto'}}>
                                             <img src={pencilIcon} alt="Edit" className="editIcon"/>
                                         </RoleBasedLink>
                                     </div>

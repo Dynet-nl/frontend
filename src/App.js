@@ -55,7 +55,7 @@ function App() {
                                     <Route element={<AdminSchedulingSelectionPage />} path='/admin-scheduling-selection/:id' />
                                     <Route element={<AppointmentSystemValidator />} path='/appointment-validator' />
                                 </Route>
-                                <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING]} />}>
+                                <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING, ROLES.WERKVOORBEREIDER]} />}>
                                     <Route element={<OptimizedApartmentDetails />} path='/planning-apartment/:id' />
                                 </Route>
                                 <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING, ROLES.ADMIN]} />}>

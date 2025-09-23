@@ -67,6 +67,8 @@ export const filterBuildings = (buildings, query, filter) => {
             return filteredBuildings.filter(building =>
                 building.flats && building.flats.every(flat => !hasAnyAppointment(flat))
             );
+        case 'blocked':
+            return filteredBuildings.filter(building => building.isBlocked === true);
         case 'all':
         default:
             return filteredBuildings;
@@ -89,7 +91,8 @@ export const calculateFilterCounts = (buildings) => {
             appointment: 0,
             done: 0,
             pending: 0,
-            noappointment: 0
+            noappointment: 0,
+            blocked: 0
         };
     }
 
@@ -102,6 +105,7 @@ export const calculateFilterCounts = (buildings) => {
         appointment: filterBuildings(buildings, '', 'appointment').length,
         done: filterBuildings(buildings, '', 'done').length,
         pending: filterBuildings(buildings, '', 'pending').length,
-        noappointment: filterBuildings(buildings, '', 'noappointment').length
+        noappointment: filterBuildings(buildings, '', 'noappointment').length,
+        blocked: filterBuildings(buildings, '', 'blocked').length
     };
 };

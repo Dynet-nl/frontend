@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { BounceLoader } from 'react-spinners';
+import SimpleProgressModal from '../components/SimpleProgressModal';
 import '../styles/districtManagement.css';
 const validateExcelFile = (file) => {
     const errors = [];
@@ -35,13 +36,19 @@ const DistrictManagementPage = () => {
     const [importHistory, setImportHistory] = useState([]);
     const [dataPreview, setDataPreview] = useState(null);
     const [conflicts, setConflicts] = useState([]);
-const [operationType, setOperationType] = useState('create');
+    const [operationType, setOperationType] = useState('create');
+    
+    // Simple progress states
+    const [showProgressModal, setShowProgressModal] = useState(false);
+    const [progressPercent, setProgressPercent] = useState(0);
+    const [progressMessage, setProgressMessage] = useState('Starting import...');
     const fetchImportHistory = useCallback(async () => {
         try {
             const response = await axiosPrivate.get(`/api/district/import-history/${areaId}`);
-            setImportHistory(response.data);
+            setImportHistory(response.data.history || []);
         } catch (error) {
             console.error('Error fetching import history:', error);
+            setImportHistory([]);
         }
     }, [axiosPrivate, areaId]);
     useEffect(() => {
@@ -62,21 +69,28 @@ const [operationType, setOperationType] = useState('create');
         }
     };
     const generateDataPreview = async (file) => {
+        console.log('🔄 Generating preview for file:', file.name, file.type);
         try {
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('areaId', areaId);
+            
+            console.log('📤 Sending preview request to /api/district/preview');
             const response = await axiosPrivate.post('/api/district/preview', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+            
+            console.log('📥 Preview response received:', response.data);
             setDataPreview(response.data);
+            
             if (operationType === 'update') {
                 checkForConflicts(response.data);
             }
         } catch (error) {
-            console.error('Error generating preview:', error);
+            console.error('❌ Error generating preview:', error.response?.data || error.message);
             setValidationResults(prev => ({
                 ...prev,
-                errors: [...(prev?.errors || []), 'Failed to read file content']
+                errors: [...(prev?.errors || []), `Failed to read file content: ${error.response?.data?.message || error.message}`]
             }));
         }
     };
@@ -91,6 +105,7 @@ const [operationType, setOperationType] = useState('create');
             console.error('Error checking conflicts:', error);
         }
     };
+
     const handleImport = async () => {
         if (!selectedFile || !validationResults?.isValid) {
             return;
@@ -99,67 +114,72 @@ const [operationType, setOperationType] = useState('create');
             alert('Please enter a district name');
             return;
         }
+
+        // Show progress modal and simulate progress
+        setShowProgressModal(true);
+        setProgressPercent(0);
+        setProgressMessage('Starting import...');
         setIsProcessing(true);
-        setImportProgress({ stage: 'starting', progress: 0, message: 'Initializing import...' });
+
         try {
+            // Simulate progress steps
+            const progressSteps = [
+                { percent: 10, message: 'Uploading file...' },
+                { percent: 30, message: 'Validating data...' },
+                { percent: 50, message: 'Processing buildings...' },
+                { percent: 80, message: 'Saving to database...' },
+                { percent: 100, message: 'Import completed!' }
+            ];
+
+            // Show progress updates
+            for (let i = 0; i < progressSteps.length - 1; i++) {
+                setProgressPercent(progressSteps[i].percent);
+                setProgressMessage(progressSteps[i].message);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
             const formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('areaId', areaId);
+            formData.append('operationType', operationType);
             if (operationType === 'create') {
                 formData.append('currentDistrict', districtName);
             }
-            const endpoint = '/api/district/import-enhanced';
-const method = 'post';
-            await axiosPrivate[method](endpoint, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-                onUploadProgress: (progressEvent) => {
-                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    setImportProgress({
-                        stage: 'uploading',
-                        progress,
-                        message: `Uploading file... ${progress}%`
-                    });
-                }
+            
+            console.log('� [Import] Starting enhanced import with progress tracking...');
+            
+            const response = await axiosPrivate.post('/api/district/import-enhanced', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            setImportProgress({
-                stage: 'processing',
-                progress: 50,
-                message: 'Processing data...'
-            });
+            
+            // Final progress step
+            setProgressPercent(100);
+            setProgressMessage('Import completed successfully!');
+            
+            console.log('✅ [Import] Import completed:', response.data);
+            
+            // Reset form state after delay
             setTimeout(() => {
-                setImportProgress({
-                    stage: 'saving',
-                    progress: 80,
-                    message: 'Saving to database...'
-                });
-            }, 1000);
-            setTimeout(() => {
-                setImportProgress({
-                    stage: 'complete',
-                    progress: 100,
-                    message: `${operationType === 'create' ? 'District created' : 'District updated'} successfully!`
-                });
                 setSelectedFile(null);
                 setDistrictName('');
                 setValidationResults(null);
                 setDataPreview(null);
-                setConflicts([]);
-                fetchImportHistory();
-                setTimeout(() => {
-                    setImportProgress(null);
-                }, 3000);
+                setShowProgressModal(false);
+                setIsProcessing(false);
+                fetchImportHistory(); // Refresh history
             }, 2000);
+            
         } catch (error) {
-            console.error('Import error:', error);
-            setImportProgress({
-                stage: 'error',
-                progress: 0,
-                message: `Import failed: ${error.response?.data?.message || error.message}`
-            });
-        } finally {
-            setIsProcessing(false);
+            console.error('❌ [Import] Error during import:', error);
+            setProgressMessage(`Import failed: ${error.response?.data?.error || error.message}`);
+            
+            setTimeout(() => {
+                setShowProgressModal(false);
+                setIsProcessing(false);
+            }, 3000);
         }
     };
+
+
     const renderValidationResults = () => {
         if (!validationResults) return null;
         return (
@@ -194,35 +214,111 @@ const method = 'post';
     };
     const renderDataPreview = () => {
         if (!dataPreview) return null;
+        
+        console.log('🔍 Rendering preview with data:', dataPreview);
+        
+        // Extract data from backend response structure
+        const stats = dataPreview.stats || {};
+        const preview = dataPreview.preview || [];
+        const buildingPreview = dataPreview.buildingPreview || [];
+        const validation = dataPreview.validation || {};
+        
+        // FIXED: Use the accurate building count from backend analysis (not sample-based calculation)
+        const totalBuildings = stats.totalBuildings || 0;
+        const totalFlats = stats.totalFlats || stats.validRows || 0;
+        const buildingsWithMultiple = stats.buildingsWithMultipleFlats || 0;
+        
+        console.log('📊 [Frontend] Accurate building statistics from backend:');
+        console.log(`🏢 Total buildings: ${totalBuildings}`);
+        console.log(`� Total flats: ${totalFlats}`);
+        console.log(`🏢+ Buildings with multiple flats: ${buildingsWithMultiple}`);
+        console.log(`📊 Average flats per building: ${totalBuildings > 0 ? Math.round(totalFlats / totalBuildings) : 0}`);
+        
+        if (buildingPreview.length > 0) {
+            console.log('🏢 Sample buildings:', buildingPreview.slice(0, 5).map(b => 
+                `${b.buildingIdentifier} → ${b.address} ${b.houseNumber} (${b.flatCount} flats)`
+            ));
+        }
+        
+        // Get available columns from the first preview item
+        const columns = preview.length > 0 ? Object.keys(preview[0]).filter(key => 
+            !key.startsWith('_') && key !== 'building' && key !== 'district'
+        ) : [];
+        
         return (
             <div className="data-preview">
                 <h3>📊 Data Preview</h3>
                 <div className="preview-stats">
-                    <span>Buildings: {dataPreview.buildingsCount}</span>
-                    <span>Apartments: {dataPreview.apartmentsCount}</span>
-                    <span>Columns: {dataPreview.columnsCount}</span>
+                    <span>🏢 Buildings: {totalBuildings}</span>
+                    <span>🏠 Apartments: {totalFlats}</span>
+                    <span>📋 Columns: {validation.stats?.columnsCount || 0}</span>
+                    <span>🏢+ Multi-unit: {buildingsWithMultiple}</span>
                 </div>
-                {dataPreview.sampleData && (
+                
+                {buildingPreview.length > 0 && (
                     <div className="preview-table">
-                        <h4>Sample Data (first 5 rows):</h4>
+                        <h4>🏢 Building Preview (first 5 buildings):</h4>
                         <table>
                             <thead>
                                 <tr>
-                                    {dataPreview.columns?.map((col, index) => (
+                                    <th>Building ID</th>
+                                    <th>Address</th>
+                                    <th>Apartments</th>
+                                    <th>Sample Units</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {buildingPreview.slice(0, 5).map((building, index) => (
+                                    <tr key={index}>
+                                        <td><code>{building.buildingIdentifier}</code></td>
+                                        <td>{building.address} {building.houseNumber}</td>
+                                        <td><strong>{building.flatCount}</strong></td>
+                                        <td>
+                                            {building.sampleFlats.map((flat, i) => (
+                                                <div key={i} style={{fontSize: '0.9em', color: '#666'}}>
+                                                    {flat.zoeksleutel}
+                                                </div>
+                                            ))}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+                
+                {preview.length > 0 && (
+                    <div className="preview-table">
+                        <h4>🏠 Apartment Preview (first 5 rows):</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    {columns.map((col, index) => (
                                         <th key={index}>{col}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
-                                {dataPreview.sampleData.map((row, index) => (
+                                {preview.slice(0, 5).map((row, index) => (
                                     <tr key={index}>
-                                        {dataPreview.columns?.map((col, colIndex) => (
+                                        {columns.map((col, colIndex) => (
                                             <td key={colIndex}>{row[col] || '-'}</td>
                                         ))}
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                )}
+                
+                {validation.warnings && validation.warnings.length > 0 && (
+                    <div className="preview-warnings">
+                        <h4>⚠️ Warnings:</h4>
+                        <ul>
+                            {validation.warnings.map((warning, index) => (
+                                <li key={index}>{warning}</li>
+                            ))}
+                        </ul>
                     </div>
                 )}
             </div>
@@ -271,7 +367,7 @@ const method = 'post';
         );
     };
     const renderImportHistory = () => {
-        if (importHistory.length === 0) return null;
+        if (!Array.isArray(importHistory) || importHistory.length === 0) return null;
         return (
             <div className="import-history">
                 <h3>📋 Recent Imports</h3>
@@ -309,6 +405,19 @@ const method = 'post';
                     Update Existing District
                 </button>
             </div>
+
+            {/* Simple Progress Modal */}
+            <SimpleProgressModal
+                isVisible={showProgressModal}
+                progress={progressPercent}
+                message={progressMessage}
+                onClose={() => {
+                    if (progressPercent >= 100 || progressMessage.includes('failed')) {
+                        setShowProgressModal(false);
+                        setIsProcessing(false);
+                    }
+                }}
+            />
             <div className="main-content">
                 <div className="upload-section">
                     <h2>
@@ -380,7 +489,7 @@ const method = 'post';
                             <ul>
                                 <li>Excel (.xlsx, .xls) or CSV format</li>
                                 <li>Maximum size: 50MB</li>
-                                <li>Required columns: Zoeksleutel, Adres, etc.</li>
+                                <li>Required columns: Opdrachtnummer, Volledig adres, etc.</li>
                             </ul>
                             <h4>Weekly Update Process:</h4>
                             <ol>
