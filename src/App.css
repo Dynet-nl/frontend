@@ -72,6 +72,7 @@ body {
 
 .modern-button-primary:hover:not(:disabled) {
     background-color: #2980b9;
+    color: #ffffff !important;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
 }
@@ -84,6 +85,7 @@ body {
 
 .modern-button-success:hover:not(:disabled) {
     background-color: #229954;
+    color: #ffffff !important;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
 }
@@ -96,6 +98,7 @@ body {
 
 .modern-button-secondary:hover:not(:disabled) {
     background-color: #7f8c8d;
+    color: #ffffff !important;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(149, 165, 166, 0.4);
 }
