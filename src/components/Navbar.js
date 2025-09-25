@@ -6,6 +6,7 @@ import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
 import Button from '@mui/material/Button';
 import ROLES_LIST from "../context/roles_list";
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
     const {auth, setAuth} = useAuth()
@@ -128,6 +129,9 @@ const Navbar = () => {
                 <span></span>
                 <span></span>
             </button>
+            
+            {/* Theme Toggle */}
+            <ThemeToggle />
             
             {/* User Section */}
             <div className="nav-user-section">

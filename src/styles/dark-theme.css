@@ -1,0 +1,168 @@
+/* Dark Mode Theme Variables and Styles */
+
+:root {
+    /* Light mode colors */
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f8f9fa;
+    --text-primary: #2c3e50;
+    --text-secondary: #6c757d;
+    --text-muted: #95a5a6;
+    --border-color: #e9ecef;
+    --border-hover: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --shadow-hover: rgba(52, 152, 219, 0.15);
+    --primary-color: #3498db;
+    --primary-hover: #2980b9;
+    --success-color: #27ae60;
+    --success-hover: #229954;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --info-color: #17a2b8;
+    
+    /* Toggle specific */
+    --toggle-bg: linear-gradient(90deg, #87CEEB 0%, #FFA500 100%);
+    --toggle-thumb-bg: #ffffff;
+    
+    /* Navbar */
+    --nav-bg: #ffffff;
+    --nav-text: #2c3e50;
+    --nav-border: #e9ecef;
+}
+
+[data-theme="dark"] {
+    /* Dark mode colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #b0b0b0;
+    --border-color: #4a4a4a;
+    --border-hover: #5a5a5a;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-hover: rgba(52, 152, 219, 0.3);
+    --primary-color: #4a9eff;
+    --primary-hover: #357abd;
+    --success-color: #2ecc71;
+    --success-hover: #27ae60;
+    --warning-color: #f1c40f;
+    --danger-color: #e67e22;
+    --info-color: #3498db;
+    
+    /* Toggle specific */
+    --toggle-bg: linear-gradient(90deg, #2d3748 0%, #4a5568 100%);
+    --toggle-thumb-bg: #1a202c;
+    
+    /* Navbar */
+    --nav-bg: #2d2d2d;
+    --nav-text: #ffffff;
+    --nav-border: #4a4a4a;
+}
+
+/* Apply theme variables to common elements */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.App {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Building Container Dark Mode */
+.buildingContainer {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.buildingContainer:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 12px var(--shadow-hover);
+}
+
+/* Button Dark Mode Support */
+.modern-button-primary {
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+}
+
+.modern-button-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+.modern-button-success {
+    background-color: var(--success-color);
+}
+
+.modern-button-success:hover:not(:disabled) {
+    background-color: var(--success-hover);
+}
+
+/* Card and Container Styles */
+.card, .container, .modal-content {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Input and Form Elements */
+input, textarea, select {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--shadow-hover);
+}
+
+/* Table Styles */
+table {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+thead {
+    background: var(--bg-tertiary);
+}
+
+tbody tr:hover {
+    background: var(--bg-tertiary);
+}
+
+td, th {
+    border-color: var(--border-color);
+}
+
+/* Link Styles */
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
+/* Scrollbar Dark Mode */
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}

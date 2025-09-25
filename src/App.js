@@ -6,6 +6,7 @@ import { Route, Routes } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import { CacheInvalidationProvider } from './context/CacheInvalidationProvider';
 import { NotificationProvider } from './context/NotificationProvider';
+import { ThemeProvider } from './context/ThemeProvider';
 import ErrorBoundary from './components/ErrorBoundary';
 import DashboardHomePage from './pages/DashboardHomePage';
 import DistrictSelectionPage from './pages/DistrictSelectionPage';
@@ -40,10 +41,11 @@ function App() {
     }, [setAuth]);
     return (
         <ErrorBoundary>
-            <NotificationProvider>
-                <CacheInvalidationProvider>
-                    <div className='App'>
-                        <Routes>
+            <ThemeProvider>
+                <NotificationProvider>
+                    <CacheInvalidationProvider>
+                        <div className='App'>
+                            <Routes>
                             <Route element={<UserLoginPage />} path='/login' />
                             <Route element={<Unauthorized />} path='/unauthorized' />
                             <Route element={<Layout />}>
@@ -88,8 +90,9 @@ function App() {
                             <Route element={<NotFound />} path='*' />
                         </Routes>
                     </div>
-                </CacheInvalidationProvider>
-            </NotificationProvider>
+                    </CacheInvalidationProvider>
+                </NotificationProvider>
+            </ThemeProvider>
         </ErrorBoundary>
     );
 }

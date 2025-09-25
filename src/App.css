@@ -4,6 +4,7 @@
 /* Import responsive design system */
 @import './styles/responsive.css';
 @import './styles/mobile.css';
+@import './styles/dark-theme.css';
 
 * {
     padding: 0;
@@ -14,12 +15,13 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f7fa;
-    color: #2c3e50;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .App {
