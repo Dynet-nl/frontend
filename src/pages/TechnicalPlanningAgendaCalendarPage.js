@@ -5,6 +5,7 @@ import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
 import {format, parse, startOfWeek, getDay} from 'date-fns';
 import {nl} from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import '../styles/calendar-time-display.css';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
 import { fetchUserColors, getUserColor, darkenColor } from '../utils/userColors';
@@ -18,6 +19,18 @@ const localizer = dateFnsLocalizer({
     getDay,
     locales,
 });
+
+// Custom formats for better time display
+const formats = {
+    timeGutterFormat: 'HH:mm',
+    eventTimeRangeFormat: ({start, end}, culture, localizer) =>
+        localizer.format(start, 'HH:mm', culture) + ' - ' + 
+        localizer.format(end, 'HH:mm', culture),
+    dayHeaderFormat: 'eeee, d MMMM yyyy',
+    dayRangeHeaderFormat: ({start, end}, culture, localizer) =>
+        localizer.format(start, 'd MMMM', culture) + ' - ' + 
+        localizer.format(end, 'd MMMM yyyy', culture)
+};
 const TechnicalPlanningAgendaCalendarPage = () => {
     const axiosPrivate = useAxiosPrivate();
     const [events, setEvents] = useState([]);
@@ -309,7 +322,7 @@ const heightPerHour = 30;
                         </div>
 
                         {/* Calendar Content */}
-                        <div style={{ padding: '20px', height: '500px' }}>
+                        <div style={{ padding: '20px', height: '700px' }}>
                             {loading ? (
                                 <div style={{
                                     display: 'flex',
@@ -336,6 +349,12 @@ const heightPerHour = 30;
                                     eventPropGetter={eventStyleGetter}
                                     views={['month', 'week', 'day']}
                                     defaultView="month"
+                                    min={new Date(2024, 0, 1, 6, 0, 0)}
+                                    max={new Date(2024, 0, 1, 22, 0, 0)}
+                                    step={60}
+                                    timeslots={1}
+                                    showMultiDayTimes={true}
+                                    formats={formats}
                                 />
                             )}
                         </div>

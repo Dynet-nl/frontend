@@ -1,0 +1,231 @@
+/* Custom styles for calendar time display in day view */
+
+/* Ensure time gutter is visible and properly styled in day view */
+.rbc-time-view .rbc-time-gutter {
+    width: 70px !important;
+    min-width: 70px !important;
+    text-align: center !important;
+    background-color: #f8f9fa !important;
+    border-right: 2px solid #e9ecef !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #495057 !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Ensure each time slot in the gutter has proper height for centering */
+.rbc-time-view .rbc-time-gutter .rbc-timeslot-group {
+    height: 60px !important;
+    min-height: 60px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+
+
+/* Ensure time slots are visible and have consistent height */
+.rbc-time-view .rbc-timeslot-group {
+    min-height: 60px !important;
+    height: 60px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Style current time indicator if visible */
+.rbc-current-time-indicator {
+    background-color: #dc3545 !important;
+    height: 2px !important;
+    z-index: 5 !important;
+}
+
+/* Improve day view time display */
+.rbc-day-view .rbc-time-gutter,
+.rbc-work-week-view .rbc-time-gutter {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    box-shadow: inset -1px 0 0 #e9ecef !important;
+}
+
+/* Enhance time labels for better visibility */
+.rbc-day-view .rbc-time-gutter .rbc-label,
+.rbc-work-week-view .rbc-time-gutter .rbc-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Make sure time header is visible */
+.rbc-time-header-gutter {
+    background-color: #f8f9fa !important;
+    border-right: 2px solid #e9ecef !important;
+    width: 70px !important;
+    min-width: 70px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .rbc-time-view .rbc-time-gutter {
+        width: 50px !important;
+        min-width: 50px !important;
+        font-size: 10px !important;
+    }
+    
+    .rbc-time-header-gutter {
+        width: 50px !important;
+        min-width: 50px !important;
+    }
+}
+
+/* Make sure the time gutter doesn't get hidden */
+.rbc-time-view .rbc-time-content > .rbc-time-gutter {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 10 !important;
+}
+
+/* Ensure proper spacing between time and events */
+.rbc-time-view .rbc-day-slot {
+    margin-left: 0 !important;
+}
+
+/* Style improvements for better readability */
+.rbc-time-view .rbc-time-gutter .rbc-label:hover {
+    background-color: rgba(0, 123, 255, 0.05) !important;
+}
+
+/* Additional styling for better time visibility in day view */
+.rbc-day-view .rbc-time-gutter,
+.rbc-work-week-view .rbc-time-gutter {
+    border-right: 3px solid #007bff !important;
+}
+
+/* Enhanced time slot styling */
+.rbc-time-view .rbc-time-slot {
+    border-top: 1px solid #dee2e6 !important;
+    min-height: 40px !important;
+}
+
+/* Make the time text more prominent and vertically centered */
+.rbc-time-view .rbc-time-gutter .rbc-label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    font-weight: 500 !important;
+    color: #6c757d !important;
+    background: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure proper alignment and visibility */
+.rbc-time-view .rbc-timeslot-group {
+    border-bottom: 1px solid #e9ecef !important;
+    position: relative !important;
+}
+
+/* Add a subtle gradient to the time gutter */
+.rbc-time-view .rbc-time-gutter {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%) !important;
+}
+
+/* Ensure the time gutter is always visible even when scrolling */
+.rbc-time-content > .rbc-time-gutter {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 15 !important;
+}
+
+/* Clean time label styling without decorative elements */
+.rbc-time-view .rbc-time-gutter .rbc-label {
+    position: relative !important;
+}
+
+/* Override any default positioning that might interfere with centering */
+.rbc-time-view .rbc-time-gutter {
+    align-items: stretch !important;
+}
+
+.rbc-time-view .rbc-time-gutter > * {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 !important;
+}
+
+/* Ensure proper vertical alignment for time slots */
+.rbc-time-view .rbc-time-slot {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 60px !important;
+    min-height: 60px !important;
+}
+
+/* Make all calendar day slots match the gutter height */
+.rbc-time-view .rbc-day-slot .rbc-time-slot {
+    height: 60px !important;
+    min-height: 60px !important;
+    border-top: 1px solid #f0f0f0 !important;
+}
+
+/* Ensure timeslot groups in the main calendar area match gutter height */
+.rbc-time-view .rbc-timeslot-group {
+    height: 60px !important;
+    min-height: 60px !important;
+}
+
+/* Make the entire time column consistent */
+.rbc-time-view .rbc-time-column .rbc-timeslot-group {
+    height: 60px !important;
+    min-height: 60px !important;
+    flex: none !important;
+}
+
+/* Ensure day slots have proper spacing */
+.rbc-time-view .rbc-day-slot {
+    min-height: auto !important;
+}
+
+/* Add more vertical space to the calendar rows */
+.rbc-time-view .rbc-day-slot .rbc-timeslot-group {
+    height: 60px !important;
+    min-height: 60px !important;
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+/* Ensure the entire calendar content area accommodates the larger cells */
+.rbc-time-content {
+    min-height: 100% !important;
+}
+
+/* Make sure events containers also respect the new height */
+.rbc-day-slot .rbc-events-container {
+    height: 100% !important;
+}
+
+/* Add some breathing room to the calendar */
+.rbc-calendar {
+    min-height: 600px !important;
+}
+
+/* Ensure all time slots have consistent styling */
+.rbc-time-view .rbc-time-slot,
+.rbc-day-slot .rbc-time-slot {
+    min-height: 60px !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+}
