@@ -119,27 +119,29 @@ const Navbar = () => {
                 <NavigationLinks />
             </div>
             
-            {/* Mobile Menu Toggle */}
-            <button 
-                className={`nav-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
-                onClick={toggleMobileMenu}
-                aria-label="Toggle navigation menu"
-            >
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            
-            {/* Theme Toggle */}
-            <ThemeToggle />
-            
-            {/* User Section */}
-            <div className="nav-user-section">
-                <div className="nav-user-info">
-                    <div className="nav-user-role">
-                        {currentRoles}
+            {/* Right Section */}
+            <div className="nav-right-section">
+                {/* Mobile Menu Toggle */}
+                <button 
+                    className={`nav-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
+                    onClick={toggleMobileMenu}
+                    aria-label="Toggle navigation menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                {/* Theme Toggle */}
+                <ThemeToggle />
+                
+                {/* User Section */}
+                <div className="nav-user-section">
+                    <div className="nav-user-info">
+                        <div className="nav-user-role">
+                            {currentRoles}
+                        </div>
                     </div>
-                </div>
                 <Button 
                     onClick={logout}
                     className="nav-logout-btn"
@@ -170,6 +172,7 @@ const Navbar = () => {
                 >
                     Sign Out
                 </Button>
+                </div>
             </div>
             
             {/* Mobile Navigation Menu */}

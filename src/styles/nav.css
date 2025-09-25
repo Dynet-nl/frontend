@@ -2,8 +2,8 @@
 
 /* Base navigation - Mobile First */
 nav {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     height: 56px;
     padding: 0 16px;
@@ -84,6 +84,28 @@ nav {
 /* Navigation links - Mobile styles */
 .nav-links {
     display: none;
+    justify-self: center;
+}
+
+/* Right section containing theme toggle, user info, etc. */
+.nav-right-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-self: end;
+}
+
+/* Ensure theme toggle is properly positioned in right section */
+.nav-right-section .theme-toggle {
+    order: 1;
+}
+
+.nav-right-section .nav-user-section {
+    order: 2;
+}
+
+.nav-right-section .nav-menu-toggle {
+    order: 0;
 }
 
 nav a {
@@ -193,6 +215,7 @@ nav a.active:hover {
     nav {
         height: 64px;
         padding: 0 24px;
+        grid-template-columns: auto 1fr auto;
     }
     
     .nav-menu-toggle {
@@ -207,6 +230,7 @@ nav a.active:hover {
         display: flex;
         align-items: center;
         gap: 8px;
+        justify-self: center;
     }
     
     nav a {
@@ -252,6 +276,10 @@ nav a.active:hover {
     
     .nav-links {
         gap: 12px;
+    }
+    
+    .nav-right-section {
+        gap: 16px;
     }
     
     .nav-user-section {
@@ -319,18 +347,16 @@ nav a.active:hover {
 @media (max-width: 480px) {
     nav {
         padding: 0 12px;
-        flex-wrap: wrap;
         min-height: 56px;
+        grid-template-columns: auto auto;
     }
-
+    
     .nav-links {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        padding-top: 8px;
-        border-top: 1px solid #e9ecef;
-        margin-top: 8px;
-        gap: 2px;
+        display: none;
+    }
+    
+    .nav-right-section {
+        gap: 8px;
     }
 
     nav a {
