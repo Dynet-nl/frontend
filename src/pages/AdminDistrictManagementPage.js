@@ -215,10 +215,31 @@ const AdminDistrictManagementPage = () => {
                 </div>
             )}
             <div className="district-management-section">
-                <h1>District Management Dashboard</h1>
-                <p className="instructions">
-                    Drag and drop districts to reorder their priority. First district gets highest priority.
-                </p>
+                <div className="section-header">
+                    <div className="header-content">
+                        <h1 className="section-title">
+                            <span className="section-icon">🏢</span>
+                            District Management Dashboard
+                        </h1>
+                        <p className="section-description">
+                            Manage districts, reorder priorities, and track installation progress across your network
+                        </p>
+                    </div>
+                    <div className="header-stats">
+                        <div className="quick-stat">
+                            <span className="stat-number">{districts.length}</span>
+                            <span className="stat-label">Total Districts</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="instructions-card">
+                    <div className="instructions-icon">🎯</div>
+                    <div className="instructions-content">
+                        <h3>Priority Management</h3>
+                        <p>Drag and drop districts to reorder their priority. The first district gets the highest priority for installation scheduling.</p>
+                    </div>
+                </div>
                 {isLoading && (
                     <div className="loading-overlay">
                         <BounceLoader color="#3498db" />
@@ -235,7 +256,11 @@ const AdminDistrictManagementPage = () => {
                     </div>
                 )}
                 {!isLoading && districts.length === 0 && !error && (
-                    <p>No districts found.</p>
+                    <div className="empty-state">
+                        <div className="empty-icon">🏗️</div>
+                        <h3>No Districts Found</h3>
+                        <p>Start by creating your first district to organize your network infrastructure.</p>
+                    </div>
                 )}
                 {districts.length > 0 && (
                     <DragDropContext onDragEnd={onDragEnd}>
@@ -244,7 +269,7 @@ const AdminDistrictManagementPage = () => {
                                 <div 
                                     {...provided.droppableProps} 
                                     ref={provided.innerRef}
-                                    className="districts-list"
+                                    className="districts-container"
                                 >
                                     {districts.map((district, index) => (
                                         <Draggable 
@@ -256,27 +281,26 @@ const AdminDistrictManagementPage = () => {
                                                 <div
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
                                                     className={`district-card ${snapshot.isDragging ? 'dragging' : ''}`}
                                                 >
                                                     <div className="district-header">
-                                                        <div className="district-title">
+                                                        <div className="district-info">
                                                             <h3>
+                                                                <span className="district-icon">🏢</span>
                                                                 {district.name}
-                                                                {index === 0 && 
-                                                                    <span className="priority-badge">
-                                                                        HIGHEST PRIORITY
-                                                                    </span>
-                                                                }
                                                             </h3>
-                                                            <div className="district-info">
-                                                                <span>Priority Rank: #{index + 1}</span>
+                                                            <div className="district-meta">
                                                                 {district.area?.name && (
-                                                                    <span> • Area: {district.area.name}</span>
+                                                                    <span className="area-tag">📍 {district.area.name}</span>
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="drag-handle">⋮⋮</div>
+                                                        <div className="district-priority">
+                                                            <span className="priority-icon">🎯</span>
+                                                            #{index + 1}
+                                                            {index === 0 && <span className="priority-text">Priority</span>}
+                                                        </div>
+                                                        <div {...provided.dragHandleProps} className="drag-handle">⋮⋮</div>
                                                     </div>
                                                     <div className="stats-container">
                                                         <div className="stat-item">
