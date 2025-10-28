@@ -16,7 +16,7 @@ const UserLoginPage = () => {
     const [password, setPassword] = useState('')
     const [errMsg, setErrMsg] = useState('')
     useEffect(() => {
-        userRef.current.focus()
+        userRef.current?.focus()
     }, [])
     useEffect(() => {
         setErrMsg('')
@@ -49,7 +49,7 @@ const UserLoginPage = () => {
             } else {
                 setErrMsg('Login Failed')
             }
-            errRef.current.focus()
+            errRef.current?.focus()
         }
     }
     return (
