@@ -49,7 +49,10 @@ const UserLoginPage = () => {
             } else {
                 setErrMsg('Login Failed')
             }
-            errRef.current?.focus()
+            // Focus on error message after it's rendered
+            setTimeout(() => {
+                errRef.current?.focus()
+            }, 0)
         }
     }
     return (
@@ -95,6 +98,7 @@ const UserLoginPage = () => {
                 {errMsg && (
                     <div 
                         ref={errRef}
+                        tabIndex={-1}
                         style={{
                             marginBottom: '20px',
                             padding: '15px',
@@ -102,7 +106,8 @@ const UserLoginPage = () => {
                             backgroundColor: '#f8d7da',
                             border: '1px solid #f5c6cb',
                             color: '#721c24',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            outline: 'none'
                         }}
                         aria-live="assertive"
                     >
