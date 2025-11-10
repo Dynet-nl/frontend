@@ -1,12 +1,29 @@
 // React context provider for managing global authentication state and user information.
 
-import {createContext, useCallback, useState} from 'react';
+import { createContext, useCallback, useState } from 'react';
 const AuthContext = createContext({});
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
     const [auth, setAuth] = useState(() => {
         const token = localStorage.getItem('accessToken');
-        const roles = JSON.parse(localStorage.getItem('roles'));
-        return token ? {accessToken: token, roles: roles} : {};
+        let roles = [];
+        const storedRoles = localStorage.getItem('roles');
+        if (storedRoles) {
+            try {
+                roles = JSON.parse(storedRoles);
+            } catch (error) {
+                console.warn('Failed to parse stored roles:', error);
+                localStorage.removeItem('roles');
+                roles = [];
+            }
+        }
+        if (token && Array.isArray(roles) && roles.length > 0) {
+            return {accessToken: token, roles: roles};
+        }
+        if (token || storedRoles) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('roles');
+        }
+        return {};
     });
     const logout = useCallback(() => {
         localStorage.removeItem('accessToken');
@@ -15,7 +32,7 @@ export const AuthProvider = ({children}) => {
         window.location.href = '/login';
     }, []);
     return (
-        <AuthContext.Provider value={{auth, setAuth, logout}}>
+        <AuthContext.Provider value={{ auth, setAuth, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 import useAuth from '../hooks/useAuth'
-import axios from 'axios'
+import {axiosPublic} from '../api/axios'
 import '../styles/login.css'
 import {useLocation, useNavigate} from 'react-router-dom'
 const UserLoginPage = () => {
@@ -24,7 +24,7 @@ const UserLoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            const response = await axios.post('/auth',
+            const response = await axiosPublic.post('/auth',
                 {email, password},
                 {
                     headers: {'Content-Type': 'application/json'},
