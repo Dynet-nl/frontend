@@ -1,6 +1,8 @@
 // React context provider for managing global authentication state and user information.
 
 import { createContext, useCallback, useState } from 'react';
+import logger from '../utils/logger';
+
 const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
     const [auth, setAuth] = useState(() => {
@@ -11,7 +13,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 roles = JSON.parse(storedRoles);
             } catch (error) {
-                console.warn('Failed to parse stored roles:', error);
+                logger.warn('Failed to parse stored roles:', error);
                 localStorage.removeItem('roles');
                 roles = [];
             }

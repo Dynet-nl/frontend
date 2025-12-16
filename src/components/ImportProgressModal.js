@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/importProgress.css';
+import logger from '../utils/logger';
 
 const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
     const [progress, setProgress] = useState({
@@ -26,19 +27,19 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
     useEffect(() => {
         if (!importId) return;
 
-        console.log('📡 [Progress] Connecting to import stream:', importId);
+        logger.log('Connecting to import stream:', importId);
         
         // Use relative URL to match the current origin
         const progressUrl = `/api/district/import-progress/${importId}`;
         
-        console.log('📡 [Progress] Using SSE URL:', progressUrl);
+        logger.log('Using SSE URL:', progressUrl);
         const eventSource = new EventSource(progressUrl);
         eventSourceRef.current = eventSource;
 
         eventSource.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log('📊 [Progress] Received update:', data);
+                logger.log('Progress update:', data);
                 
                 setProgress(prevProgress => ({
                     ...prevProgress,
@@ -48,7 +49,7 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
 
                 // Handle completion
                 if (data.completed) {
-                    console.log('✅ [Progress] Import completed successfully');
+                    logger.log('Import completed successfully');
                     setTimeout(() => {
                         setIsVisible(false);
                         onComplete && onComplete(data);
@@ -57,31 +58,28 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
 
                 // Handle failure
                 if (data.failed) {
-                    console.error('❌ [Progress] Import failed:', data.error);
+                    logger.error('Import failed:', data.error);
                     setTimeout(() => {
                         setIsVisible(false);
                         onError && onError(data.error);
                     }, 3000);
                 }
             } catch (error) {
-                console.error('❌ [Progress] Error parsing progress data:', error);
+                logger.error('Error parsing progress data:', error);
             }
         };
 
         eventSource.onopen = (event) => {
-            console.log('✅ [Progress] EventSource connected successfully', event);
-            console.log('✅ [Progress] ReadyState:', eventSource.readyState);
+            logger.log('EventSource connected successfully');
         };
 
         eventSource.onerror = (error) => {
-            console.error('❌ [Progress] EventSource error:', error);
-            console.error('❌ [Progress] ReadyState:', eventSource.readyState);
-            console.error('❌ [Progress] URL:', eventSource.url);
+            logger.error('EventSource error:', error);
             
             if (eventSource.readyState === EventSource.CONNECTING) {
-                console.error('❌ [Progress] Failed to connect - still trying...');
+                logger.warn('Failed to connect - still trying...');
             } else if (eventSource.readyState === EventSource.CLOSED) {
-                console.error('❌ [Progress] Connection closed by server - switching to polling');
+                logger.warn('Connection closed by server - switching to polling');
                 eventSource.close();
                 setUsePolling(true);
             }
@@ -89,7 +87,7 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
 
         // Add timeout fallback in case connection never works
         timeoutRef.current = setTimeout(() => {
-            console.warn('⚠️ [Progress] Import timeout reached (10 minutes)');
+            logger.warn('Import timeout reached (10 minutes)');
             setProgress(prev => ({
                 ...prev,
                 failed: true,
@@ -119,14 +117,14 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
     useEffect(() => {
         if (!usePolling || !importId) return;
 
-        console.log('🔄 [Progress] Starting polling fallback for:', importId);
+        logger.log('Starting polling fallback for:', importId);
 
         const pollProgress = async () => {
             try {
                 const response = await fetch(`/api/district/import-status/${importId}`);
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('📊 [Progress] Polled update:', data);
+                    logger.log('Polled update:', data);
                     
                     setProgress(prevProgress => ({
                         ...prevProgress,
@@ -136,7 +134,7 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
 
                     // Handle completion
                     if (data.completed) {
-                        console.log('✅ [Progress] Import completed via polling');
+                        logger.log('Import completed via polling');
                         clearInterval(pollingRef.current);
                         setTimeout(() => {
                             setIsVisible(false);
@@ -146,7 +144,7 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
 
                     // Handle failure
                     if (data.failed) {
-                        console.error('❌ [Progress] Import failed via polling:', data.error);
+                        logger.error('Import failed via polling:', data.error);
                         clearInterval(pollingRef.current);
                         setTimeout(() => {
                             setIsVisible(false);
@@ -155,7 +153,7 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
                     }
                 } else if (response.status === 404) {
                     // Import not found - might be completed
-                    console.log('📊 [Progress] Import not found - assuming completed');
+                    logger.log('Import not found - assuming completed');
                     clearInterval(pollingRef.current);
                     setProgress(prev => ({ ...prev, completed: true, progress: 100 }));
                     setTimeout(() => {
@@ -164,7 +162,7 @@ const ImportProgressModal = ({ importId, onComplete, onError, onCancel }) => {
                     }, 2000);
                 }
             } catch (error) {
-                console.error('❌ [Progress] Polling error:', error);
+                logger.error('Polling error:', error);
             }
         };
 

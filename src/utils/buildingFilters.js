@@ -57,7 +57,6 @@ export const filterBuildings = (buildings, query, filter) => {
                 const isFullyCompleted = building.flats && building.flats.length > 0 && building.flats.every(flat => isFlatCompleted(flat));
                 return isFullyCompleted;
             });
-            console.log(`Done filter: Found ${doneBuildings.length} fully completed buildings out of ${filteredBuildings.length} total`);
             return doneBuildings;
         case 'pending':
             return filteredBuildings.filter(building =>

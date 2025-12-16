@@ -5,6 +5,8 @@ import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import Button from '@mui/material/Button';
 import { BounceLoader } from 'react-spinners';
 import ImportProgressModal from './ImportProgressModal';
+import logger from '../utils/logger';
+
 const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => {
     const axiosPrivate = useAxiosPrivate()
     const [selectedFile, setSelectedFile] = useState([])
@@ -44,20 +46,20 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
             formData.append('areaId', areaId)
             formData.append('operationType', 'create')
             
-            console.log('🚀 [ImportDistrict] Starting enhanced import with progress tracking...')
+            logger.log('Starting enhanced import with progress tracking...')
             
             const response = await axiosPrivate.post('/api/district/import-enhanced', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
             
-            console.log('📡 [ImportDistrict] Received import ID:', response.data.importId)
+            logger.log('Received import ID:', response.data.importId)
             
             // Start progress tracking
             setActiveImportId(response.data.importId)
             setShowProgressModal(true)
             
         } catch (error) {
-            console.error('❌ [ImportDistrict] Error starting import:', error)
+            logger.error('Error starting import:', error)
             alert(`Import failed: ${error.response?.data?.message || error.message}`)
             setIsImporting(false)
         }
@@ -74,27 +76,27 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
             formData.append('areaId', areaId)
             formData.append('operationType', 'update')
             
-            console.log('🚀 [ImportDistrict] Starting enhanced update with progress tracking...')
+            logger.log('Starting enhanced update with progress tracking...')
             
             const response = await axiosPrivate.post('/api/district/import-enhanced', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
             
-            console.log('📡 [ImportDistrict] Received import ID:', response.data.importId)
+            logger.log('Received import ID:', response.data.importId)
             
             // Start progress tracking
             setActiveImportId(response.data.importId)
             setShowProgressModal(true)
             
         } catch (error) {
-            console.error('❌ [ImportDistrict] Error starting update:', error)
+            logger.error('Error starting update:', error)
             alert(`Update failed: ${error.response?.data?.message || error.message}`)
             setIsImporting(false)
         }
     }
 
     const handleProgressComplete = (result) => {
-        console.log('🎉 [ImportDistrict] Import completed successfully:', result)
+        logger.log('Import completed successfully:', result)
         
         if (setNewDistrictUploaded) {
             setNewDistrictUploaded(prev => prev + 1)
@@ -115,7 +117,7 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
     }
 
     const handleProgressError = (error) => {
-        console.error('❌ [ImportDistrict] Import failed:', error)
+        logger.error('Import failed:', error)
         
         // Clear progress tracking
         setActiveImportId(null)
@@ -126,7 +128,7 @@ const ImportDistrict = ({areaId, setNewDistrictUploaded, onDistrictCreated}) => 
     }
 
     const handleProgressCancel = () => {
-        console.log('⏹️ [ImportDistrict] Import cancelled by user')
+        logger.log('Import cancelled by user')
         
         // Clear progress tracking
         setActiveImportId(null)

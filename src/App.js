@@ -1,37 +1,75 @@
 // Main React application component with routing configuration, authentication checks, and global providers.
+// Uses React.lazy for code splitting to improve initial load performance.
 
 import './App.css';
-import { useEffect } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import { CacheInvalidationProvider } from './context/CacheInvalidationProvider';
 import { NotificationProvider } from './context/NotificationProvider';
 import { ThemeProvider } from './context/ThemeProvider';
 import ErrorBoundary from './components/ErrorBoundary';
-import DashboardHomePage from './pages/DashboardHomePage';
-import DistrictSelectionPage from './pages/DistrictSelectionPage';
-import BuildingListPage from './pages/BuildingListPage';
-import CitySelectionPage from './pages/CitySelectionPage';
-import AreaSelectionPage from './pages/AreaSelectionPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import AdminDistrictManagementPage from './pages/AdminDistrictManagementPage';
-import DistrictManagementPage from './pages/DistrictManagementPage';
-import OptimizedApartmentDetails from './components/OptimizedApartmentDetails';
-import AppointmentSystemValidator from './components/AppointmentSystemValidator';
-import TechnicalPlanningApartmentSchedulePage from './pages/TechnicalPlanningApartmentSchedulePage';
-import TechnicalPlanningAgendaCalendarPage from './pages/TechnicalPlanningAgendaCalendarPage';
-import HASInstallerAgendaCalendarPage from './pages/HASInstallerAgendaCalendarPage';
-import UserLoginPage from './pages/UserLoginPage';
 import Layout from './components/Layout';
 import NotFound from './components/NotFound';
 import Unauthorized from './components/Unauthorized';
 import RequireAuth from './components/RequireAuth';
-import HASPlanningApartmentSchedulePage from "./pages/HASPlanningApartmentSchedulePage";
-import UnifiedAppointmentPage from "./pages/UnifiedAppointmentPage";
-import AdminSchedulingSelectionPage from "./pages/AdminSchedulingSelectionPage";
 import { ROLES } from './utils/constants';
+import logger from './utils/logger';
+
+// Lazy load pages for better initial load performance
+const DashboardHomePage = React.lazy(() => import('./pages/DashboardHomePage'));
+const DistrictSelectionPage = React.lazy(() => import('./pages/DistrictSelectionPage'));
+const BuildingListPage = React.lazy(() => import('./pages/BuildingListPage'));
+const CitySelectionPage = React.lazy(() => import('./pages/CitySelectionPage'));
+const AreaSelectionPage = React.lazy(() => import('./pages/AreaSelectionPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
+const AdminDistrictManagementPage = React.lazy(() => import('./pages/AdminDistrictManagementPage'));
+const DistrictManagementPage = React.lazy(() => import('./pages/DistrictManagementPage'));
+const OptimizedApartmentDetails = React.lazy(() => import('./components/OptimizedApartmentDetails'));
+const AppointmentSystemValidator = React.lazy(() => import('./components/AppointmentSystemValidator'));
+const TechnicalPlanningApartmentSchedulePage = React.lazy(() => import('./pages/TechnicalPlanningApartmentSchedulePage'));
+const TechnicalPlanningAgendaCalendarPage = React.lazy(() => import('./pages/TechnicalPlanningAgendaCalendarPage'));
+const HASInstallerAgendaCalendarPage = React.lazy(() => import('./pages/HASInstallerAgendaCalendarPage'));
+const UserLoginPage = React.lazy(() => import('./pages/UserLoginPage'));
+const HASPlanningApartmentSchedulePage = React.lazy(() => import('./pages/HASPlanningApartmentSchedulePage'));
+const UnifiedAppointmentPage = React.lazy(() => import('./pages/UnifiedAppointmentPage'));
+const AdminSchedulingSelectionPage = React.lazy(() => import('./pages/AdminSchedulingSelectionPage'));
+
+// Loading fallback component
+const PageLoader = () => (
+    <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px',
+        color: '#666'
+    }}>
+        <div style={{ textAlign: 'center' }}>
+            <div style={{
+                width: '40px',
+                height: '40px',
+                border: '4px solid #f3f3f3',
+                borderTop: '4px solid #3498db',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px'
+            }} />
+            Loading page...
+        </div>
+        <style>{`
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `}</style>
+    </div>
+);
+
 function App() {
     const { setAuth } = useAuth();
+    const [isAuthLoading, setIsAuthLoading] = useState(true);
+    
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
         let roles = [];
@@ -40,7 +78,7 @@ function App() {
             try {
                 roles = JSON.parse(storedRoles) || [];
             } catch (error) {
-                console.warn('Failed to parse stored roles:', error);
+                logger.warn('Failed to parse stored roles:', error);
                 localStorage.removeItem('roles');
                 roles = [];
             }
@@ -52,15 +90,33 @@ function App() {
             localStorage.removeItem('roles');
             setAuth({});
         }
+        setIsAuthLoading(false);
     }, [setAuth]);
+    
+    if (isAuthLoading) {
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh',
+                fontSize: '18px',
+                color: '#666'
+            }}>
+                Loading...
+            </div>
+        );
+    }
+    
     return (
         <ErrorBoundary>
             <ThemeProvider>
                 <NotificationProvider>
                     <CacheInvalidationProvider>
                         <div className='App'>
-                            <Routes>
-                                <Route element={<UserLoginPage />} path='/login' />
+                            <Suspense fallback={<PageLoader />}>
+                                <Routes>
+                                    <Route element={<UserLoginPage />} path='/login' />
                                 <Route element={<Unauthorized />} path='/unauthorized' />
                                 <Route element={<Layout />}>
                                     <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
@@ -103,6 +159,7 @@ function App() {
                                 </Route>
                                 <Route element={<NotFound />} path='*' />
                             </Routes>
+                            </Suspense>
                         </div>
                     </CacheInvalidationProvider>
                 </NotificationProvider>
@@ -110,4 +167,5 @@ function App() {
         </ErrorBoundary>
     );
 }
+
 export default App;

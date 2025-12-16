@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/importProgress.css';
 
 const SimpleProgressModal = ({ isVisible, onClose, progress = 0, message = 'Processing...' }) => {

@@ -1,6 +1,7 @@
 // User color management utilities for handling user-specific colors in calendar views
 
 import axiosPrivate from '../api/axios';
+import logger from './logger';
 
 let userColorsCache = {};
 let cacheTimestamp = null;
@@ -15,11 +16,11 @@ export const fetchUserColors = async (axiosInstance = null) => {
     try {
         const now = Date.now();
         if (cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION && Object.keys(userColorsCache).length > 0) {
-            console.log('Using cached user colors');
+            logger.log('Using cached user colors');
             return userColorsCache;
         }
 
-        console.log('Fetching user colors from API');
+        logger.log('Fetching user colors from API');
         const axiosToUse = axiosInstance || axiosPrivate;
         const response = await axiosToUse.get('/api/users');
         const users = response.data;
@@ -34,11 +35,11 @@ export const fetchUserColors = async (axiosInstance = null) => {
         userColorsCache = colorMap;
         cacheTimestamp = now;
         
-        console.log('User colors cached:', colorMap);
+        logger.log('User colors cached:', colorMap);
         return colorMap;
         
     } catch (error) {
-        console.error('Error fetching user colors:', error);
+        logger.error('Error fetching user colors:', error);
         return {};
     }
 };
@@ -89,7 +90,7 @@ export const darkenColor = (color, percent) => {
 export const clearUserColorsCache = () => {
     userColorsCache = {};
     cacheTimestamp = null;
-    console.log('User colors cache cleared');
+    logger.log('User colors cache cleared');
 };
 
 /**

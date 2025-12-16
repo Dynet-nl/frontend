@@ -1,12 +1,12 @@
 // Application constants including role definitions, API endpoints, validation rules, and configuration values.
 
 export const ROLES = {
-    ADMIN: 5150,
-    TECHNICAL_PLANNING: 1991,
-    HAS_PLANNING: 1959,
-    TECHNICAL_INSPECTOR: 8687,
-    WERKVOORBEREIDER: 1948,
-    HAS_MONTEUR: 2023
+    ADMIN: 'Admin',
+    TECHNICAL_PLANNING: 'TechnischePlanning',
+    HAS_PLANNING: 'HASPlanning',
+    TECHNICAL_INSPECTOR: 'TechnischeSchouwer',
+    WERKVOORBEREIDER: 'Werkvoorbereider',
+    HAS_MONTEUR: 'HASMonteur'
 };
 export const STATUS_VALUES = {
     PENDING: '0',

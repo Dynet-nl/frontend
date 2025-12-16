@@ -1,6 +1,8 @@
 // Form component for creating and editing city information.
 
 import React, {useState} from 'react';
+import logger from '../utils/logger';
+
 const CityForm = ({onAddCity}) => {
     const [cityName, setCityName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -12,7 +14,7 @@ const CityForm = ({onAddCity}) => {
             await onAddCity({name: cityName.trim()});
             setCityName('');
         } catch (error) {
-            console.error('Error adding city:', error);
+            logger.error('Error adding city:', error);
         } finally {
             setIsSubmitting(false);
         }

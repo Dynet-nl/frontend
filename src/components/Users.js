@@ -3,6 +3,8 @@
 import {useEffect, useState} from 'react'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
 import {useLocation, useNavigate} from 'react-router-dom'
+import logger from '../utils/logger';
+import { LoadingState, ErrorState } from './ui';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -92,7 +94,7 @@ setCurrentPage(1);
                 });
                 setUsers(response.data);
             } catch (err) {
-                console.error(err);
+                logger.error(err);
                 if (err.response?.status === 401) {
                     navigate('/login', {state: {from: location}, replace: true});
                 } else {
@@ -142,7 +144,7 @@ password: '',
             
             setEditingUser(null);
         } catch (err) {
-            console.error('Error updating user:', err);
+            logger.error('Error updating user:', err);
             setError('Failed to update user');
         } finally {
             setActionLoading(null);
@@ -156,7 +158,7 @@ password: '',
             setUsers(users.filter(user => user._id !== userId));
             setDeleteConfirm(null);
         } catch (err) {
-            console.error('Error deleting user:', err);
+            logger.error('Error deleting user:', err);
             setError('Failed to delete user');
         } finally {
             setActionLoading(null);
@@ -164,25 +166,15 @@ password: '',
     };
 
     if (isLoading) {
-        return (
-            <div className="users-loading">
-                <div className="loading-spinner"></div>
-                <p>Loading users...</p>
-            </div>
-        );
+        return <LoadingState message="Loading users..." />;
     }
 
     if (error) {
         return (
-            <div className="users-error">
-                <p className="error-message">{error}</p>
-                <button 
-                    className="modern-button modern-button-secondary"
-                    onClick={() => window.location.reload()}
-                >
-                    Retry
-                </button>
-            </div>
+            <ErrorState 
+                message={error}
+                onRetry={() => window.location.reload()}
+            />
         );
     }
 

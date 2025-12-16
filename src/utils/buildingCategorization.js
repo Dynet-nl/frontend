@@ -7,6 +7,9 @@
  * @returns {number} - Floor number (0 for ground floor, -1 if unable to determine)
  */
 const extractFloorFromFlat = (flat) => {
+    // Null safety check
+    if (!flat || typeof flat !== 'object') return -1;
+    
     // First try toevoeging field
     let identifier = flat.toevoeging;
     if (identifier && typeof identifier === 'string' && identifier.trim()) {
@@ -184,10 +187,12 @@ export const generateHBNumber = (building, flats) => {
     
     if (typeString !== 'Hoog bouw') return '';
     
-    const postcode = flats[0]?.postcode || '';
+    // Find a flat with a valid postcode (don't rely on array order)
+    const flatWithPostcode = flats.find(f => f?.postcode && f.postcode.trim());
+    const postcode = flatWithPostcode?.postcode || '';
     const postcodeNumbers = postcode.replace(/[^0-9]/g, '').slice(0, 4);
     
-    const address = building.address || '';
+    const address = building?.address || '';
     const addressNumbers = address.replace(/[^0-9]/g, '');
     const firstAddressNumber = addressNumbers.slice(0, 3) || '001';
     

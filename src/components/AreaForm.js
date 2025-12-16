@@ -1,6 +1,8 @@
 // Form component for creating and editing geographical area information.
 
 import React, {useState} from 'react';
+import logger from '../utils/logger';
+
 const AreaForm = ({cityId, onAddArea}) => {
     const [areaName, setAreaName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -12,7 +14,7 @@ const AreaForm = ({cityId, onAddArea}) => {
             await onAddArea({name: areaName.trim(), cityId: cityId});
             setAreaName('');
         } catch (error) {
-            console.error('Error adding area:', error);
+            logger.error('Error adding area:', error);
         } finally {
             setIsSubmitting(false);
         }

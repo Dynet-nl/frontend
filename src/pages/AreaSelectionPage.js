@@ -5,6 +5,9 @@ import {Link, useParams} from 'react-router-dom';
 import AreaForm from '../components/AreaForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
+import { ConfirmModal } from '../components/ui';
+import logger from '../utils/logger';
+
 const AreaSelectionPage = () => {
     const {cityId} = useParams();
     const [areas, setAreas] = useState([]);
@@ -12,6 +15,7 @@ const AreaSelectionPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isDeleting, setIsDeleting] = useState(null);
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, area: null });
     const axiosPrivate = useAxiosPrivate();
     const fetchAreas = useCallback(async () => {
         if (!cityId) return;
@@ -28,10 +32,10 @@ const AreaSelectionPage = () => {
                 const cityResponse = await axiosPrivate.get(`/api/city/${cityId}`);
                 setCityName(cityResponse.data.name);
             } catch (cityError) {
-                console.error('Failed to fetch city name:', cityError);
+                logger.error('Failed to fetch city name:', cityError);
             }
         } catch (error) {
-            console.error('Failed to fetch areas:', error);
+            logger.error('Failed to fetch areas:', error);
             setError('Failed to load areas. Please try again.');
         } finally {
             setIsLoading(false);
@@ -47,25 +51,31 @@ const AreaSelectionPage = () => {
             addedArea.numberOfDistricts = 0;
             setAreas(prevAreas => [...prevAreas, addedArea]);
         } catch (error) {
-            console.error('Failed to add area:', error);
+            logger.error('Failed to add area:', error);
             setError('Failed to add area. Please try again.');
         }
     }, [axiosPrivate, cityId]);
-    const handleDeleteArea = useCallback(async (areaId) => {
-        if (!window.confirm('Are you sure you want to delete this area? This will also delete all associated districts.')) {
-            return;
-        }
+    
+    const handleDeleteClick = useCallback((area) => {
+        setDeleteModal({ isOpen: true, area });
+    }, []);
+    
+    const handleConfirmDelete = useCallback(async () => {
+        const area = deleteModal.area;
+        if (!area) return;
+        
+        setDeleteModal({ isOpen: false, area: null });
         try {
-            setIsDeleting(areaId);
-            await axiosPrivate.delete(`/api/area/${areaId}`);
-            setAreas(prevAreas => prevAreas.filter(area => area._id !== areaId));
+            setIsDeleting(area._id);
+            await axiosPrivate.delete(`/api/area/${area._id}`);
+            setAreas(prevAreas => prevAreas.filter(a => a._id !== area._id));
         } catch (error) {
-            console.error('Failed to delete area:', error);
+            logger.error('Failed to delete area:', error);
             setError('Failed to delete area. Please try again.');
         } finally {
             setIsDeleting(null);
         }
-    }, [axiosPrivate]);
+    }, [axiosPrivate, deleteModal.area]);
     return (
         <div style={{
             minHeight: '100vh',
@@ -264,7 +274,7 @@ const AreaSelectionPage = () => {
                                             </Link>
                                             <div className="modern-card-cell-actions">
                                                 <button
-                                                    onClick={() => handleDeleteArea(area._id)}
+                                                    onClick={() => handleDeleteClick(area)}
                                                     className="modern-button-cell-action modern-button-cell-danger"
                                                     disabled={isDeleting === area._id}
                                                     title="Delete area"
@@ -287,6 +297,17 @@ const AreaSelectionPage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Confirm Delete Modal */}
+            <ConfirmModal
+                isOpen={deleteModal.isOpen}
+                title="Delete Area"
+                message={`Are you sure you want to delete "${deleteModal.area?.name}"? This will also delete all associated districts.`}
+                confirmText="Delete"
+                confirmVariant="danger"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteModal({ isOpen: false, area: null })}
+            />
         </div>
     );
 };

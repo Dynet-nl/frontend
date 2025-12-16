@@ -2,6 +2,7 @@
 
 import React, {useEffect, useState, useCallback} from 'react';
 import {Calendar, dateFnsLocalizer} from 'react-big-calendar';
+import logger from '../utils/logger';
 import {format, parse, startOfWeek, getDay} from 'date-fns';
 import {nl} from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -49,27 +50,27 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                     typeof user.roles === 'object' &&
                     user.roles.TechnischeSchouwer === 8687;
             });
-            console.log('Found Technische Schouwers:', schouwers);
+            logger.log('Found Technische Schouwers:', schouwers);
             setTechnischeSchouwers(schouwers);
             
             await fetchUserColors(axiosPrivate);
         } catch (error) {
-            console.error('Error fetching technische schouwers:', error);
+            logger.error('Error fetching technische schouwers:', error);
         }
     }, [axiosPrivate]);
     const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
-            console.log('Fetching all appointments without date filtering.');
+            logger.log('Fetching all appointments without date filtering.');
             const response = await axiosPrivate.get('/api/apartment/appointments/all-technischeplanning', {
                 params: {
                     limit: 500,  
                 }
             });
             if (response?.data?.length > 0) {
-                console.log('Appointments fetched successfully:', response.data);
+                logger.log('Appointments fetched successfully:', response.data);
             } else {
-                console.log('No appointments found.');
+                logger.log('No appointments found.');
             }
             const calendarEvents = response.data
                 .filter(flat =>
@@ -104,7 +105,7 @@ const TechnicalPlanningAgendaCalendarPage = () => {
             setOriginalEvents(calendarEvents);
             setEvents(calendarEvents);
         } catch (error) {
-            console.error('Error fetching appointments:', error);
+            logger.error('Error fetching appointments:', error);
         } finally {
             setLoading(false);
         }
@@ -128,13 +129,13 @@ const TechnicalPlanningAgendaCalendarPage = () => {
                 const firstAppointment = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start))[0];
                 const appointmentMonth = new Date(firstAppointment.start);
                 setCurrentDisplayMonth(appointmentMonth);
-                console.log(`Auto-navigated to ${appointmentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} for ${selectedName}'s first appointment`);
+                logger.log(`Auto-navigated to ${appointmentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} for ${selectedName}'s first appointment`);
             }
         }
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
-            console.log('Calendar range changed to:', range.start, 'to', range.end);
+            logger.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
     const handleEventClick = (event) => {

@@ -1,6 +1,7 @@
 // Custom hook for managing scroll position restoration across route navigation.
 
 import { useEffect, useRef } from 'react';
+import logger from '../utils/logger';
 const useScrollRestoration = (key, dependencies = []) => {
     const scrollPositionRef = useRef(0);
     const storageKey = `scroll_${key}`;
@@ -10,7 +11,7 @@ const useScrollRestoration = (key, dependencies = []) => {
             localStorage.setItem(storageKey, scrollPosition.toString());
             scrollPositionRef.current = scrollPosition;
         } catch (error) {
-            console.warn('Failed to save scroll position:', error);
+            logger.warn('Failed to save scroll position:', error);
         }
     };
     const restoreScrollPosition = () => {
@@ -24,12 +25,12 @@ const useScrollRestoration = (key, dependencies = []) => {
                             top: position,
                             behavior: 'instant'
                         });
-                        console.log(`📍 Scroll position restored: ${position}px`);
+                        logger.log(`📍 Scroll position restored: ${position}px`);
                     });
                 }
             }
         } catch (error) {
-            console.warn('Failed to restore scroll position:', error);
+            logger.warn('Failed to restore scroll position:', error);
         }
     };
     useEffect(() => {

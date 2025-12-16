@@ -2,6 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import axiosPrivate from '../api/axios';
+import logger from '../utils/logger';
 import Users from '../components/Users';
 import '../styles/login.css';
 import '../styles/admin.css';
@@ -32,7 +33,7 @@ const AdminDashboardPage = () => {
                 const data = response.data;
                 setRoles(data);
             } catch (error) {
-                console.error('Failed to fetch roles:', error);
+                logger.error('Failed to fetch roles:', error);
             }
         };
         fetchRoles();
@@ -73,7 +74,7 @@ setUserListKey(prev => prev + 1);
 setShowCreateForm(false);
                 setTimeout(() => setSuccessMessage(''), 3000);
             } catch (error) {
-                console.error('Error adding user:', error.response ? error.response.data : error);
+                logger.error('Error adding user:', error.response ? error.response.data : error);
                 setErrorMessage(error.response?.data?.message || 'Failed to create user. Please try again.');
                 setTimeout(() => setErrorMessage(''), 5000);
             } finally {

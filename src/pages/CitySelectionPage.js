@@ -5,11 +5,15 @@ import {Link} from 'react-router-dom';
 import CityForm from '../components/CityForm';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
+import { ConfirmModal } from '../components/ui';
+import logger from '../utils/logger';
+
 const CitySelectionPage = () => {
     const [cities, setCities] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isDeleting, setIsDeleting] = useState(null);
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, city: null });
     const axiosPrivate = useAxiosPrivate();
     const fetchCities = useCallback(async () => {
         try {
@@ -22,7 +26,7 @@ const CitySelectionPage = () => {
             }));
             setCities(citiesWithAreas);
         } catch (error) {
-            console.error('Failed to fetch cities:', error);
+            logger.error('Failed to fetch cities:', error);
             setError('Failed to load cities. Please try again.');
         } finally {
             setIsLoading(false);
@@ -38,25 +42,31 @@ const CitySelectionPage = () => {
             addedCity.numberOfAreas = 0;
             setCities(prevCities => [...prevCities, addedCity]);
         } catch (error) {
-            console.error('Failed to add city:', error);
+            logger.error('Failed to add city:', error);
             setError('Failed to add city. Please try again.');
         }
     }, [axiosPrivate]);
-    const handleDeleteCity = useCallback(async (cityId) => {
-        if (!window.confirm('Are you sure you want to delete this city? This will also delete all associated areas and districts.')) {
-            return;
-        }
+    
+    const handleDeleteClick = useCallback((city) => {
+        setDeleteModal({ isOpen: true, city });
+    }, []);
+    
+    const handleConfirmDelete = useCallback(async () => {
+        const city = deleteModal.city;
+        if (!city) return;
+        
+        setDeleteModal({ isOpen: false, city: null });
         try {
-            setIsDeleting(cityId);
-            await axiosPrivate.delete(`/api/city/${cityId}`);
-            setCities(prevCities => prevCities.filter(city => city._id !== cityId));
+            setIsDeleting(city._id);
+            await axiosPrivate.delete(`/api/city/${city._id}`);
+            setCities(prevCities => prevCities.filter(c => c._id !== city._id));
         } catch (error) {
-            console.error('Failed to delete city:', error);
+            logger.error('Failed to delete city:', error);
             setError('Failed to delete city. Please try again.');
         } finally {
             setIsDeleting(null);
         }
-    }, [axiosPrivate]);
+    }, [axiosPrivate, deleteModal.city]);
     return (
         <div style={{
             minHeight: '100vh',
@@ -229,7 +239,7 @@ const CitySelectionPage = () => {
                                             </Link>
                                             <div className="modern-card-cell-actions">
                                                 <button
-                                                    onClick={() => handleDeleteCity(city._id)}
+                                                    onClick={() => handleDeleteClick(city)}
                                                     className="modern-button-cell-action modern-button-cell-danger"
                                                     disabled={isDeleting === city._id}
                                                     title="Delete city"
@@ -252,6 +262,17 @@ const CitySelectionPage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Confirm Delete Modal */}
+            <ConfirmModal
+                isOpen={deleteModal.isOpen}
+                title="Delete City"
+                message={`Are you sure you want to delete "${deleteModal.city?.name}"? This will also delete all associated areas and districts.`}
+                confirmText="Delete"
+                confirmVariant="danger"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteModal({ isOpen: false, city: null })}
+            />
         </div>
     );
 }

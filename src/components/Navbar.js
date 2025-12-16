@@ -5,7 +5,7 @@ import {Link, useNavigate, useLocation} from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import '../styles/nav.css'
 import Button from '@mui/material/Button';
-import ROLES_LIST from "../context/roles_list";
+import { ROLES } from "../utils/constants";
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
@@ -14,11 +14,11 @@ const Navbar = () => {
     const location = useLocation()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     
-    const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin) 
-    const hasTechnischePlanningRole = auth?.roles?.includes(ROLES_LIST.TechnischePlanning)
-    const hasHASPlanningRole = auth?.roles?.includes(ROLES_LIST.HASPlanning)
-    const hasTechnischeSchouwerRole = auth?.roles?.includes(ROLES_LIST.TechnischeSchouwer)
-    const hasHASMonteurRole = auth?.roles?.includes(ROLES_LIST.HASMonteur)
+    const isAdmin = auth?.roles?.includes(ROLES.ADMIN) 
+    const hasTechnischePlanningRole = auth?.roles?.includes(ROLES.TECHNICAL_PLANNING)
+    const hasHASPlanningRole = auth?.roles?.includes(ROLES.HAS_PLANNING)
+    const hasTechnischeSchouwerRole = auth?.roles?.includes(ROLES.TECHNICAL_INSPECTOR)
+    const hasHASMonteurRole = auth?.roles?.includes(ROLES.HAS_MONTEUR)
     
     const canSeeHASAgenda = isAdmin || hasHASPlanningRole || hasTechnischeSchouwerRole || hasHASMonteurRole
     const canSeePlanningAgenda = isAdmin || hasTechnischePlanningRole
@@ -30,12 +30,7 @@ const Navbar = () => {
         return location.pathname.startsWith(path)
     }
     
-    const getRoleName = (roleId) => {
-        const roleName = Object.entries(ROLES_LIST).find(([_, value]) => value === roleId)?.[0]
-        return roleName || 'User'
-    }
-    
-    const currentRoles = auth?.roles?.map(roleId => getRoleName(roleId)).join(', ') || 'Guest'
+    const currentRoles = auth?.roles?.join(', ') || 'Guest'
     
     const logout = async () => {
         navigate('/login')

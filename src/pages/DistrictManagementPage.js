@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import logger from '../utils/logger';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { BounceLoader } from 'react-spinners';
 import SimpleProgressModal from '../components/SimpleProgressModal';
@@ -47,7 +48,7 @@ const DistrictManagementPage = () => {
             const response = await axiosPrivate.get(`/api/district/import-history/${areaId}`);
             setImportHistory(response.data.history || []);
         } catch (error) {
-            console.error('Error fetching import history:', error);
+            logger.error('Error fetching import history:', error);
             setImportHistory([]);
         }
     }, [axiosPrivate, areaId]);
@@ -69,25 +70,25 @@ const DistrictManagementPage = () => {
         }
     };
     const generateDataPreview = async (file) => {
-        console.log('🔄 Generating preview for file:', file.name, file.type);
+        logger.log('🔄 Generating preview for file:', file.name, file.type);
         try {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('areaId', areaId);
             
-            console.log('📤 Sending preview request to /api/district/preview');
+            logger.log('📤 Sending preview request to /api/district/preview');
             const response = await axiosPrivate.post('/api/district/preview', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             
-            console.log('📥 Preview response received:', response.data);
+            logger.log('📥 Preview response received:', response.data);
             setDataPreview(response.data);
             
             if (operationType === 'update') {
                 checkForConflicts(response.data);
             }
         } catch (error) {
-            console.error('❌ Error generating preview:', error.response?.data || error.message);
+            logger.error('❌ Error generating preview:', error.response?.data || error.message);
             setValidationResults(prev => ({
                 ...prev,
                 errors: [...(prev?.errors || []), `Failed to read file content: ${error.response?.data?.message || error.message}`]
@@ -102,7 +103,7 @@ const DistrictManagementPage = () => {
             });
             setConflicts(response.data.conflicts || []);
         } catch (error) {
-            console.error('Error checking conflicts:', error);
+            logger.error('Error checking conflicts:', error);
         }
     };
 
@@ -145,7 +146,7 @@ const DistrictManagementPage = () => {
                 formData.append('currentDistrict', districtName);
             }
             
-            console.log('� [Import] Starting enhanced import with progress tracking...');
+            logger.log('🚀 [Import] Starting enhanced import with progress tracking...');
             
             const response = await axiosPrivate.post('/api/district/import-enhanced', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -155,7 +156,7 @@ const DistrictManagementPage = () => {
             setProgressPercent(100);
             setProgressMessage('Import completed successfully!');
             
-            console.log('✅ [Import] Import completed:', response.data);
+            logger.log('✅ [Import] Import completed:', response.data);
             
             // Reset form state after delay
             setTimeout(() => {
@@ -169,7 +170,7 @@ const DistrictManagementPage = () => {
             }, 2000);
             
         } catch (error) {
-            console.error('❌ [Import] Error during import:', error);
+            logger.error('❌ [Import] Error during import:', error);
             setProgressMessage(`Import failed: ${error.response?.data?.error || error.message}`);
             
             setTimeout(() => {
@@ -215,7 +216,7 @@ const DistrictManagementPage = () => {
     const renderDataPreview = () => {
         if (!dataPreview) return null;
         
-        console.log('🔍 Rendering preview with data:', dataPreview);
+        logger.log('🔍 Rendering preview with data:', dataPreview);
         
         // Extract data from backend response structure
         const stats = dataPreview.stats || {};
@@ -228,14 +229,14 @@ const DistrictManagementPage = () => {
         const totalFlats = stats.totalFlats || stats.validRows || 0;
         const buildingsWithMultiple = stats.buildingsWithMultipleFlats || 0;
         
-        console.log('📊 [Frontend] Accurate building statistics from backend:');
-        console.log(`🏢 Total buildings: ${totalBuildings}`);
-        console.log(`� Total flats: ${totalFlats}`);
-        console.log(`🏢+ Buildings with multiple flats: ${buildingsWithMultiple}`);
-        console.log(`📊 Average flats per building: ${totalBuildings > 0 ? Math.round(totalFlats / totalBuildings) : 0}`);
+        logger.log('📊 [Frontend] Accurate building statistics from backend:');
+        logger.log(`🏢 Total buildings: ${totalBuildings}`);
+        logger.log(`🏠 Total flats: ${totalFlats}`);
+        logger.log(`🏢+ Buildings with multiple flats: ${buildingsWithMultiple}`);
+        logger.log(`📊 Average flats per building: ${totalBuildings > 0 ? Math.round(totalFlats / totalBuildings) : 0}`);
         
         if (buildingPreview.length > 0) {
-            console.log('🏢 Sample buildings:', buildingPreview.slice(0, 5).map(b => 
+            logger.log('🏢 Sample buildings:', buildingPreview.slice(0, 5).map(b => 
                 `${b.buildingIdentifier} → ${b.address} ${b.houseNumber} (${b.flatCount} flats)`
             ));
         }

@@ -1,6 +1,8 @@
 // Utility functions including validation helpers, formatting functions, and common operations.
 
 import { VALIDATION_RULES, UI_CONFIG } from './constants';
+import logger from './logger';
+
 export const debounce = (func, delay = UI_CONFIG.DEBOUNCE_DELAY) => {
     let timeoutId;
     return (...args) => {
@@ -113,7 +115,7 @@ export const storage = {
             const item = localStorage.getItem(key);
             return item ? JSON.parse(item) : defaultValue;
         } catch (error) {
-            console.warn(`Error reading from localStorage key "${key}":`, error);
+            logger.warn(`Error reading from localStorage key "${key}":`, error);
             return defaultValue;
         }
     },
@@ -122,7 +124,7 @@ export const storage = {
             localStorage.setItem(key, JSON.stringify(value));
             return true;
         } catch (error) {
-            console.warn(`Error writing to localStorage key "${key}":`, error);
+            logger.warn(`Error writing to localStorage key "${key}":`, error);
             return false;
         }
     },
@@ -131,7 +133,7 @@ export const storage = {
             localStorage.removeItem(key);
             return true;
         } catch (error) {
-            console.warn(`Error removing localStorage key "${key}":`, error);
+            logger.warn(`Error removing localStorage key "${key}":`, error);
             return false;
         }
     }
@@ -151,7 +153,7 @@ export const domUtils = {
             await navigator.clipboard.writeText(text);
             return true;
         } catch (error) {
-            console.warn('Failed to copy to clipboard:', error);
+            logger.warn('Failed to copy to clipboard:', error);
             return false;
         }
     }

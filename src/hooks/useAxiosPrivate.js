@@ -2,6 +2,7 @@
 
 import {useEffect} from 'react';
 import axiosPrivate from '../api/axios';
+import logger from '../utils/logger';
 import useAuth from './useAuth';
 import axios from 'axios';
 const useAxiosPrivate = () => {
@@ -23,7 +24,7 @@ const useAxiosPrivate = () => {
                 if (error.response?.status === 403 && !prevRequest?.sent) {
                     prevRequest.sent = true;
                     try {
-                        console.log('Token expired, attempting refresh...');
+                        logger.log('Token expired, attempting refresh...');
                         const refreshResponse = await axios.get('/refresh', {
                             withCredentials: true
                         });
@@ -33,7 +34,7 @@ const useAxiosPrivate = () => {
                         prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                         return axiosPrivate(prevRequest);
                     } catch (refreshError) {
-                        console.error('Token refresh failed:', refreshError);
+                        logger.error('Token refresh failed:', refreshError);
                         logout();
                     }
                 }

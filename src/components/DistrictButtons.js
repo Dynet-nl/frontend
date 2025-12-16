@@ -3,9 +3,10 @@
 import React from 'react';
 import {Draggable} from 'react-beautiful-dnd';
 import '../styles/districtButtons.css';
+import logger from '../utils/logger';
 
 const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict, currentDistrict, buildings = []}) => {
-    console.log(`🏗️ [DistrictButtons] Rendered with ${districts.length} districts and ${buildings.length} buildings`);
+    logger.debug(`DistrictButtons rendered with ${districts.length} districts and ${buildings.length} buildings`);
 
     const handleDistrictClick = (district) => {
         setCurrentDistrict(district);
@@ -13,45 +14,8 @@ const DistrictButtons = ({districts = [], getBuildings, setCurrentDistrict, curr
     };
 
     const getDistrictStats = (district) => {
-        console.log(`🔍 [DistrictButtons] Calculating stats for district: ${district.name}`);
-        console.log(`🔍 [DistrictButtons] Total buildings received:`, buildings.length);
-        const sampleBuilding = buildings[0];
-        const sampleFlat = sampleBuilding?.flats?.[0];
-        
-        console.log(`🔍 [DistrictButtons] Sample building keys:`, Object.keys(sampleBuilding || {}));
-        console.log(`🔍 [DistrictButtons] Sample building structure:`, sampleBuilding);
-        
-        const possibleDistrictFields = ['wijk', 'district', 'wijkNaam', 'districtName', 'gebied', 'zone', 'districtId'];
-        
-        console.log(`🔍 [DistrictButtons] Checking for district fields in building...`);
-        possibleDistrictFields.forEach(fieldName => {
-            const buildingValue = sampleBuilding?.[fieldName];
-            if (buildingValue !== undefined && buildingValue !== null && buildingValue !== '') {
-                console.log(`✅ [DistrictButtons] Found district field in BUILDING "${fieldName}": "${buildingValue}"`);
-            }
-        });
-        
-        console.log(`🔍 [DistrictButtons] Checking for district fields in flat...`);
-        possibleDistrictFields.forEach(fieldName => {
-            const flatValue = sampleFlat?.[fieldName];
-            if (flatValue !== undefined && flatValue !== null && flatValue !== '') {
-                console.log(`✅ [DistrictButtons] Found district field in FLAT "${fieldName}": "${flatValue}"`);
-            }
-        });
-        
-        console.log(`🔍 [DistrictButtons] Looking for district name: "${district.name}"`);
-        
-        const matchingBuildings = buildings.filter(building => {
-            const matches = building.district === district._id;
-            if (matches) {
-                console.log(`✅ [DistrictButtons] Found matching building: ${building.address} in district ${district.name}`);
-            }
-            return matches;
-        });
-        
+        const matchingBuildings = buildings.filter(building => building.district === district._id);
         const buildingCount = matchingBuildings.length;
-        console.log(`📊 [DistrictButtons] District "${district.name}" has ${buildingCount} buildings`);
-        
         const priority = district.priority || 0;
         return { buildingCount, priority };
     };

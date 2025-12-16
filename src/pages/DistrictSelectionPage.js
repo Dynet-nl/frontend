@@ -2,6 +2,7 @@
 
 import {useCallback, useEffect, useState} from 'react';
 import {useParams, Link} from 'react-router-dom';
+import logger from '../utils/logger';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import '../styles/districtPage.css';
@@ -9,6 +10,8 @@ import DistrictButtons from '../components/DistrictButtons';
 import BuildingsList from '../components/BuildingsList';
 import {BounceLoader} from 'react-spinners';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
+import { ROLES } from '../utils/constants';
+
 const cache = {
     districts: new Map(),
     buildings: new Map(),
@@ -83,7 +86,7 @@ return districts[0];
                 setCurrentDistrict(restoredDistrict);
             }
         } catch (error) {
-            console.error('Error fetching districts:', error);
+            logger.error('Error fetching districts:', error);
         } finally {
             setIsLoadingDistricts(false);
         }
@@ -110,7 +113,7 @@ return districts[0];
             setBuildings(buildingsData);
             setTimeout(restoreScrollPosition, 50);
         } catch (error) {
-            console.error('Error fetching buildings:', error);
+            logger.error('Error fetching buildings:', error);
             setBuildings([]);
         } finally {
             setIsLoadingBuildings(false);
@@ -159,7 +162,7 @@ return districts[0];
             cache.districts.set(cacheKey, items);
             cache.timestamps.set(cacheKey, Date.now());
         } catch (error) {
-            console.error('Failed to reorder districts', error);
+            logger.error('Failed to reorder districts', error);
             fetchDistricts();
         }
     };
@@ -203,12 +206,12 @@ return districts[0];
                 <div className="modern-card-body">
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: auth?.roles?.includes(5150) ? 'repeat(auto-fit, minmax(250px, 1fr))' : '1fr',
+                        gridTemplateColumns: auth?.roles?.includes(ROLES.ADMIN) ? 'repeat(auto-fit, minmax(250px, 1fr))' : '1fr',
                         gap: '20px',
                         alignItems: 'start'
                     }}>
                         {}
-                        {auth?.roles?.includes(5150) && (
+                        {auth?.roles?.includes(ROLES.ADMIN) && (
                             <div className="modern-action-card">
                                 <div className="modern-action-card-icon" style={{backgroundColor: '#e8f5e8'}}>
                                     🚀
@@ -254,7 +257,7 @@ return districts[0];
                                     <span className="modern-stat-label">Buildings</span>
                                 </div>
                             </div>
-                            {auth?.roles?.includes(5150) ? (
+                            {auth?.roles?.includes(ROLES.ADMIN) ? (
                                 <div className="modern-info-note">
                                     💡 As an admin, you have access to enhanced management features above.
                                 </div>

@@ -1,7 +1,416 @@
+/* Building Page Styles */
+
 .buildingPageContainer {
     padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
+/* Loading & Error States */
+.loadingState,
+.errorState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+    color: #666;
+}
+
+.loadingState .spinner,
+.buttonSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+.buttonSpinner {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+    margin-bottom: 0;
+    margin-right: 8px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.errorState .errorIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.errorState h2 {
+    color: #dc2626;
+    margin-bottom: 8px;
+}
+
+.retryButton {
+    margin-top: 16px;
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+
+.retryButton:hover {
+    background: #5a67d8;
+}
+
+/* Layout Form */
+.layoutForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.blockContainer {
+    background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+    border: 2px solid #fcd34d;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.blockHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.blockHeader h3 {
+    margin: 0;
+    color: #92400e;
+    font-size: 20px;
+}
+
+.removeBlockButton {
+    padding: 8px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.removeBlockButton:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.floorSelector {
+    margin-bottom: 20px;
+}
+
+.floorSelector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.floorSelector select {
+    padding: 10px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    min-width: 200px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.floorSelector select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.schemaOption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.schemaOption:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.schemaOption input[type="radio"] {
+    margin-bottom: 8px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.schemaLabel {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.addBlockButton {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    align-self: flex-start;
+}
+
+.addBlockButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Layout Preview Section */
+.layoutPreviewSection {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 2px solid #e5e7eb;
+}
+
+.layoutPreviewSection h2 {
+    color: #1e293b;
+    margin-bottom: 24px;
+}
+
+.saveLayoutButton {
+    margin-top: 24px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.saveLayoutButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.saveLayoutButton:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Cables Section */
+.cablesSection {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 2px solid #e5e7eb;
+    margin-bottom: 100px;
+}
+
+.showCablesButton {
+    padding: 12px 24px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.showCablesButton:hover {
+    background: #2563eb;
+}
+
+.cableNumbersContainer {
+    margin-top: 24px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.cableNumbersContainer h4 {
+    margin: 0 0 16px 0;
+    color: #374151;
+}
+
+.cableButtonsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.cableButton {
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cableButton:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.cableButton.selected {
+    background: #1e293b;
+    color: white;
+    border-color: #1e293b;
+}
+
+.currentCableFlatsContainer {
+    margin-top: 20px;
+    padding: 20px;
+    background: #ecfdf5;
+    border-radius: 12px;
+    border: 1px solid #a7f3d0;
+}
+
+.currentCableFlatsContainer h4 {
+    margin: 0 0 12px 0;
+    color: #065f46;
+}
+
+.flatsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.flatTag {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #10b981;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #065f46;
+}
+
+/* Schedule Form */
+.scheduleFormContainer {
+    margin-top: 32px;
+    padding: 32px;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.scheduleFormContainer h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #1e293b;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+}
+
+.scheduleIcon {
+    font-size: 24px;
+}
+
+.scheduleForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.scheduleFormGrid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup label {
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.formGroup input {
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: white;
+    color: #374151;
+}
+
+.formGroup input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.createScheduleButton {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+}
+
+.createScheduleButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.createScheduleButton:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Legacy support - keep old classes working */
 .cablesContainer {
     display: flex;
     flex-direction: column;
@@ -9,16 +418,221 @@
     margin-bottom: 300px;
 }
 
-.cableNumbersContainer {
-    display: flex;
-    gap: 10px;
-}
-
-.cableNumbersContainer button {
-    padding: 5px;
-}
-
 .selectedCable {
-    background-color: black;
+    background-color: #1e293b !important;
+    color: white !important;
+}
+
+/* New unified styles */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    color: #666;
+}
+
+.loading-spinner .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+/* Block Card */
+.block-card {
+    background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+    border: 2px solid #fcd34d;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+}
+
+.block-card h3 {
+    margin: 0 0 16px 0;
+    color: #92400e;
+    font-size: 20px;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 16px;
+}
+
+.form-select,
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    background: #ffffff;
+    color: #374151;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-select:focus,
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Button Styles */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #e5e7eb;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.btn-danger:disabled {
+    background: #9ca3af;
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+}
+
+/* Schedule Card */
+.schedule-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 32px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.schedule-title {
+    color: #1e293b;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.schedule-title span {
+    font-size: 24px;
+}
+
+.schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.schedule-form-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .schedule-form-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+/* Cable Buttons */
+.cable-btn {
+    padding: 10px 16px;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.cable-btn:hover {
+    background: #e5e7eb;
+}
+
+.cable-btn.selectedCable {
+    background: #1e293b;
+    color: white;
+    border-color: #1e293b;
+}
+
+/* Flats Display */
+.currentCableFlatsContainer h4 {
+    margin: 0 0 12px 0;
+    color: #374151;
+}
+
+.flats-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.flat-badge {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
 }

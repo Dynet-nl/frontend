@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import logger from '../utils/logger';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import UnifiedAppointmentScheduler from '../components/UnifiedAppointmentScheduler';
-import ROLES_LIST from '../context/roles_list';
+import { ROLES } from '../utils/constants';
 const UnifiedAppointmentPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -26,9 +27,9 @@ const UnifiedAppointmentPage = () => {
         try {
             let determinedType = type;
             if (!determinedType) {
-                if (auth?.roles?.includes(ROLES_LIST.HASPlanning)) {
+                if (auth?.roles?.includes(ROLES.HAS_PLANNING)) {
                     determinedType = 'HAS';
-                } else if (auth?.roles?.includes(ROLES_LIST.TechnischePlanning)) {
+                } else if (auth?.roles?.includes(ROLES.TECHNICAL_PLANNING)) {
                     determinedType = 'Technical';
                 } else {
                     throw new Error('User does not have permission to schedule appointments');
@@ -41,7 +42,7 @@ const UnifiedAppointmentPage = () => {
                 await fetchSingleApartmentData(determinedType);
             }
         } catch (error) {
-            console.error('Error determining schedule type or fetching data:', error);
+            logger.error('Error determining schedule type or fetching data:', error);
             alert('Error loading appointment data. Please try again.');
             navigate(-1);
         } finally {
@@ -55,7 +56,7 @@ const UnifiedAppointmentPage = () => {
             setApartments(buildingData.flats || []);
             setPageTitle(`${type} Appointment Scheduling - ${buildingData.address || 'Building'}`);
         } catch (error) {
-            console.error('Error fetching building data:', error);
+            logger.error('Error fetching building data:', error);
             throw error;
         }
     };
@@ -66,12 +67,11 @@ const UnifiedAppointmentPage = () => {
             setApartments([apartmentData]);
             setPageTitle(`${type} Appointment Scheduling - ${apartmentData.adres} ${apartmentData.huisNummer}${apartmentData.toevoeging}`);
         } catch (error) {
-            console.error('Error fetching apartment data:', error);
+            logger.error('Error fetching apartment data:', error);
             throw error;
         }
     };
     const handleSaveSuccess = (appointments) => {
-        console.log('Appointments saved successfully:', appointments);
         if (mode === 'single') {
             const apartmentId = apartments[0].apartmentId;
             if (scheduleType === 'HAS') {

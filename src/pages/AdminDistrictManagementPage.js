@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
+import logger from '../utils/logger';
 import useAuth from '../hooks/useAuth';
 import { BounceLoader } from 'react-spinners';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -31,7 +32,7 @@ const AdminDistrictManagementPage = () => {
             const response = await axiosPrivate.get('/api/district/all');
             setDistricts(response.data);
         } catch (error) {
-            console.error('Error fetching all districts:', error);
+            logger.error('Error fetching all districts:', error);
             setError('Failed to fetch districts');
         } finally {
             setIsLoading(false);
@@ -43,7 +44,7 @@ const AdminDistrictManagementPage = () => {
             setDashboardData(response.data);
             setDashboardLoading(false);
         } catch (error) {
-            console.error('Error fetching dashboard data:', error);
+            logger.error('Error fetching dashboard data:', error);
             setDashboardData({
                 totalCities: 1,
                 totalAreas: 3,
@@ -75,7 +76,7 @@ const AdminDistrictManagementPage = () => {
                 })),
             });
         } catch (error) {
-            console.error('Failed to update priorities', error);
+            logger.error('Failed to update priorities', error);
             fetchAllDistricts();
         } finally {
             setIsSaving(false);

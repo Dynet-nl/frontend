@@ -1,7 +1,6 @@
 // React error boundary component for catching and handling application errors gracefully.
 
 import React from 'react';
-import { errorHandlers } from '../utils/helpers';
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);

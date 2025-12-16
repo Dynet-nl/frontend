@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
+import { AppointmentList, AppointmentForm } from './appointment';
 import '../styles/unifiedAppointmentScheduler.css';
+import logger from '../utils/logger';
+
 const UnifiedAppointmentScheduler = ({
     apartments = [],
     scheduleType,
@@ -35,7 +38,6 @@ const UnifiedAppointmentScheduler = ({
     });
     const [availablePersonnel, setAvailablePersonnel] = useState([]);
     const [flatAppointments, setFlatAppointments] = useState({});
-    const isMultipleMode = apartments.length > 1;
     const isHASScheduling = scheduleType === 'HAS';
     const isSingleApartment = apartments.length === 1;
 
@@ -44,6 +46,7 @@ const UnifiedAppointmentScheduler = ({
         const date = new Date(dateString);
         return date.toISOString().split('T')[0];
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchAvailablePersonnel();
         loadExistingAppointments();
@@ -99,7 +102,7 @@ const UnifiedAppointmentScheduler = ({
             }
             setAvailablePersonnel(filteredUsers);
         } catch (error) {
-            console.error('Error fetching personnel:', error);
+            logger.error('Error fetching personnel:', error);
         }
     };
     const loadExistingAppointments = () => {
@@ -256,212 +259,37 @@ const UnifiedAppointmentScheduler = ({
             }
             alert(`${isHASScheduling ? 'HAS' : 'Technical Planning'} appointments saved successfully!`);
         } catch (error) {
-            console.error('Error saving appointments:', error);
+            logger.error('Error saving appointments:', error);
             alert('Error saving appointments. Please try again.');
         } finally {
             setLoading(false);
         }
     };
-    const renderApartmentList = () => {
-        if (isSingleApartment) {
-            const apartment = apartments[0];
-            return (
-                <div className="usc-singleApartment">
-                    <h3>Scheduling for: {apartment.adres} {apartment.huisNummer}{apartment.toevoeging}</h3>
-                    {flatAppointments[apartment._id] && (
-                        <div className="usc-currentAppointment">
-                            <h4>Current Appointment:</h4>
-                            <p><strong>Date:</strong> {new Date(flatAppointments[apartment._id].date).toLocaleDateString()}</p>
-                            <p><strong>Time:</strong> {flatAppointments[apartment._id].startTime} - {flatAppointments[apartment._id].endTime}</p>
-                            <p><strong>Week:</strong> {flatAppointments[apartment._id].weekNumber}</p>
-                            {isHASScheduling && (
-                                <>
-                                    <p><strong>Type:</strong> {flatAppointments[apartment._id].type}</p>
-                                    <p><strong>HAS Monteur:</strong> {flatAppointments[apartment._id].hasMonteurName}</p>
-                                </>
-                            )}
-                            {!isHASScheduling && (
-                                <p><strong>Technische Schouwer:</strong> {flatAppointments[apartment._id].technischeSchouwerName}</p>
-                            )}
-                        </div>
-                    )}
-                </div>
-            );
-        }
-        return (
-            <div className="usc-apartmentList">
-                <h3>Select Apartments for {isHASScheduling ? 'HAS' : 'Technical Planning'} Appointment</h3>
-                {apartments.map(apartment => (
-                    <div key={apartment._id} className="usc-apartmentItem">
-                        <label className="usc-apartmentLabel">
-                            <input
-                                type="checkbox"
-                                checked={selectedApartments.includes(apartment._id)}
-                                onChange={() => handleApartmentSelection(apartment._id)}
-                                className="usc-checkbox"
-                            />
-                            <span className="usc-apartmentAddress">
-                                {apartment.adres} {apartment.huisNummer}{apartment.toevoeging}
-                                {flatAppointments[apartment._id] && (
-                                    <span className="usc-hasAppointmentIndicator"> (Has existing appointment)</span>
-                                )}
-                            </span>
-                        </label>
-                        {flatAppointments[apartment._id] && (
-                            <div className="usc-currentAppointment">
-                                <h5>Current Appointment:</h5>
-                                <p>Date: {new Date(flatAppointments[apartment._id].date).toLocaleDateString()}</p>
-                                <p>Time: {flatAppointments[apartment._id].startTime} - {flatAppointments[apartment._id].endTime}</p>
-                                <p>Week: {flatAppointments[apartment._id].weekNumber}</p>
-                                {isHASScheduling && (
-                                    <>
-                                        <p>Type: {flatAppointments[apartment._id].type}</p>
-                                        <p>HAS Monteur: {flatAppointments[apartment._id].hasMonteurName}</p>
-                                    </>
-                                )}
-                                {!isHASScheduling && (
-                                    <p>Technische Schouwer: {flatAppointments[apartment._id].technischeSchouwerName}</p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-        );
-    };
-    const renderAppointmentForm = () => (
-        <div className="usc-appointmentForm">
-            <h3>Set {isHASScheduling ? 'HAS' : 'Technical Planning'} Appointment Details</h3>
-            <form onSubmit={handleSubmit}>
-                {isHASScheduling && (
-                    <div className="usc-formGroup">
-                        <label>Appointment Type:</label>
-                        <div className="usc-radioGroup">
-                            {['HAS', 'Storing', 'Complaint'].map(type => (
-                                <label key={type} className="usc-radioLabel">
-                                    <input
-                                        type="radio"
-                                        name="type"
-                                        value={type}
-                                        checked={appointmentData.type === type}
-                                        onChange={handleAppointmentChange}
-                                    />
-                                    {type}
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                {isHASScheduling && appointmentData.type === 'Complaint' && (
-                    <div className="usc-formGroup">
-                        <label>Complaint Details:</label>
-                        <textarea
-                            name="complaintDetails"
-                            value={appointmentData.complaintDetails}
-                            onChange={handleAppointmentChange}
-                            className="usc-textarea"
-                            rows="4"
-                            placeholder="Enter complaint details"
-                            required={appointmentData.type === 'Complaint'}
-                        />
-                    </div>
-                )}
-                <div className="usc-formGroup">
-                    <label>Appointment Date:</label>
-                    <input
-                        type="date"
-                        name="date"
-                        value={appointmentData.date}
-                        onChange={handleAppointmentChange}
-                        className="usc-input"
-                        required
-                    />
-                </div>
-                <div className="usc-formRow">
-                    <div className="usc-formGroup">
-                        <label>Start Time:</label>
-                        <input
-                            type="time"
-                            name="startTime"
-                            value={appointmentData.startTime}
-                            onChange={handleAppointmentChange}
-                            className="usc-input"
-                            required
-                        />
-                    </div>
-                    <div className="usc-formGroup">
-                        <label>End Time:</label>
-                        <input
-                            type="time"
-                            name="endTime"
-                            value={appointmentData.endTime}
-                            onChange={handleAppointmentChange}
-                            className="usc-input"
-                            required
-                        />
-                    </div>
-                </div>
-                <div className="usc-formGroup">
-                    <label>Week Number:</label>
-                    <input
-                        type="number"
-                        name="weekNumber"
-                        value={appointmentData.weekNumber || ''}
-                        readOnly
-                        className="usc-input usc-readonly"
-                    />
-                </div>
-                <div className="usc-formGroup">
-                    <label>
-                        {isHASScheduling ? 'HAS Monteur:' : 'Technische Schouwer:'}
-                    </label>
-                    <select
-                        name={isHASScheduling ? 'hasMonteurName' : 'technischeSchouwerName'}
-                        value={isHASScheduling ? appointmentData.hasMonteurName : appointmentData.technischeSchouwerName}
-                        onChange={handleAppointmentChange}
-                        className="usc-select"
-                        required
-                    >
-                        <option value="">
-                            Select a {isHASScheduling ? 'HAS Monteur' : 'Technische Schouwer'}
-                        </option>
-                        {availablePersonnel.map(person => (
-                            <option key={person._id} value={person.name}>
-                                {person.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="usc-buttonGroup">
-                    <button
-                        type="submit"
-                        className="usc-saveButton"
-                        disabled={loading || selectedApartments.length === 0}
-                    >
-                        {loading ? 'Saving...' : 'Save Appointment'}
-                    </button>
-                    {onCancel && (
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="usc-cancelButton"
-                            disabled={loading}
-                        >
-                            Cancel
-                        </button>
-                    )}
-                </div>
-            </form>
-        </div>
-    );
+    
     return (
         <div className="usc-container">
             <div className="usc-columns">
                 <div className="usc-leftColumn">
-                    {renderApartmentList()}
+                    <AppointmentList
+                        apartments={apartments}
+                        selectedApartments={selectedApartments}
+                        flatAppointments={flatAppointments}
+                        isHASScheduling={isHASScheduling}
+                        onApartmentSelect={handleApartmentSelection}
+                        isSingleApartment={isSingleApartment}
+                    />
                 </div>
                 <div className="usc-rightColumn">
-                    {renderAppointmentForm()}
+                    <AppointmentForm
+                        appointmentData={appointmentData}
+                        onAppointmentChange={handleAppointmentChange}
+                        onSubmit={handleSubmit}
+                        onCancel={onCancel}
+                        availablePersonnel={availablePersonnel}
+                        isHASScheduling={isHASScheduling}
+                        loading={loading}
+                        canSubmit={selectedApartments.length > 0}
+                    />
                 </div>
             </div>
         </div>

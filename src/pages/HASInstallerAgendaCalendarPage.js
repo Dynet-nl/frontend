@@ -11,6 +11,9 @@ import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import {BounceLoader} from 'react-spinners';
 import {useNavigate} from 'react-router-dom';
 import { fetchUserColors, getUserColor, darkenColor } from '../utils/userColors';
+import { ConfirmModal } from '../components/ui';
+import logger from '../utils/logger';
+
 const locales = {
     'nl': nl
 };
@@ -41,7 +44,8 @@ const HASInstallerAgendaCalendarPage = () => {
     const [loading, setLoading] = useState(false);
     const [selectedHASMonteur, setSelectedHASMonteur] = useState('');
     const [hasMonteurs, setHasMonteurs] = useState([]);
-    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date()); 
+    const [currentDisplayMonth, setCurrentDisplayMonth] = useState(new Date());
+    const [eventDetailsModal, setEventDetailsModal] = useState({ isOpen: false, event: null }); 
     const fetchHasMonteurs = useCallback(async () => {
         try {
             const response = await axiosPrivate.get('/api/users');
@@ -49,19 +53,19 @@ const HASInstallerAgendaCalendarPage = () => {
             
             await fetchUserColors(axiosPrivate);
             
-            console.log('All users from API:', users);
+            logger.log('All users from API:', users);
             users.forEach(user => {
-                console.log(`User: ${user.name}, Roles:`, user.roles);
+                logger.log(`User: ${user.name}, Roles:`, user.roles);
                 if (user.roles) {
                     Object.keys(user.roles).forEach(roleKey => {
-                        console.log(`  - ${roleKey}: ${user.roles[roleKey]}`);
+                        logger.log(`  - ${roleKey}: ${user.roles[roleKey]}`);
                     });
                 }
             });
             
             const monteurs = users.filter(user => {
                 if (!user.roles || typeof user.roles !== 'object') {
-                    console.log(`User ${user.name} has no roles or invalid roles structure`);
+                    logger.log(`User ${user.name} has no roles or invalid roles structure`);
                     return false;
                 }
                 
@@ -73,21 +77,21 @@ const HASInstallerAgendaCalendarPage = () => {
                     (typeof hasMonteur === 'number' && hasMonteur > 0)
                 );
                 
-                console.log(`User ${user.name} - HASMonteur value: ${hasMonteur}, matches: ${isHASMonteur}`);
+                logger.log(`User ${user.name} - HASMonteur value: ${hasMonteur}, matches: ${isHASMonteur}`);
                 return isHASMonteur;
             });
             
-            console.log('Found HAS Monteur users:', monteurs);
+            logger.log('Found HAS Monteur users:', monteurs);
             setHasMonteurs(monteurs);
         } catch (error) {
-            console.error('Error fetching HAS Monteur users:', error);
+            logger.error('Error fetching HAS Monteur users:', error);
             
             const fallbackUsers = [
                 { _id: 'jasper', name: 'jasper', email: 'jasper@example.com' },
                 { _id: 'john-doe', name: 'John Doe', email: 'john.doe@example.com' }
             ];
             
-            console.log('Using fallback users for filtering:', fallbackUsers);
+            logger.log('Using fallback users for filtering:', fallbackUsers);
             setHasMonteurs(fallbackUsers);
         }
     }, [axiosPrivate]);
@@ -99,7 +103,7 @@ const HASInstallerAgendaCalendarPage = () => {
                     limit: 500, 
                 }
             });
-            console.log('Raw HAS appointments response:', response.data);
+            logger.log('Raw HAS appointments response:', response.data);
             
             const calendarEvents = response.data
                 .filter(flat =>
@@ -119,7 +123,7 @@ const HASInstallerAgendaCalendarPage = () => {
                     endDateTime.setHours(parseInt(endHours), parseInt(endMinutes), 0, 0);
                     const duration = Math.max(differenceInMinutes(endDateTime, startDateTime), 30);
                     
-                    console.log('Processing appointment for:', flat.hasMonteur.hasMonteurName);
+                    logger.log('Processing appointment for:', flat.hasMonteur.hasMonteurName);
                     
                     return {
                         id: flat._id,
@@ -137,11 +141,11 @@ const HASInstallerAgendaCalendarPage = () => {
                         }
                     };
                 });
-            console.log('Processed calendar events:', calendarEvents);
+            logger.log('Processed calendar events:', calendarEvents);
             setOriginalEvents(calendarEvents);
             setEvents(calendarEvents);
         } catch (error) {
-            console.error('Error fetching appointments:', error);
+            logger.error('Error fetching appointments:', error);
         } finally {
             setLoading(false);
         }
@@ -171,37 +175,28 @@ const HASInstallerAgendaCalendarPage = () => {
                 
                 setCurrentDisplayMonth(appointmentMonth);
                 
-                console.log(`Auto-navigating to ${appointmentMonth.toLocaleDateString()} for ${selectedName}'s appointments`);
+                logger.log(`Auto-navigating to ${appointmentMonth.toLocaleDateString()} for ${selectedName}'s appointments`);
             }
             
-            console.log(`Filtering for: ${selectedName}`);
-            console.log(`Found ${filteredEvents.length} events out of ${originalEvents.length} total`);
+            logger.log(`Filtering for: ${selectedName}`);
+            logger.log(`Found ${filteredEvents.length} events out of ${originalEvents.length} total`);
         }
     };
     const handleRangeChange = (range) => {
         if (range.start && range.end) {
-            console.log('Calendar range changed to:', range.start, 'to', range.end);
+            logger.log('Calendar range changed to:', range.start, 'to', range.end);
         }
     };
     const handleEventClick = (event) => {
-        const {resource} = event;
-        
-        const confirmed = window.confirm(`
-            🔧 HAS Installation Details
-            ═══════════════════════════════
-            🏠 Address: ${resource.address}
-            🔧 Type: ${resource.type}
-            📝 Notes: ${resource.notes}
-            🏢 Complex: ${resource.complexNaam}
-            👷 Installer: ${event.personName || 'Not assigned'}
-            ⏱️ Duration: ${event.duration || 'Not specified'} minutes
-            
-            Click OK to view apartment details, or Cancel to stay on calendar.
-        `);
-        
-        if (confirmed) {
-            navigate(`/hm-apartment/${resource.flatId}`);
+        setEventDetailsModal({ isOpen: true, event });
+    };
+    
+    const handleViewApartment = () => {
+        const event = eventDetailsModal.event;
+        if (event?.resource?.flatId) {
+            navigate(`/hm-apartment/${event.resource.flatId}`);
         }
+        setEventDetailsModal({ isOpen: false, event: null });
     };
     const eventStyleGetter = (event) => {
         const isStoring = event.resource.type === 'Storing';
@@ -435,6 +430,28 @@ const heightPerHour = 30;
                     </div>
                 </div>
             </div>
+            
+            {/* Event Details Modal */}
+            {eventDetailsModal.isOpen && eventDetailsModal.event && (
+                <ConfirmModal
+                    isOpen={true}
+                    title="🔧 HAS Installation Details"
+                    message={
+                        <div style={{ textAlign: 'left', lineHeight: '1.8' }}>
+                            <p><strong>🏠 Address:</strong> {eventDetailsModal.event.resource?.address}</p>
+                            <p><strong>🔧 Type:</strong> {eventDetailsModal.event.resource?.type}</p>
+                            <p><strong>📝 Notes:</strong> {eventDetailsModal.event.resource?.notes || 'None'}</p>
+                            <p><strong>🏢 Complex:</strong> {eventDetailsModal.event.resource?.complexNaam}</p>
+                            <p><strong>👷 Installer:</strong> {eventDetailsModal.event.personName || 'Not assigned'}</p>
+                            <p><strong>⏱️ Duration:</strong> {eventDetailsModal.event.duration || 'Not specified'} minutes</p>
+                        </div>
+                    }
+                    confirmText="View Apartment"
+                    cancelText="Close"
+                    onConfirm={handleViewApartment}
+                    onCancel={() => setEventDetailsModal({ isOpen: false, event: null })}
+                />
+            )}
         </div>
     );
 };

@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
-import ROLES_LIST from '../context/roles_list';
+import { ROLES } from '../utils/constants';
 import { getStatusColor, getStatusText } from '../utils/statusUtils';
+import { LoadingState, ErrorState } from './ui';
 import '../styles/optimizedApartmentDetails.css';
+import logger from '../utils/logger';
 
 const OptimizedApartmentDetails = () => {
     const params = useParams();
@@ -15,9 +17,9 @@ const OptimizedApartmentDetails = () => {
     const [apartment, setApartment] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin);
-    const isTechnischePlanning = auth?.roles?.includes(ROLES_LIST.TechnischePlanning);
-    const isHASPlanning = auth?.roles?.includes(ROLES_LIST.HASPlanning);
+    const isAdmin = auth?.roles?.includes(ROLES.ADMIN);
+    const isTechnischePlanning = auth?.roles?.includes(ROLES.TECHNICAL_PLANNING);
+    const isHASPlanning = auth?.roles?.includes(ROLES.HAS_PLANNING);
 
     useEffect(() => {
         const fetchApartment = async () => {
@@ -25,7 +27,7 @@ const OptimizedApartmentDetails = () => {
                 const { data } = await axiosPrivate.get(`/api/apartment/${params.id}`);
                 setApartment(data);
             } catch (error) {
-                console.error("Failed to fetch apartment details:", error);
+                logger.error("Failed to fetch apartment details:", error);
             } finally {
                 setLoading(false);
             }
@@ -35,20 +37,11 @@ const OptimizedApartmentDetails = () => {
     }, [axiosPrivate, params.id]);
 
     if (loading) {
-        return (
-            <div className="optimized-apartment-loading">
-                <div className="loading-spinner"></div>
-                <p>Loading apartment details...</p>
-            </div>
-        );
+        return <LoadingState message="Loading apartment details..." />;
     }
 
     if (!apartment) {
-        return (
-            <div className="optimized-apartment-error">
-                <p>Apartment not found</p>
-            </div>
-        );
+        return <ErrorState message="Apartment not found" />;
     }
 
     const hasAppointment = apartment.technischePlanning?.appointmentBooked?.date || apartment.hasMonteur?.appointmentBooked?.date;

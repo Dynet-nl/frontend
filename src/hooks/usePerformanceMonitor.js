@@ -1,6 +1,7 @@
 // Custom hook for monitoring application performance including render times and API response times.
 
 import { useEffect, useRef, useState } from 'react';
+import logger from '../utils/logger';
 const usePerformanceMonitor = (componentName) => {
     const mountTime = useRef(Date.now());
     const renderCount = useRef(0);
@@ -23,7 +24,7 @@ const usePerformanceMonitor = (componentName) => {
             }));
             if (process.env.NODE_ENV === 'development') {
                 if (isSlowRender) {
-                    console.warn(`🐌 Slow render detected in ${componentName}: ${renderTime.toFixed(2)}ms`);
+                    logger.warn(`🐌 Slow render detected in ${componentName}: ${renderTime.toFixed(2)}ms`);
                 }
                 if (renderCount.current % 50 === 0) {
                     console.info(`📊 Performance stats for ${componentName}:`, {
@@ -90,7 +91,7 @@ return;
                 return;
             }
             setError(err);
-            console.error('API call failed:', err);
+            logger.error('API call failed:', err);
         } finally {
             setLoading(false);
             requestRef.current = null;

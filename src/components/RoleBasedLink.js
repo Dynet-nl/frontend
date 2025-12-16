@@ -3,7 +3,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import ROLES_LIST from "../context/roles_list";
+import { ROLES } from "../utils/constants";
 const RoleBasedLink = ({ children, flatId, buildingId, building, className, type, style }) => {
     const { auth } = useAuth();
     
@@ -25,12 +25,12 @@ const RoleBasedLink = ({ children, flatId, buildingId, building, className, type
     const hasRole = (roleValue) => {
         return auth?.roles && Array.isArray(auth.roles) && auth.roles.includes(roleValue);
     };
-    const isAdmin = hasRole(ROLES_LIST.Admin);
-    const isTechnischePlanning = hasRole(ROLES_LIST.TechnischePlanning);
-    const isHASPlanning = hasRole(ROLES_LIST.HASPlanning);
-    const isTechnischeSchouwer = hasRole(ROLES_LIST.TechnischeSchouwer);
-    const isHASMonteur = hasRole(ROLES_LIST.HASMonteur);
-    const isWerkvoorbereider = hasRole(ROLES_LIST.Werkvoorbereider);
+    const isAdmin = hasRole(ROLES.ADMIN);
+    const isTechnischePlanning = hasRole(ROLES.TECHNICAL_PLANNING);
+    const isHASPlanning = hasRole(ROLES.HAS_PLANNING);
+    const isTechnischeSchouwer = hasRole(ROLES.TECHNICAL_INSPECTOR);
+    const isHASMonteur = hasRole(ROLES.HAS_MONTEUR);
+    const isWerkvoorbereider = hasRole(ROLES.WERKVOORBEREIDER);
     const hasSchedulingPermissions = isAdmin || isTechnischePlanning || isHASPlanning || isWerkvoorbereider;
     let path = '/';
     if (type === 'schedule' && buildingId) {

@@ -2,8 +2,10 @@
 
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
+import logger from '../utils/logger';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { categorizeBuilding, generateHBNumber } from '../utils/buildingCategorization';
+import { LoadingState } from '../components/ui';
 import '../styles/tsApartmentDetails.css'; 
 const HASPlanningApartmentSchedulePage = () => {
     const {id} = useParams();
@@ -48,7 +50,7 @@ const HASPlanningApartmentSchedulePage = () => {
             });
             setHASMonteurs(monteurs);
         } catch (error) {
-            console.error('Error fetching HAS Monteurs:', error);
+            logger.error('Error fetching HAS Monteurs:', error);
         }
     };
     const fetchBuilding = async () => {
@@ -79,7 +81,7 @@ const HASPlanningApartmentSchedulePage = () => {
             });
             setLoading(false);
         } catch (error) {
-            console.error('Error fetching building data', error);
+            logger.error('Error fetching building data', error);
             setLoading(false);
         }
     };
@@ -144,13 +146,13 @@ const HASPlanningApartmentSchedulePage = () => {
             setBuilding(buildingResponse.data);
             alert('Appointments saved successfully!');
         } catch (error) {
-            console.error('Error saving appointments:', error);
+            logger.error('Error saving appointments:', error);
             alert('Error saving appointments. Please try again.');
         } finally {
             setLoading(false);
         }
     };
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <LoadingState message="Loading building data..." />;
     
     const flats = building.flats || [];
     const hbNumber = generateHBNumber(building, flats);

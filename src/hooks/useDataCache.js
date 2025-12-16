@@ -1,6 +1,7 @@
 // Custom hook for caching API responses with automatic refresh and performance optimization.
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import logger from '../utils/logger';
 import useAxiosPrivate from './useAxiosPrivate';
 import useLocalStorage from './useLocalStorage';
 import { useCacheInvalidation } from '../context/CacheInvalidationProvider';
@@ -47,7 +48,7 @@ const useDataCache = (cacheKey, fetchFunction, dependencies = []) => {
             }
             return result;
         } catch (err) {
-            console.error(`Error fetching data for ${cacheKey}:`, err);
+            logger.error(`Error fetching data for ${cacheKey}:`, err);
             setError(err);
             if (cachedData) {
                 setData(cachedData);
@@ -65,7 +66,7 @@ const useDataCache = (cacheKey, fetchFunction, dependencies = []) => {
             try {
                 await fetchData(true);
             } catch (error) {
-                console.error(`Auto-refresh failed for ${cacheKey}:`, error);
+                logger.error(`Auto-refresh failed for ${cacheKey}:`, error);
             }
         }, AUTO_REFRESH_INTERVAL);
     }, [fetchData, cacheKey]);

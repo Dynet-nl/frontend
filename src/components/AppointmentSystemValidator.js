@@ -1,10 +1,11 @@
 // Comprehensive appointment system validator to ensure 100% reliability across all roles
 // This validates that appointment scheduling, display, and management works for all user roles
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
-import ROLES_LIST from '../context/roles_list';
+import { ROLES } from '../utils/constants';
+import logger from '../utils/logger';
 
 const AppointmentSystemValidator = () => {
     const axiosPrivate = useAxiosPrivate();
@@ -12,11 +13,11 @@ const AppointmentSystemValidator = () => {
     const [validationResults, setValidationResults] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const isAdmin = auth?.roles?.includes(ROLES_LIST.Admin);
-    const isTechnischePlanning = auth?.roles?.includes(ROLES_LIST.TechnischePlanning);
-    const isHASPlanning = auth?.roles?.includes(ROLES_LIST.HASPlanning);
-    const isTechnischeSchouwer = auth?.roles?.includes(ROLES_LIST.TechnischeSchouwer);
-    const isHASMonteur = auth?.roles?.includes(ROLES_LIST.HASMonteur);
+    const isAdmin = auth?.roles?.includes(ROLES.ADMIN);
+    const isTechnischePlanning = auth?.roles?.includes(ROLES.TECHNICAL_PLANNING);
+    const isHASPlanning = auth?.roles?.includes(ROLES.HAS_PLANNING);
+    const isTechnischeSchouwer = auth?.roles?.includes(ROLES.TECHNICAL_INSPECTOR);
+    const isHASMonteur = auth?.roles?.includes(ROLES.HAS_MONTEUR);
 
     const validateAppointmentSystem = async () => {
         setLoading(true);
@@ -39,7 +40,7 @@ const AppointmentSystemValidator = () => {
 
             setValidationResults(results);
         } catch (error) {
-            console.error('Validation error:', error);
+            logger.error('Validation error:', error);
             results.error = error.message;
             setValidationResults(results);
         } finally {

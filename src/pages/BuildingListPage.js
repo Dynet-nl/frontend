@@ -1,6 +1,6 @@
 // Page displaying building lists with filtering, pagination, and building-specific actions.
 
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useCallback} from 'react'
 import {useParams} from 'react-router-dom'
 import '../styles/mockupSchemas.css'
 import '../styles/dynamicSchemas.css'
@@ -9,50 +9,68 @@ import RightWing from '../mockupSchemas/RightWing'
 import LeftWing from '../mockupSchemas/LeftWing'
 import NoStairs from '../mockupSchemas/NoStairs'
 import ConditionalFullSchema from '../components/ConditionalFullSchema'
-import LeftWingNoBG from '../mockupSchemas/LeftWingNoBG'
-import RightWingNoBG from '../mockupSchemas/RightWingNoBG'
-import LeftWingFlat from '../mockupSchemas/LeftWingFlat'
-import RightWingFlat from '../mockupSchemas/RightWingFlat'
-import RightWingApart from '../mockupSchemas/RightWingApart'
-import LeftWingApart from '../mockupSchemas/LeftWingApart'
+import { ConfirmModal } from '../components/ui'
 import '../styles/buildingPage.css'
+import { useNotification } from '../context/NotificationProvider'
+import logger from '../utils/logger'
+
+// Constants
+const FLOOR_OPTIONS = [
+    { value: '', label: 'Select floor' },
+    { value: 0, label: 'BG' },
+    { value: 1, label: '1' },
+    { value: 2, label: '2' },
+    { value: 3, label: '3' },
+    { value: 4, label: '4' },
+    { value: 5, label: '5' },
+];
+
+const INITIAL_BLOCK = {
+    firstFloor: 0,
+    topFloor: '',
+    blockType: '',
+    floors: [],
+};
+
 const BuildingListPage = () => {
     const params = useParams()
     const axiosPrivate = useAxiosPrivate()
+    const { showSuccess, showError } = useNotification()
+    
+    // Loading and error states
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSaving, setIsSaving] = useState(false)
+    const [isScheduling, setIsScheduling] = useState(false)
+    
     const [building, setBuilding] = useState({})
     const [isLayoutNew, setLayoutNew] = useState(true)
     const [cableNumbers, setCableNumbers] = useState([])
     const [currentCable, setCurrentCable] = useState('')
     const [currentCableFlats, setCurrentCableFlats] = useState([])
-    const [schedules, setSchedules] = useState({
-    })
-    const [formFields, setFormFields] = useState([
-        {
-            firstFloor: 0,
-            topFloor: '',
-            blockType: '',
-            floors: [],
-        },
-    ])
-    useEffect(() => {
-        const fetchBuilding = async () => {
-            const config = {
-                method: 'GET',
-            }
-            const {data} = await axiosPrivate.get(
-                `/api/building/${params.id}`,
-                config,
-            )
+    const [schedules, setSchedules] = useState({})
+    const [formFields, setFormFields] = useState([{ ...INITIAL_BLOCK }])
+    const [removeBlockModal, setRemoveBlockModal] = useState({ isOpen: false, index: null })
+
+    const fetchBuilding = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const { data } = await axiosPrivate.get(`/api/building/${params.id}`)
             setBuilding(data)
-            if (data.layout?.blocks.length) {
+            if (data.layout?.blocks?.length) {
                 setFormFields(data.layout.blocks)
                 setLayoutNew(false)
             }
+        } catch (error) {
+            logger.error('Failed to fetch building:', error)
+            showError('Failed to load building data. Please try again.')
+        } finally {
+            setIsLoading(false)
         }
-        fetchBuilding()
-    }, [params.id])
+    }, [params.id, axiosPrivate, showError])
+
     useEffect(() => {
-    }, [formFields, cableNumbers, currentCable, schedules, currentCableFlats])
+        fetchBuilding()
+    }, [fetchBuilding])
     const handleFlatDetails = (event, index, parentIndex) => {
         let data = [...formFields]
         data[parentIndex].floors[index][event.target.name] =
@@ -93,37 +111,57 @@ const BuildingListPage = () => {
     }
     const submit = async (e) => {
         e.preventDefault()
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        
+        // Validation
+        const hasInvalidBlocks = formFields.some(field => !field.blockType || field.topFloor === '')
+        if (hasInvalidBlocks) {
+            showError('Please complete all block configurations before saving.')
+            return
         }
-        const {data} = isLayoutNew
-            ? await axiosPrivate.post(
-                `/api/building/layout/${params.id}`,
-                formFields,
-                config,
-            )
-            : await axiosPrivate.put(
-                `/api/building/layout/${params.id}`,
-                formFields,
-                config,
-            )
+        
+        setIsSaving(true)
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+            if (isLayoutNew) {
+                await axiosPrivate.post(`/api/building/layout/${params.id}`, formFields, config)
+                setLayoutNew(false)
+                showSuccess('Layout created successfully!')
+            } else {
+                await axiosPrivate.put(`/api/building/layout/${params.id}`, formFields, config)
+                showSuccess('Layout updated successfully!')
+            }
+        } catch (error) {
+            logger.error('Failed to save layout:', error)
+            showError(error.response?.data?.message || 'Failed to save layout. Please try again.')
+        } finally {
+            setIsSaving(false)
+        }
     }
     const addFields = () => {
-        let object = {
-            firstFloor: 0,
-            topFloor: '',
-            blockType: '',
-            floors: [],
-        }
-        setFormFields([...formFields, object])
+        setFormFields([...formFields, { ...INITIAL_BLOCK }])
     }
+    
     const removeFields = (e, index) => {
         e.preventDefault()
-        let data = [...formFields]
-        data.splice(index, 1)
-        setFormFields(data)
+        if (formFields.length === 1) {
+            showError('You must have at least one block.')
+            return
+        }
+        setRemoveBlockModal({ isOpen: true, index })
+    }
+    
+    const confirmRemoveBlock = () => {
+        const { index } = removeBlockModal
+        if (index !== null) {
+            const data = [...formFields]
+            data.splice(index, 1)
+            setFormFields(data)
+        }
+        setRemoveBlockModal({ isOpen: false, index: null })
     }
     const getCableNumbers = () => {
         const tempArray = formFields.map((field) => {
@@ -137,7 +175,7 @@ const BuildingListPage = () => {
         const tempArray = []
         formFields.forEach((formField) => {
             formField.floors.forEach((floor) => {
-                if (floor.cableNumber == cableNumber) {
+                if (floor.cableNumber === cableNumber) {
                     tempArray.push(floor.flat)
                 }
             })
@@ -149,43 +187,72 @@ const BuildingListPage = () => {
             flats: tempArray,
         })
     }
+    
     const sendSchedule = async (e) => {
         e.preventDefault()
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        
+        // Validation
+        if (!schedules.date || !schedules.from || !schedules.till) {
+            showError('Please fill in all schedule fields.')
+            return
         }
-        const {data} = await axiosPrivate.post(
-            `/api/schedule/${params.id}`,
-            schedules,
-            config,
+        if (!schedules.cableNumber || !schedules.flats?.length) {
+            showError('Please select a cable number first.')
+            return
+        }
+        
+        setIsScheduling(true)
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+            await axiosPrivate.post(`/api/schedule/${params.id}`, schedules, config)
+            showSuccess('Schedule created successfully!')
+            // Reset schedule form
+            setSchedules({ cableNumber: schedules.cableNumber, flats: schedules.flats })
+        } catch (error) {
+            logger.error('Failed to create schedule:', error)
+            showError(error.response?.data?.message || 'Failed to create schedule. Please try again.')
+        } finally {
+            setIsScheduling(false)
+        }
+    }
+    
+    // Loading state
+    if (isLoading) {
+        return (
+            <div className="buildingPageContainer">
+                <div className="loading-spinner">
+                    <div className="spinner"></div>
+                    <p>Loading building data...</p>
+                </div>
+            </div>
         )
     }
     return (
         <div className="buildingPageContainer">
-            <h1>Building Page</h1>
+            <h1>Building Page {building.name && `- ${building.name}`}</h1>
             <form onSubmit={submit}>
                 {formFields.map((form, i) => {
                     return (
-                        <div style={{margin: '20px 0', backgroundColor: 'wheat'}} key={i}>
-                            <h3>{i + 1} block</h3>
-                            <div>
-                                <label htmlFor="topFloor">Choose Top Floor</label>
+                        <div className="block-card" key={`block-${i}-${form.blockType}`}>
+                            <h3>Block {i + 1}</h3>
+                            <div className="form-group">
+                                <label htmlFor={`topFloor-${i}`}>Choose Top Floor</label>
                                 <select
-                                    id="topFloor"
+                                    id={`topFloor-${i}`}
                                     name="topFloor"
-                                    placeholder="topFloor"
                                     onChange={(event) => handleFloors(event, i)}
                                     value={form.topFloor}
+                                    className="form-select"
                                 >
-                                    <option value={''}></option>
-                                    <option value={0}>BG</option>
-                                    <option value={1}>1</option>
-                                    <option value={2}>2</option>
-                                    <option value={3}>3</option>
-                                    <option value={4}>4</option>
-                                    <option value={5}>5</option>
+                                    {FLOOR_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="schemasContainer">
@@ -229,20 +296,35 @@ const BuildingListPage = () => {
                                     </label>
                                 </div>
                             </div>
-                            <button onClick={(e) => removeFields(e, i)}>Remove</button>
+                            <button 
+                                className="btn btn-danger"
+                                onClick={(e) => removeFields(e, i)}
+                                disabled={formFields.length === 1}
+                            >
+                                Remove Block
+                            </button>
                         </div>
                     )
                 })}
             </form>
-            <button onClick={addFields}>Add More Block...</button>
-            <br></br>
-            <br></br>
-            <br></br>
+            <div className="button-group">
+                <button className="btn btn-secondary" onClick={addFields}>
+                    + Add More Block
+                </button>
+                <button 
+                    className="btn btn-primary" 
+                    onClick={submit}
+                    disabled={isSaving}
+                >
+                    {isSaving ? 'Saving...' : (isLayoutNew ? 'Create Layout' : 'Update Layout')}
+                </button>
+            </div>
+            
             <h2>Completed Layout of the Building</h2>
             <div className="completeSchemaContainer">
                 {formFields.map((form, index) => (
                     <div
-                        key={index}
+                        key={`schema-${index}-${form.blockType}`}
                         className={`${form.blockType === 'leftWing' ||
                         form.blockType === 'rightWing' ||
                         form.blockType === 'leftWingNoBG' ||
@@ -255,7 +337,6 @@ const BuildingListPage = () => {
             ${form.blockType === 'noStairs' ? 'noStairsContainer' : ''}`}
                     >
                         <ConditionalFullSchema
-                            key={index}
                             form={form}
                             building={building}
                             parentIndex={index}
@@ -265,231 +346,102 @@ const BuildingListPage = () => {
                     </div>
                 ))}
             </div>
-            <button type="submit" onClick={submit}>
-                {isLayoutNew ? 'Create Layout' : 'Update Layout'}
-            </button>
+            
             <div className="cablesContainer">
-                <button onClick={getCableNumbers}>Show Cable Numbers</button>
+                <button className="btn btn-secondary" onClick={getCableNumbers}>
+                    Show Cable Numbers
+                </button>
                 <div className="cableNumbersContainer">
-                    {cableNumbers.map((cableNum, index) => {
-                        return (
-                            <button
-                                className={cableNum === currentCable ? 'selectedCable' : ''}
-                                key={index}
-                                onClick={() => {
-                                    setCurrentCable(cableNum)
-                                    selectedFlats(cableNum)
-                                }}
-                            >
-                                {cableNum}
-                            </button>
-                        )
-                    })}
+                    {cableNumbers.map((cableNum) => (
+                        <button
+                            className={`cable-btn ${cableNum === currentCable ? 'selectedCable' : ''}`}
+                            key={`cable-${cableNum}`}
+                            onClick={() => {
+                                setCurrentCable(cableNum)
+                                selectedFlats(cableNum)
+                            }}
+                        >
+                            Cable {cableNum}
+                        </button>
+                    ))}
                 </div>
-                <div className="currentCableFlatsContainer">
-                    {currentCableFlats.length > 0 &&
-                        currentCableFlats.map((flat, index) => {
-                            return <p key={index}>{flat}</p>
-                        })}
-                </div>
+                {currentCableFlats.length > 0 && (
+                    <div className="currentCableFlatsContainer">
+                        <h4>Connected Flats:</h4>
+                        <div className="flats-list">
+                            {currentCableFlats.map((flat, index) => (
+                                <span key={`flat-${flat}-${index}`} className="flat-badge">{flat}</span>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 {cableNumbers.length > 0 && (
-                    <div style={{
-                        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-                        border: '2px solid #e2e8f0',
-                        borderRadius: '16px',
-                        padding: '32px',
-                        marginTop: '32px',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
-                    }}>
-                        <h3 style={{
-                            color: '#1e293b',
-                            fontSize: '24px',
-                            fontWeight: '600',
-                            margin: '0 0 24px 0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px'
-                        }}>
-                            <span style={{fontSize: '24px'}}>📅</span>
+                    <div className="schedule-card">
+                        <h3 className="schedule-title">
+                            <span>📅</span>
                             Schedule Installation
                         </h3>
-                        <form onSubmit={sendSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{
-                                display: 'grid',
-                                gap: '20px',
-                                gridTemplateColumns: '1fr',
-                                '@media (min-width: 768px)': {
-                                    gridTemplateColumns: '1fr 1fr 1fr'
-                                }
-                            }}>
-                                <div>
-                                    <label 
-                                        htmlFor="date" 
-                                        style={{
-                                            display: 'block',
-                                            marginBottom: '8px',
-                                            color: '#374151',
-                                            fontSize: '16px',
-                                            fontWeight: '500'
-                                        }}
-                                    >
-                                        📅 Installation Date
-                                    </label>
+                        <form onSubmit={sendSchedule} className="schedule-form">
+                            <div className="schedule-form-grid">
+                                <div className="form-group">
+                                    <label htmlFor="date">📅 Installation Date</label>
                                     <input
-                                        onChange={(e) => {
-                                            setSchedules({...schedules, date: e.target.value})
-                                        }}
+                                        onChange={(e) => setSchedules({...schedules, date: e.target.value})}
                                         type="date"
                                         id="date"
                                         name="date"
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            border: '2px solid #e5e7eb',
-                                            borderRadius: '10px',
-                                            fontSize: '16px',
-                                            fontFamily: 'inherit',
-                                            transition: 'all 0.2s ease',
-                                            backgroundColor: '#ffffff',
-                                            color: '#374151',
-                                            outline: 'none',
-                                            boxSizing: 'border-box'
-                                        }}
-                                        onFocus={(e) => {
-                                            e.target.style.borderColor = '#667eea';
-                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.borderColor = '#e5e7eb';
-                                            e.target.style.boxShadow = 'none';
-                                        }}
+                                        className="form-input"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label 
-                                        htmlFor="from" 
-                                        style={{
-                                            display: 'block',
-                                            marginBottom: '8px',
-                                            color: '#374151',
-                                            fontSize: '16px',
-                                            fontWeight: '500'
-                                        }}
-                                    >
-                                        🕐 Start Time
-                                    </label>
+                                <div className="form-group">
+                                    <label htmlFor="from">🕐 Start Time</label>
                                     <input
-                                        onChange={(e) => {
-                                            setSchedules({...schedules, from: e.target.value})
-                                        }}
+                                        onChange={(e) => setSchedules({...schedules, from: e.target.value})}
                                         type="time"
                                         id="from"
                                         name="from"
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            border: '2px solid #e5e7eb',
-                                            borderRadius: '10px',
-                                            fontSize: '16px',
-                                            fontFamily: 'inherit',
-                                            transition: 'all 0.2s ease',
-                                            backgroundColor: '#ffffff',
-                                            color: '#374151',
-                                            outline: 'none',
-                                            boxSizing: 'border-box'
-                                        }}
-                                        onFocus={(e) => {
-                                            e.target.style.borderColor = '#667eea';
-                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.borderColor = '#e5e7eb';
-                                            e.target.style.boxShadow = 'none';
-                                        }}
+                                        className="form-input"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label 
-                                        htmlFor="till" 
-                                        style={{
-                                            display: 'block',
-                                            marginBottom: '8px',
-                                            color: '#374151',
-                                            fontSize: '16px',
-                                            fontWeight: '500'
-                                        }}
-                                    >
-                                        🕐 End Time
-                                    </label>
+                                <div className="form-group">
+                                    <label htmlFor="till">🕐 End Time</label>
                                     <input
-                                        onChange={(e) => {
-                                            setSchedules({...schedules, till: e.target.value})
-                                        }}
+                                        onChange={(e) => setSchedules({...schedules, till: e.target.value})}
                                         type="time"
                                         id="till"
                                         name="till"
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px',
-                                            border: '2px solid #e5e7eb',
-                                            borderRadius: '10px',
-                                            fontSize: '16px',
-                                            fontFamily: 'inherit',
-                                            transition: 'all 0.2s ease',
-                                            backgroundColor: '#ffffff',
-                                            color: '#374151',
-                                            outline: 'none',
-                                            boxSizing: 'border-box'
-                                        }}
-                                        onFocus={(e) => {
-                                            e.target.style.borderColor = '#667eea';
-                                            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.borderColor = '#e5e7eb';
-                                            e.target.style.boxShadow = 'none';
-                                        }}
+                                        className="form-input"
                                         required
                                     />
                                 </div>
                             </div>
                             <button 
                                 type="submit"
-                                style={{
-                                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '14px 28px',
-                                    borderRadius: '10px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    justifyContent: 'center',
-                                    alignSelf: 'flex-start'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.transform = 'translateY(-2px)';
-                                    e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = 'none';
-                                }}
+                                className="btn btn-primary"
+                                disabled={isScheduling}
                             >
-                                <span style={{fontSize: '18px'}}>✅</span>
-                                Create Schedule
+                                <span>✅</span>
+                                {isScheduling ? 'Creating...' : 'Create Schedule'}
                             </button>
                         </form>
                     </div>
                 )}
             </div>
+            
+            {/* Confirm Remove Block Modal */}
+            <ConfirmModal
+                isOpen={removeBlockModal.isOpen}
+                title="Remove Block"
+                message="Are you sure you want to remove this block?"
+                confirmText="Remove"
+                confirmVariant="danger"
+                onConfirm={confirmRemoveBlock}
+                onCancel={() => setRemoveBlockModal({ isOpen: false, index: null })}
+            />
         </div>
     )
 }
+
 export default BuildingListPage

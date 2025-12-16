@@ -1,6 +1,8 @@
 // React context provider for managing cache invalidation across the application.
 
 import { createContext, useContext, useState, useCallback } from 'react';
+import logger from '../utils/logger';
+
 const CacheInvalidationContext = createContext();
 export const CacheInvalidationProvider = ({ children }) => {
     const [cacheInvalidationCallbacks, setCacheInvalidationCallbacks] = useState(new Map());
@@ -21,7 +23,7 @@ export const CacheInvalidationProvider = ({ children }) => {
     const invalidateCache = useCallback((pattern) => {
         cacheInvalidationCallbacks.forEach((callback, key) => {
             if (pattern === '*' || key.includes(pattern) || pattern.includes(key)) {
-                console.log(`Invalidating cache for key: ${key}`);
+                logger.log(`Invalidating cache for key: ${key}`);
                 callback();
             }
         });
