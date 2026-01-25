@@ -1,0 +1,102 @@
+/**
+ * VirtualizedList Styles
+ */
+
+.virtualized-list {
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: var(--border-radius, 8px);
+    background: var(--surface-color, #ffffff);
+    overflow: hidden;
+}
+
+.virtualized-list--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.virtualized-empty-message {
+    color: var(--text-secondary, #666);
+    font-size: 14px;
+    text-align: center;
+}
+
+.virtualized-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.virtualized-row:hover {
+    background-color: var(--hover-color, #f5f5f5);
+}
+
+.virtualized-row--selected {
+    background-color: var(--selected-color, #e3f2fd);
+    border-left: 3px solid var(--primary-color, #1976d2);
+}
+
+.virtualized-row--selected:hover {
+    background-color: var(--selected-hover-color, #bbdefb);
+}
+
+/* Building-specific styles */
+.virtualized-building-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.virtualized-building-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.virtualized-building-name {
+    font-weight: 500;
+    color: var(--text-primary, #333);
+}
+
+.virtualized-building-address {
+    font-size: 13px;
+    color: var(--text-secondary, #666);
+}
+
+.virtualized-building-stats {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.virtualized-building-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-secondary, #666);
+    padding: 4px 8px;
+    background: var(--stat-bg, #f0f0f0);
+    border-radius: 12px;
+}
+
+.virtualized-building-stat--success {
+    background: var(--success-bg, #e8f5e9);
+    color: var(--success-color, #2e7d32);
+}
+
+.virtualized-building-stat--warning {
+    background: var(--warning-bg, #fff3e0);
+    color: var(--warning-color, #ef6c00);
+}
+
+.virtualized-building-stat--danger {
+    background: var(--danger-bg, #ffebee);
+    color: var(--danger-color, #c62828);
+}

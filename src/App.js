@@ -8,6 +8,7 @@ import useAuth from './hooks/useAuth';
 import { CacheInvalidationProvider } from './context/CacheInvalidationProvider';
 import { NotificationProvider } from './context/NotificationProvider';
 import { ThemeProvider } from './context/ThemeProvider';
+import { QueryProvider } from './context/QueryProvider';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import NotFound from './components/NotFound';
@@ -110,15 +111,16 @@ function App() {
     
     return (
         <ErrorBoundary>
-            <ThemeProvider>
-                <NotificationProvider>
-                    <CacheInvalidationProvider>
-                        <div className='App'>
-                            <Suspense fallback={<PageLoader />}>
-                                <Routes>
-                                    <Route element={<UserLoginPage />} path='/login' />
-                                <Route element={<Unauthorized />} path='/unauthorized' />
-                                <Route element={<Layout />}>
+            <QueryProvider>
+                <ThemeProvider>
+                    <NotificationProvider>
+                        <CacheInvalidationProvider>
+                            <div className='App'>
+                                <Suspense fallback={<PageLoader />}>
+                                    <Routes>
+                                        <Route element={<UserLoginPage />} path='/login' />
+                                    <Route element={<Unauthorized />} path='/unauthorized' />
+                                    <Route element={<Layout />}>
                                     <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
                                         <Route element={<AdminDashboardPage />} path='/admin' />
                                         <Route element={<AdminDistrictManagementPage />} path='/dashboard' />
@@ -164,6 +166,7 @@ function App() {
                     </CacheInvalidationProvider>
                 </NotificationProvider>
             </ThemeProvider>
+        </QueryProvider>
         </ErrorBoundary>
     );
 }

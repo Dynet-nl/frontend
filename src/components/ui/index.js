@@ -6,6 +6,7 @@ export { default as Input } from './Input';
 export { default as Card } from './Card';
 export { default as Modal, ConfirmModal, AlertModal } from './Modal';
 export { LoadingState, ErrorState, EmptyState, SuccessState } from './StateDisplay';
+export { default as VirtualizedList } from './VirtualizedList';
 
 // Re-export PropTypes for convenience
 export { default as PropTypes } from 'prop-types';

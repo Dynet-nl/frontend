@@ -1,18 +1,29 @@
-// Page displaying building lists with filtering, pagination, and building-specific actions.
+// Page for configuring building layouts with blocks, floors, and cable management.
 
-import React, {useEffect, useState, useCallback} from 'react'
-import {useParams} from 'react-router-dom'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import '../styles/mockupSchemas.css'
 import '../styles/dynamicSchemas.css'
 import useAxiosPrivate from '../hooks/useAxiosPrivate'
-import RightWing from '../mockupSchemas/RightWing'
-import LeftWing from '../mockupSchemas/LeftWing'
-import NoStairs from '../mockupSchemas/NoStairs'
 import ConditionalFullSchema from '../components/ConditionalFullSchema'
-import { ConfirmModal } from '../components/ui'
+import { ConfirmModal, LoadingState, ErrorState } from '../components/ui'
 import '../styles/buildingPage.css'
 import { useNotification } from '../context/NotificationProvider'
 import logger from '../utils/logger'
+
+// Import all mockup schemas for block type selection
+import LeftWing from '../mockupSchemas/LeftWing'
+import RightWing from '../mockupSchemas/RightWing'
+import NoStairs from '../mockupSchemas/NoStairs'
+import LeftWingApart from '../mockupSchemas/LeftWingApart'
+import RightWingApart from '../mockupSchemas/RightWingApart'
+import LeftWingNoBG from '../mockupSchemas/LeftWingNoBG'
+import RightWingNoBG from '../mockupSchemas/RightWingNoBG'
+import LeftWingFlat from '../mockupSchemas/LeftWingFlat'
+import RightWingFlat from '../mockupSchemas/RightWingFlat'
+import DoubleNoBGsWing from '../mockupSchemas/DoubleNoBGsWing'
+import DoubleNoLeftBGWing from '../mockupSchemas/DoubleNoLeftBGWing'
+import DoubleNoRightBGWing from '../mockupSchemas/DoubleNoRightBGWing'
 
 // Constants
 const FLOOR_OPTIONS = [
@@ -32,27 +43,84 @@ const INITIAL_BLOCK = {
     floors: [],
 };
 
+// All available block types organized by category
+const BLOCK_TYPE_CATEGORIES = [
+    {
+        name: 'Standard Wings',
+        types: [
+            { value: 'leftWing', label: 'Left Wing', Component: LeftWing, icon: '⬅️' },
+            { value: 'rightWing', label: 'Right Wing', Component: RightWing, icon: '➡️' },
+            { value: 'noStairs', label: 'No Stairs', Component: NoStairs, icon: '🏢' },
+        ]
+    },
+    {
+        name: 'Apartment Blocks',
+        types: [
+            { value: 'leftWingApart', label: 'Left Apart', Component: LeftWingApart, icon: '🏠' },
+            { value: 'rightWingApart', label: 'Right Apart', Component: RightWingApart, icon: '🏠' },
+        ]
+    },
+    {
+        name: 'No Background',
+        types: [
+            { value: 'leftWingNoBG', label: 'Left No BG', Component: LeftWingNoBG, icon: '◀️' },
+            { value: 'rightWingNoBG', label: 'Right No BG', Component: RightWingNoBG, icon: '▶️' },
+        ]
+    },
+    {
+        name: 'Flat Layouts',
+        types: [
+            { value: 'leftWingFlat', label: 'Left Flat', Component: LeftWingFlat, icon: '📐' },
+            { value: 'rightWingFlat', label: 'Right Flat', Component: RightWingFlat, icon: '📐' },
+        ]
+    },
+    {
+        name: 'Double Wings',
+        types: [
+            { value: 'doubleNoBGsWing', label: 'Double No BGs', Component: DoubleNoBGsWing, icon: '🔄' },
+            { value: 'doubleNoLeftBGWing', label: 'Double No Left', Component: DoubleNoLeftBGWing, icon: '↔️' },
+            { value: 'doubleNoRightBGWing', label: 'Double No Right', Component: DoubleNoRightBGWing, icon: '↔️' },
+        ]
+    },
+];
+
+// Flatten for easy lookup
+const ALL_BLOCK_TYPES = BLOCK_TYPE_CATEGORIES.flatMap(cat => cat.types);
+
 const BuildingListPage = () => {
     const params = useParams()
+    const navigate = useNavigate()
     const axiosPrivate = useAxiosPrivate()
     const { showSuccess, showError } = useNotification()
     
     // Loading and error states
     const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState(null)
     const [isSaving, setIsSaving] = useState(false)
     const [isScheduling, setIsScheduling] = useState(false)
     
-    const [building, setBuilding] = useState({})
+    // Building data
+    const [building, setBuilding] = useState(null)
     const [isLayoutNew, setLayoutNew] = useState(true)
-    const [cableNumbers, setCableNumbers] = useState([])
+    
+    // Form state
+    const [formFields, setFormFields] = useState([{ ...INITIAL_BLOCK }])
+    const [activeBlockIndex, setActiveBlockIndex] = useState(0)
+    const [showBlockTypeModal, setShowBlockTypeModal] = useState(false)
+    
+    // Cable and schedule state
     const [currentCable, setCurrentCable] = useState('')
     const [currentCableFlats, setCurrentCableFlats] = useState([])
     const [schedules, setSchedules] = useState({})
-    const [formFields, setFormFields] = useState([{ ...INITIAL_BLOCK }])
+    const [existingSchedules, setExistingSchedules] = useState([])
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+    
+    // Modal state
     const [removeBlockModal, setRemoveBlockModal] = useState({ isOpen: false, index: null })
 
     const fetchBuilding = useCallback(async () => {
         setIsLoading(true)
+        setError(null)
         try {
             const { data } = await axiosPrivate.get(`/api/building/${params.id}`)
             setBuilding(data)
@@ -60,17 +128,59 @@ const BuildingListPage = () => {
                 setFormFields(data.layout.blocks)
                 setLayoutNew(false)
             }
-        } catch (error) {
-            logger.error('Failed to fetch building:', error)
-            showError('Failed to load building data. Please try again.')
+            // Store existing schedules
+            if (data.schedules?.length) {
+                setExistingSchedules(data.schedules)
+            }
+            setHasUnsavedChanges(false)
+        } catch (err) {
+            logger.error('Failed to fetch building:', err)
+            setError(err.response?.data?.message || 'Failed to load building data')
         } finally {
             setIsLoading(false)
         }
-    }, [params.id, axiosPrivate, showError])
+    }, [params.id, axiosPrivate])
 
     useEffect(() => {
         fetchBuilding()
     }, [fetchBuilding])
+
+    // Calculate cable numbers automatically
+    const cableNumbers = useMemo(() => {
+        const cables = new Set()
+        formFields.forEach(field => {
+            field.floors?.forEach(floor => {
+                if (floor.cableNumber) cables.add(floor.cableNumber)
+            })
+        })
+        return Array.from(cables).sort((a, b) => a - b)
+    }, [formFields])
+
+    // Get block type info helper
+    const getBlockTypeInfo = useCallback((blockType) => {
+        return ALL_BLOCK_TYPES.find(t => t.value === blockType)
+    }, [])
+
+    // Select cable and find connected flats
+    const selectCable = useCallback((cableNumber) => {
+        setCurrentCable(cableNumber)
+        const flatIds = []
+        const flatDetails = []
+        formFields.forEach(block => {
+            block.floors?.forEach(floor => {
+                if (floor.cableNumber === cableNumber && floor.flat) {
+                    flatIds.push(floor.flat)
+                    // Find flat details from building.flats
+                    const flatInfo = building?.flats?.find(f => f._id === floor.flat)
+                    if (flatInfo) {
+                        flatDetails.push(flatInfo)
+                    }
+                }
+            })
+        })
+        setCurrentCableFlats(flatDetails)
+        setSchedules(prev => ({ ...prev, cableNumber, flats: flatIds }))
+    }, [formFields, building?.flats])
     const handleFlatDetails = (event, index, parentIndex) => {
         let data = [...formFields]
         data[parentIndex].floors[index][event.target.name] =
@@ -78,6 +188,7 @@ const BuildingListPage = () => {
                 ? parseInt(event.target.value, 10)
                 : event.target.value
         setFormFields(data)
+        setHasUnsavedChanges(true)
     }
     const handleBlockType = (event, index) => {
         let data = [...formFields]
@@ -94,6 +205,7 @@ const BuildingListPage = () => {
         }
         data[index][event.target.name] = event.target.value
         setFormFields(data)
+        setHasUnsavedChanges(true)
     }
     const handleFloors = (event, index) => {
         let data = [...formFields]
@@ -108,6 +220,7 @@ const BuildingListPage = () => {
             data[index].floors = [...tempArray]
         }
         setFormFields(data)
+        setHasUnsavedChanges(true)
     }
     const submit = async (e) => {
         e.preventDefault()
@@ -134,6 +247,7 @@ const BuildingListPage = () => {
                 await axiosPrivate.put(`/api/building/layout/${params.id}`, formFields, config)
                 showSuccess('Layout updated successfully!')
             }
+            setHasUnsavedChanges(false)
         } catch (error) {
             logger.error('Failed to save layout:', error)
             showError(error.response?.data?.message || 'Failed to save layout. Please try again.')
@@ -163,30 +277,7 @@ const BuildingListPage = () => {
         }
         setRemoveBlockModal({ isOpen: false, index: null })
     }
-    const getCableNumbers = () => {
-        const tempArray = formFields.map((field) => {
-            return field.floors.map((floor) => {
-                return floor.cableNumber
-            })
-        })
-        setCableNumbers([...new Set(tempArray.flat())])
-    }
-    const selectedFlats = (cableNumber) => {
-        const tempArray = []
-        formFields.forEach((formField) => {
-            formField.floors.forEach((floor) => {
-                if (floor.cableNumber === cableNumber) {
-                    tempArray.push(floor.flat)
-                }
-            })
-        })
-        setCurrentCableFlats(tempArray)
-        setSchedules({
-            ...schedules,
-            cableNumber, 
-            flats: tempArray,
-        })
-    }
+
     
     const sendSchedule = async (e) => {
         e.preventDefault()
@@ -224,153 +315,269 @@ const BuildingListPage = () => {
     if (isLoading) {
         return (
             <div className="buildingPageContainer">
-                <div className="loading-spinner">
-                    <div className="spinner"></div>
-                    <p>Loading building data...</p>
-                </div>
+                <LoadingState message="Loading building data..." />
             </div>
         )
     }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="buildingPageContainer">
+                <ErrorState message={error} onRetry={fetchBuilding} retryText="Try Again" />
+            </div>
+        )
+    }
+
     return (
         <div className="buildingPageContainer">
-            <h1>Building Page {building.name && `- ${building.name}`}</h1>
-            <form onSubmit={submit}>
+            <div className="page-header">
+                <button className="btn btn-ghost" onClick={() => navigate(-1)}>
+                    ← Back
+                </button>
+                <div className="page-title">
+                    <h1>Building Layout Configuration</h1>
+                    {building && (
+                        <p className="building-address">
+                            {building.address || building.name} {building.postcode && `• ${building.postcode}`}
+                        </p>
+                    )}
+                </div>
+                {hasUnsavedChanges && (
+                    <span className="unsaved-indicator">⚠️ Unsaved changes</span>
+                )}
+            </div>
+            
+            {/* Block Tabs */}
+            <div className="block-tabs">
                 {formFields.map((form, i) => {
+                    const typeInfo = getBlockTypeInfo(form.blockType)
                     return (
-                        <div className="block-card" key={`block-${i}-${form.blockType}`}>
-                            <h3>Block {i + 1}</h3>
-                            <div className="form-group">
-                                <label htmlFor={`topFloor-${i}`}>Choose Top Floor</label>
-                                <select
-                                    id={`topFloor-${i}`}
-                                    name="topFloor"
-                                    onChange={(event) => handleFloors(event, i)}
-                                    value={form.topFloor}
-                                    className="form-select"
-                                >
-                                    {FLOOR_OPTIONS.map(option => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="schemasContainer">
-                                <div className="wingContainer">
-                                    <label htmlFor={`leftWing${i}`}>
-                                        <input
-                                            id={`leftWing${i}`}
-                                            type="checkbox"
-                                            name="blockType"
-                                            value="leftWing"
-                                            checked={form.blockType === 'leftWing'}
-                                            onChange={(e) => handleBlockType(e, i)}
-                                        />
-                                        <LeftWing form={form}/>
-                                    </label>
-                                </div>
-                                <div className="noStairsContainer">
-                                    <label htmlFor={`noStairs${i}`}>
-                                        <input
-                                            id={`noStairs${i}`}
-                                            type="checkbox"
-                                            name="blockType"
-                                            value="noStairs"
-                                            checked={form.blockType === 'noStairs'}
-                                            onChange={(e) => handleBlockType(e, i)}
-                                        />
-                                        <NoStairs form={form}/>
-                                    </label>
-                                </div>
-                                <div className="wingContainer">
-                                    <label htmlFor={`rightWing${i}`}>
-                                        <input
-                                            id={`rightWing${i}`}
-                                            type="checkbox"
-                                            name="blockType"
-                                            value="rightWing"
-                                            checked={form.blockType === 'rightWing'}
-                                            onChange={(e) => handleBlockType(e, i)}
-                                        />
-                                        <RightWing form={form}/>
-                                    </label>
-                                </div>
-                            </div>
+                        <button
+                            key={`tab-${i}`}
+                            className={`block-tab ${activeBlockIndex === i ? 'active' : ''} ${!form.blockType ? 'incomplete' : ''}`}
+                            onClick={() => setActiveBlockIndex(i)}
+                        >
+                            <span className="tab-icon">{typeInfo?.icon || '📦'}</span>
+                            <span>Block {i + 1}</span>
+                            {!form.blockType && <span className="tab-warning">!</span>}
+                        </button>
+                    )
+                })}
+                <button className="block-tab add-tab" onClick={addFields}>
+                    <span>+</span>
+                    <span>Add Block</span>
+                </button>
+            </div>
+
+            {/* Active Block Configuration */}
+            {formFields[activeBlockIndex] && (
+                <div className="block-card active-block">
+                    <div className="block-card-header">
+                        <h3>Block {activeBlockIndex + 1} Configuration</h3>
+                        {formFields.length > 1 && (
                             <button 
-                                className="btn btn-danger"
-                                onClick={(e) => removeFields(e, i)}
-                                disabled={formFields.length === 1}
+                                className="btn btn-danger btn-sm"
+                                onClick={(e) => removeFields(e, activeBlockIndex)}
                             >
                                 Remove Block
                             </button>
+                        )}
+                    </div>
+                    
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor={`topFloor-${activeBlockIndex}`}>Top Floor</label>
+                            <select
+                                id={`topFloor-${activeBlockIndex}`}
+                                name="topFloor"
+                                onChange={(event) => handleFloors(event, activeBlockIndex)}
+                                value={formFields[activeBlockIndex].topFloor}
+                                className="form-select"
+                            >
+                                {FLOOR_OPTIONS.map(option => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                    )
-                })}
-            </form>
+                        
+                        <div className="form-group">
+                            <label>Block Type</label>
+                            <button
+                                type="button"
+                                className="btn btn-secondary block-type-selector"
+                                onClick={() => setShowBlockTypeModal(true)}
+                            >
+                                {getBlockTypeInfo(formFields[activeBlockIndex].blockType)?.label || 'Select Type...'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Block Type Preview */}
+                    {formFields[activeBlockIndex].blockType && (
+                        <div className="block-preview">
+                            <h4>Preview</h4>
+                            <div className="preview-container">
+                                {(() => {
+                                    const typeInfo = getBlockTypeInfo(formFields[activeBlockIndex].blockType)
+                                    if (typeInfo?.Component) {
+                                        const PreviewComponent = typeInfo.Component
+                                        return <PreviewComponent form={formFields[activeBlockIndex]} />
+                                    }
+                                    return <p>No preview available</p>
+                                })()}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Block Type Selection Modal */}
+            {showBlockTypeModal && (
+                <div className="modal-overlay" onClick={() => setShowBlockTypeModal(false)}>
+                    <div className="modal-content block-type-modal" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Select Block Type</h3>
+                            <button className="modal-close" onClick={() => setShowBlockTypeModal(false)}>×</button>
+                        </div>
+                        <div className="block-type-grid">
+                            {BLOCK_TYPE_CATEGORIES.map(category => (
+                                <div key={category.name} className="block-category">
+                                    <h4>{category.name}</h4>
+                                    <div className="category-types">
+                                        {category.types.map(type => (
+                                            <label
+                                                key={type.value}
+                                                className={`block-type-option ${formFields[activeBlockIndex].blockType === type.value ? 'selected' : ''}`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="blockType"
+                                                    value={type.value}
+                                                    checked={formFields[activeBlockIndex].blockType === type.value}
+                                                    onChange={(e) => {
+                                                        handleBlockType(e, activeBlockIndex)
+                                                        setShowBlockTypeModal(false)
+                                                    }}
+                                                />
+                                                <div className="type-preview">
+                                                    <type.Component form={formFields[activeBlockIndex]} />
+                                                </div>
+                                                <span className="type-label">
+                                                    {type.icon} {type.label}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Save Button */}
             <div className="button-group">
-                <button className="btn btn-secondary" onClick={addFields}>
-                    + Add More Block
-                </button>
                 <button 
-                    className="btn btn-primary" 
+                    className="btn btn-primary btn-lg" 
                     onClick={submit}
                     disabled={isSaving}
                 >
-                    {isSaving ? 'Saving...' : (isLayoutNew ? 'Create Layout' : 'Update Layout')}
+                    {isSaving ? 'Saving...' : (isLayoutNew ? 'Create Layout' : 'Save Layout')}
                 </button>
             </div>
             
             <h2>Completed Layout of the Building</h2>
+            <p className="section-hint">Fill in flat details, cable numbers (CN) and cable lengths (CL) for each floor:</p>
             <div className="completeSchemaContainer">
-                {formFields.map((form, index) => (
-                    <div
-                        key={`schema-${index}-${form.blockType}`}
-                        className={`${form.blockType === 'leftWing' ||
-                        form.blockType === 'rightWing' ||
-                        form.blockType === 'leftWingNoBG' ||
-                        form.blockType === 'rightWingNoBG' ||
-                        form.blockType === 'leftWingFlat' ||
-                        form.blockType === 'rightWingFlat'
-                            ? 'wingContainer'
-                            : ''
-                        }
-            ${form.blockType === 'noStairs' ? 'noStairsContainer' : ''}`}
-                    >
-                        <ConditionalFullSchema
-                            form={form}
-                            building={building}
-                            parentIndex={index}
-                            formFields={formFields}
-                            handleFlatDetails={handleFlatDetails}
-                        />
-                    </div>
-                ))}
+                {formFields.map((form, index) => {
+                    // Determine container class based on block type
+                    const isWingType = [
+                        'leftWing', 'rightWing',
+                        'leftWingNoBG', 'rightWingNoBG',
+                        'leftWingFlat', 'rightWingFlat',
+                        'leftWingApart', 'rightWingApart'
+                    ].includes(form.blockType)
+                    const isNoStairsType = form.blockType === 'noStairs'
+                    const isDoubleType = [
+                        'doubleNoBGsWing', 'doubleNoLeftBGWing', 'doubleNoRightBGWing'
+                    ].includes(form.blockType)
+                    
+                    return (
+                        <div
+                            key={`schema-${index}-${form.blockType}`}
+                            className={`
+                                ${isWingType ? 'wingContainer' : ''}
+                                ${isNoStairsType ? 'noStairsContainer' : ''}
+                                ${isDoubleType ? 'doubleContainer' : ''}
+                            `.trim()}
+                        >
+                            <div className="block-label">Block {index + 1}</div>
+                            <ConditionalFullSchema
+                                form={form}
+                                building={building}
+                                parentIndex={index}
+                                formFields={formFields}
+                                handleFlatDetails={handleFlatDetails}
+                            />
+                        </div>
+                    )
+                })}
             </div>
             
             <div className="cablesContainer">
-                <button className="btn btn-secondary" onClick={getCableNumbers}>
-                    Show Cable Numbers
-                </button>
-                <div className="cableNumbersContainer">
-                    {cableNumbers.map((cableNum) => (
-                        <button
-                            className={`cable-btn ${cableNum === currentCable ? 'selectedCable' : ''}`}
-                            key={`cable-${cableNum}`}
-                            onClick={() => {
-                                setCurrentCable(cableNum)
-                                selectedFlats(cableNum)
-                            }}
-                        >
-                            Cable {cableNum}
-                        </button>
-                    ))}
-                </div>
+                <h3>Cable Management</h3>
+                {cableNumbers.length === 0 ? (
+                    <p className="empty-state">Configure floor details above to see cable numbers.</p>
+                ) : (
+                    <>
+                        <p className="cable-hint">Click a cable to view connected flats:</p>
+                        <div className="cableNumbersContainer">
+                            {cableNumbers.map((cableNum) => (
+                                <button
+                                    className={`cable-btn ${cableNum === currentCable ? 'selectedCable' : ''}`}
+                                    key={`cable-${cableNum}`}
+                                    onClick={() => selectCable(cableNum)}
+                                >
+                                    Cable {cableNum}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
                 {currentCableFlats.length > 0 && (
                     <div className="currentCableFlatsContainer">
-                        <h4>Connected Flats:</h4>
+                        <h4>Connected Flats for Cable {currentCable}:</h4>
                         <div className="flats-list">
                             {currentCableFlats.map((flat, index) => (
-                                <span key={`flat-${flat}-${index}`} className="flat-badge">{flat}</span>
+                                <span key={`flat-${flat._id || flat}-${index}`} className="flat-badge">
+                                    {flat.toevoeging || flat.adres || flat._id || flat}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                
+                {/* Existing Schedules */}
+                {existingSchedules.length > 0 && (
+                    <div className="existing-schedules">
+                        <h4>📅 Existing Schedules</h4>
+                        <div className="schedules-list">
+                            {existingSchedules.map((schedule, index) => (
+                                <div key={schedule._id || index} className="schedule-item">
+                                    <span className="schedule-cable">Cable {schedule.cableNumber}</span>
+                                    <span className="schedule-date">
+                                        {schedule.date ? new Date(schedule.date).toLocaleDateString() : 'No date'}
+                                    </span>
+                                    <span className="schedule-time">
+                                        {schedule.from} - {schedule.till}
+                                    </span>
+                                    <span className="schedule-flats">
+                                        {schedule.flats?.length || 0} flats
+                                    </span>
+                                </div>
                             ))}
                         </div>
                     </div>
