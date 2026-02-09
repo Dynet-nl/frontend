@@ -1,38 +1,111 @@
-/* Flat Input Details Styles - Mobile-First Responsive Design */
+/* Flat Input Details — styled select + CN/CL inputs inside floor plan diagrams.
+   These sit inside .flat divs in the building schema, so they must stay inline and compact. */
+
+/* Flat select dropdown */
+.flatInputSelect {
+    width: 60px;
+    min-height: 44px;
+    padding: 6px 4px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #ffffff;
+    color: #1e293b;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.flatInputSelect:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+/* Placeholder color when nothing selected */
+.flatInputSelect option[value=""] {
+    color: #94a3b8;
+}
+
+/* Cable number input */
 input.cableNumber {
     width: 60px;
     min-height: 44px;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    font-size: 16px;
+    padding: 6px 4px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #ffffff;
+    color: #1e293b;
+    text-align: center;
+    transition: border-color 0.15s ease;
 }
 
-/* Tablet and desktop cable number input */
-@media (min-width: 640px) {
-    input.cableNumber {
-        width: 45px;
-        min-height: 36px;
-        padding: 6px;
-        font-size: 14px;
-    }
+input.cableNumber:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
 }
 
+input.cableNumber::placeholder {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Cable length input */
 input.cableLength {
     width: 60px;
     min-height: 44px;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    font-size: 16px;
+    padding: 6px 4px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #ffffff;
+    color: #1e293b;
+    text-align: center;
+    transition: border-color 0.15s ease;
 }
 
-/* Tablet and desktop cable length input */
+input.cableLength:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+input.cableLength::placeholder {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Hide number spinners */
+input.cableNumber::-webkit-inner-spin-button,
+input.cableNumber::-webkit-outer-spin-button,
+input.cableLength::-webkit-inner-spin-button,
+input.cableLength::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input.cableNumber[type="number"],
+input.cableLength[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Desktop: slightly smaller */
 @media (min-width: 640px) {
-    input.cableLength {
-        width: 45px;
+    .flatInputSelect {
+        width: 50px;
         min-height: 36px;
-        padding: 6px;
-        font-size: 14px;
+        padding: 4px 3px;
+        font-size: 13px;
+    }
+
+    input.cableNumber,
+    input.cableLength {
+        width: 48px;
+        min-height: 36px;
+        padding: 4px 3px;
+        font-size: 13px;
     }
 }

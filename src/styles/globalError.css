@@ -1,0 +1,121 @@
+/* Global Error Display Styles */
+
+.global-error-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    width: calc(100% - 40px);
+}
+
+.global-error-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+    backdrop-filter: blur(10px);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.global-error-error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 1px solid #f87171;
+    color: #991b1b;
+}
+
+.global-error-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #fbbf24;
+    color: #92400e;
+}
+
+.global-error-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 1px solid #60a5fa;
+    color: #1e40af;
+}
+
+.global-error-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.global-error-message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.global-error-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0.6;
+    padding: 0;
+    margin: -2px -4px 0 0;
+    transition: opacity 0.2s;
+    color: inherit;
+}
+
+.global-error-close:hover {
+    opacity: 1;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .global-error-error {
+    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+    border-color: #dc2626;
+    color: #fecaca;
+}
+
+[data-theme="dark"] .global-error-warning {
+    background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+    border-color: #d97706;
+    color: #fde68a;
+}
+
+[data-theme="dark"] .global-error-info {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    border-color: #3b82f6;
+    color: #bfdbfe;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .global-error-container {
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: none;
+    }
+
+    .global-error-item {
+        padding: 12px 14px;
+    }
+
+    .global-error-message {
+        font-size: 13px;
+    }
+}

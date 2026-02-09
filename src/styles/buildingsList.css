@@ -720,22 +720,23 @@
     text-overflow: ellipsis;
 }
 
-/* Modern Flats Display Section */
+/* Modern Flats Display Section - Vertical list layout for flat rows */
 .flatsWrapper {
-    max-height: 200px;
+    max-height: 240px;
     overflow-y: auto;
-    padding: 12px;
+    padding: 0;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 12px;
     border: 1px solid #e9ecef;
-    margin-top: 16px;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Tablet and desktop flats wrapper */
 @media (min-width: 640px) {
     .flatsWrapper {
-        max-height: 220px;
-        padding: 16px;
+        max-height: 280px;
     }
 }
 
@@ -1241,4 +1242,216 @@
     background: linear-gradient(135deg, #ff3838, #ff2f2f) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3) !important;
+}
+
+/* ============================================
+   Appointment Summary Bar
+   ============================================ */
+.appointmentSummary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.appointmentSummaryInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.appointmentSummaryText {
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
+}
+
+.appointmentSummaryText strong {
+    color: #2c3e50;
+}
+
+.appointmentProgressBarTrack {
+    flex: 1;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 40px;
+}
+
+.appointmentProgressBarFill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.scheduleButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.scheduleButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+@media (min-width: 640px) {
+    .scheduleButton {
+        padding: 7px 18px;
+        font-size: 13px;
+    }
+}
+
+/* ============================================
+   Flat Row - Two-line appointment display
+   ============================================ */
+.flatRowLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #e9ecef;
+    transition: background 0.15s ease;
+}
+
+.flatRowLink:last-child {
+    border-bottom: none;
+}
+
+.flatRowLink:hover {
+    background: rgba(52, 152, 219, 0.06);
+}
+
+.flatRow {
+    padding: 10px 14px;
+}
+
+@media (min-width: 640px) {
+    .flatRow {
+        padding: 12px 16px;
+    }
+}
+
+.flatRowMain {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.flatAddress {
+    font-weight: 600;
+    font-size: 13px;
+    color: #2c3e50;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+}
+
+@media (min-width: 640px) {
+    .flatAddress {
+        font-size: 14px;
+    }
+}
+
+.flatRowRight {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.flatStatusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.flatStatusDot.scheduled {
+    background: #27ae60;
+    box-shadow: 0 0 4px rgba(39, 174, 96, 0.4);
+}
+
+.flatStatusDot.none {
+    background: #bdc3c7;
+}
+
+.flatRowChevron {
+    font-size: 20px;
+    color: #bdc3c7;
+    line-height: 1;
+    font-weight: 300;
+    transition: color 0.15s ease;
+}
+
+.flatRowLink:hover .flatRowChevron {
+    color: #3498db;
+}
+
+.flatRowDetails {
+    margin-top: 3px;
+}
+
+.flatAppointmentDetail {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.flatAppointmentDetail.noAppointment {
+    color: #aaa;
+    font-style: italic;
+}
+
+.flatTechName {
+    color: #888;
+}
+
+.flatAppointmentTypeBadge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    vertical-align: middle;
+    text-transform: capitalize;
+}
+
+@media (min-width: 640px) {
+    .flatAppointmentDetail {
+        font-size: 12.5px;
+    }
+    .flatAppointmentTypeBadge {
+        font-size: 11px;
+        padding: 1px 8px;
+    }
 }

@@ -1,0 +1,109 @@
+/* Breadcrumb Navigation Styles */
+
+.breadcrumb-nav {
+    padding: 12px 0;
+    margin-bottom: 16px;
+}
+
+.breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.breadcrumb-separator {
+    color: var(--text-secondary, #6c757d);
+    margin: 0 8px;
+    font-weight: 300;
+}
+
+.breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary-color, #3498db);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+    background-color: var(--hover-bg, rgba(52, 152, 219, 0.1));
+    color: var(--primary-hover, #2980b9);
+}
+
+.breadcrumb-home {
+    font-weight: 500;
+}
+
+.breadcrumb-icon {
+    font-size: 16px;
+}
+
+.breadcrumb-text {
+    display: inline;
+}
+
+.breadcrumb-current {
+    color: var(--text-primary, #2c3e50);
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: var(--current-bg, rgba(52, 152, 219, 0.08));
+    border-radius: 6px;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .breadcrumb-separator {
+    color: #8b9dc3;
+}
+
+[data-theme="dark"] .breadcrumb-link {
+    color: #64b5f6;
+}
+
+[data-theme="dark"] .breadcrumb-link:hover {
+    background-color: rgba(100, 181, 246, 0.15);
+    color: #90caf9;
+}
+
+[data-theme="dark"] .breadcrumb-current {
+    color: #e8eaed;
+    background-color: rgba(100, 181, 246, 0.12);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .breadcrumb-nav {
+        padding: 8px 0;
+        margin-bottom: 12px;
+    }
+
+    .breadcrumb-item {
+        font-size: 13px;
+    }
+
+    .breadcrumb-separator {
+        margin: 0 4px;
+    }
+
+    .breadcrumb-link,
+    .breadcrumb-current {
+        padding: 3px 6px;
+    }
+
+    /* Hide home text on mobile, show only icon */
+    .breadcrumb-home .breadcrumb-text {
+        display: none;
+    }
+}
