@@ -5,7 +5,7 @@ import axios, { AxiosInstance } from 'axios';
 const BASE_URL: string =
     process.env.REACT_APP_API_BASE_URL ||
     (process.env.NODE_ENV === 'production'
-        ? 'https://backend-dynet2-1.onrender.com'
+        ? 'https://backend-p8or.onrender.com'
         : 'http://localhost:5500');
 
 const axiosPublic: AxiosInstance = axios.create({
