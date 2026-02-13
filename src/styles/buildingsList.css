@@ -597,49 +597,6 @@
     background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
 }
 
-/* Allow scrolling within the flats section if the content exceeds available space */
-.flatsWrapper {
-    max-height: 150px; /* Limit the height of the flats section */
-    overflow-y: auto; /* Add scrolling for overflow */
-    padding-right: 5px; /* To ensure space for the scrollbar */
-}
-
-.flatsWrapper::-webkit-scrollbar {
-    width: 5px;
-}
-
-.flatsWrapper::-webkit-scrollbar-thumb {
-    background-color: #c1c1c1;
-    border-radius: 4px;
-}
-
-.flatsWrapper::-webkit-scrollbar-thumb:hover {
-    background-color: #a8a8a8;
-}
-
-/* Modern filter buttons section */
-.filterButtons {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-/* Modern button styling for filters */
-.filterButtons button {
-    padding: 10px 20px;
-    border: 2px solid #3498db;
-    border-radius: 8px;
-    background-color: #ffffff;
-    color: #3498db;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    position: relative;
-}
-
 /* Filter count styling */
 .filter-count {
     font-size: 12px;
@@ -660,64 +617,6 @@
 .clear-filters:hover {
     background-color: #c0392b !important;
     border-color: #c0392b !important;
-}
-
-.filterButtons button:hover {
-    background-color: #3498db;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-}
-
-/* Active/selected filter button styling */
-.filterButtons button.active {
-    background-color: #27ae60;
-    border-color: #27ae60;
-    color: white;
-    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
-}
-
-.filterButtons button.active:hover {
-    background-color: #219a52;
-}
-
-/* Header section inside each building container */
-.buildingHeaderSection {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-/* Building header/title styling */
-.buildingHeader {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-/* Flat count styling */
-.flatCountBox {
-    background-color: #ff5722;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 15%;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-}
-
-/* Styling for the type of building */
-.buildingType {
-    margin-bottom: 16px;
-    margin-top: 16px;
-    color: #666;
-    font-size: 17px;
-    display: flex;
-    justify-content: space-between;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* Modern Flats Display Section - Vertical list layout for flat rows */
@@ -933,15 +832,6 @@
     transform: translateY(-2px) scale(1.05);
 }
 
-/* Modern hover effect for flat link */
-.flatLink:hover {
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-    border-color: #3498db;
-    color: #2980b9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
-}
-
 /* Modern container for the checkmark on each flat */
 .checkmarkContainer {
     padding: 4px;
@@ -1049,31 +939,6 @@
     background-color: #2980b9;
     border-color: #2980b9;
     color: white;
-}
-
-/* Modern flat appointment indicator */
-.flatWithAppointment {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    border: 2px solid #27ae60;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
-}
-
-.editIcon {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    color: #3498db;
-    transition: all 0.2s ease;
-    padding: 4px;
-    border-radius: 4px;
-}
-
-.editIcon:hover {
-    color: #2980b9;
-    background-color: rgba(52, 152, 219, 0.1);
-    transform: scale(1.1);
 }
 
 /* Modern results count styling */

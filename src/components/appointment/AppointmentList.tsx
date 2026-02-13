@@ -29,6 +29,8 @@ interface AppointmentListProps {
     isHASScheduling: boolean;
     onApartmentSelect: (apartmentId: string) => void;
     isSingleApartment?: boolean;
+    onSelectAll?: () => void;
+    onDeselectAll?: () => void;
 }
 
 const AppointmentList: React.FC<AppointmentListProps> = ({
@@ -37,7 +39,9 @@ const AppointmentList: React.FC<AppointmentListProps> = ({
     flatAppointments = {},
     isHASScheduling,
     onApartmentSelect,
-    isSingleApartment = false
+    isSingleApartment = false,
+    onSelectAll,
+    onDeselectAll
 }) => {
     /**
      * Get display name for an apartment
@@ -86,6 +90,16 @@ const AppointmentList: React.FC<AppointmentListProps> = ({
     return (
         <div className="usc-apartmentList">
             <h3>Select Apartments for {isHASScheduling ? 'HAS' : 'Technical Planning'} Appointment</h3>
+            {onSelectAll && onDeselectAll && apartments.length > 1 && (
+                <div className="usc-selectAllButtons">
+                    <button type="button" className="usc-selectAllBtn" onClick={onSelectAll}>
+                        Select All ({apartments.length})
+                    </button>
+                    <button type="button" className="usc-deselectAllBtn" onClick={onDeselectAll}>
+                        Deselect All
+                    </button>
+                </div>
+            )}
             {apartments.map(apartment => {
                 const isSelected = selectedApartments.includes(apartment._id);
                 const existingAppointment = flatAppointments[apartment._id];

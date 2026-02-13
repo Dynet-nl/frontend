@@ -30,7 +30,7 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
-    <BrowserRouter>
+    <BrowserRouter basename="/tool">
         <ThemeProvider theme={theme}>
             <AuthProvider>
                 <App />

@@ -235,6 +235,14 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
         }
     }, [apartments, scheduleType, preselectedApartments, isHASScheduling]);
 
+    const selectAll = (): void => {
+        setSelectedApartments(apartments.map(apt => apt._id));
+    };
+
+    const deselectAll = (): void => {
+        setSelectedApartments([]);
+    };
+
     const handleApartmentSelection = (apartmentId: string): void => {
         if (isSingleApartment) return;
         const newSelectedApartments = selectedApartments.includes(apartmentId)
@@ -277,10 +285,25 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
         }));
     };
 
+    const padTime = (t: string): string => t.replace(/^(\d):/, '0$1:');
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
         if (selectedApartments.length === 0) {
             showWarning('Please select at least one apartment.');
+            return;
+        }
+
+        if (isHASScheduling && !appointmentData.hasMonteurName) {
+            showError('Please select a HAS Monteur');
+            return;
+        }
+        if (!isHASScheduling && !appointmentData.technischeSchouwerName) {
+            showError('Please select a Technische Schouwer');
+            return;
+        }
+        if (!appointmentData.startTime || !appointmentData.endTime) {
+            showError('Please fill in both start and end times');
             return;
         }
 
@@ -292,6 +315,9 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
         if (appointmentData.date < today) {
             showWarning('The selected date is in the past');
         }
+
+        const paddedStartTime = padTime(appointmentData.startTime);
+        const paddedEndTime = padTime(appointmentData.endTime);
 
         setLoading(true);
         try {
@@ -311,8 +337,8 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
                     } = isHASScheduling ? {
                         appointmentBooked: {
                             date: appointmentData.date,
-                            startTime: appointmentData.startTime,
-                            endTime: appointmentData.endTime,
+                            startTime: paddedStartTime,
+                            endTime: paddedEndTime,
                             weekNumber: appointmentData.weekNumber,
                             type: appointmentData.type
                         },
@@ -320,8 +346,8 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
                     } : {
                         appointmentBooked: {
                             date: appointmentData.date,
-                            startTime: appointmentData.startTime,
-                            endTime: appointmentData.endTime,
+                            startTime: paddedStartTime,
+                            endTime: paddedEndTime,
                             weekNumber: appointmentData.weekNumber
                         },
                         technischeSchouwerName: appointmentData.technischeSchouwerName
@@ -406,6 +432,8 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
                         isHASScheduling={isHASScheduling}
                         onApartmentSelect={handleApartmentSelection}
                         isSingleApartment={isSingleApartment}
+                        onSelectAll={selectAll}
+                        onDeselectAll={deselectAll}
                     />
                 </div>
                 <div className="usc-rightColumn">
