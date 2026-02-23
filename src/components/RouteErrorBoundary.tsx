@@ -50,7 +50,7 @@ class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, RouteErrorBo
     };
 
     handleGoHome = (): void => {
-        window.location.href = '/';
+        window.location.href = '/tool';
     };
 
     render(): ReactNode {

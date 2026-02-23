@@ -85,7 +85,7 @@ const useAxiosPrivate = (): AxiosInstance => {
                     }
                 }
 
-                if (error.response?.status === 401) {
+                if (error.response?.status === 401 && !isRefreshing) {
                     logoutRef.current();
                 }
 

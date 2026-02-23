@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
                 // If logged out in another tab, redirect to login
                 if (!newAuth.isAuthenticated && auth.isAuthenticated) {
-                    window.location.href = '/login';
+                    window.location.href = '/tool/login';
                 }
             }
         };
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // We only clear the roles from localStorage for UI state
         localStorage.removeItem('roles');
         setAuth({});
-        window.location.href = '/login';
+        window.location.href = '/tool/login';
     }, []);
 
     const value = useMemo<AuthContextType>(
