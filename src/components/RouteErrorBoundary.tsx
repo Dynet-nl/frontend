@@ -1,6 +1,7 @@
-// Route-level error boundary component for catching and handling page-specific errors.
+// Route-level error boundary: keeps the shell, replaces the page content with an error state.
 
-import React, { Component, ReactNode, ErrorInfo, CSSProperties, MouseEvent } from 'react';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
+import { t } from '../i18n';
 
 interface RouteErrorBoundaryProps {
     children: ReactNode;
@@ -16,166 +17,56 @@ interface RouteErrorBoundaryState {
 class RouteErrorBoundary extends Component<RouteErrorBoundaryProps, RouteErrorBoundaryState> {
     constructor(props: RouteErrorBoundaryProps) {
         super(props);
-        this.state = {
-            hasError: false,
-            error: null,
-            errorInfo: null,
-        };
+        this.state = { hasError: false, error: null, errorInfo: null };
     }
 
-    static getDerivedStateFromError(_error: Error): Partial<RouteErrorBoundaryState> {
+    static getDerivedStateFromError(): Partial<RouteErrorBoundaryState> {
         return { hasError: true };
     }
 
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-        this.setState({
-            error: error,
-            errorInfo: errorInfo,
-        });
-
+        this.setState({ error, errorInfo });
         if (process.env.NODE_ENV === 'development') {
-            console.group('Route Error Boundary');
-            console.error('Error:', error);
-            console.error('Error Info:', errorInfo);
-            console.groupEnd();
+            console.error('Route error:', error, errorInfo);
         }
     }
 
     handleRetry = (): void => {
-        this.setState({
-            hasError: false,
-            error: null,
-            errorInfo: null,
-        });
+        this.setState({ hasError: false, error: null, errorInfo: null });
     };
 
     handleGoHome = (): void => {
-        window.location.href = '/tool';
+        window.location.href = `${process.env.PUBLIC_URL || ''}/`;
     };
 
     render(): ReactNode {
-        if (this.state.hasError) {
-            const { pageName = 'This page' } = this.props;
-
-            const containerStyle: CSSProperties = {
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '50vh',
-                padding: '40px 20px',
-                textAlign: 'center',
-            };
-
-            const iconStyle: CSSProperties = {
-                fontSize: '64px',
-                marginBottom: '20px',
-            };
-
-            const titleStyle: CSSProperties = {
-                color: '#2c3e50',
-                fontSize: '24px',
-                marginBottom: '12px',
-            };
-
-            const messageStyle: CSSProperties = {
-                color: '#6c757d',
-                fontSize: '16px',
-                marginBottom: '24px',
-                maxWidth: '400px',
-            };
-
-            const detailsStyle: CSSProperties = {
-                marginBottom: '24px',
-                padding: '16px',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
-                maxWidth: '600px',
-                textAlign: 'left',
-            };
-
-            const preStyle: CSSProperties = {
-                marginTop: '12px',
-                padding: '12px',
-                backgroundColor: '#fff',
-                borderRadius: '4px',
-                overflow: 'auto',
-                fontSize: '12px',
-            };
-
-            const primaryButtonStyle: CSSProperties = {
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#fff',
-                backgroundColor: '#3498db',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-            };
-
-            const secondaryButtonStyle: CSSProperties = {
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#6c757d',
-                backgroundColor: '#f8f9fa',
-                border: '1px solid #dee2e6',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-            };
-
-            return (
-                <div style={containerStyle}>
-                    <div style={iconStyle}>⚠️</div>
-                    <h2 style={titleStyle}>{pageName} encountered an error</h2>
-                    <p style={messageStyle}>
-                        Something went wrong while loading this section. You can try again or go back to the dashboard.
-                    </p>
-
-                    {process.env.NODE_ENV === 'development' && this.state.error && (
-                        <details style={detailsStyle}>
-                            <summary style={{ cursor: 'pointer', fontWeight: '600' }}>Error Details (Dev Only)</summary>
-                            <pre style={preStyle}>
-                                {this.state.error.toString()}
-                                {this.state.errorInfo?.componentStack}
-                            </pre>
-                        </details>
-                    )}
-
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <button
-                            onClick={this.handleRetry}
-                            style={primaryButtonStyle}
-                            onMouseOver={(e: MouseEvent<HTMLButtonElement>) =>
-                                ((e.target as HTMLButtonElement).style.backgroundColor = '#2980b9')
-                            }
-                            onMouseOut={(e: MouseEvent<HTMLButtonElement>) =>
-                                ((e.target as HTMLButtonElement).style.backgroundColor = '#3498db')
-                            }
-                        >
-                            Try Again
-                        </button>
-                        <button
-                            onClick={this.handleGoHome}
-                            style={secondaryButtonStyle}
-                            onMouseOver={(e: MouseEvent<HTMLButtonElement>) =>
-                                ((e.target as HTMLButtonElement).style.backgroundColor = '#e9ecef')
-                            }
-                            onMouseOut={(e: MouseEvent<HTMLButtonElement>) =>
-                                ((e.target as HTMLButtonElement).style.backgroundColor = '#f8f9fa')
-                            }
-                        >
-                            Go to Dashboard
-                        </button>
-                    </div>
+        if (!this.state.hasError) return this.props.children;
+        const { pageName = 'deze pagina' } = this.props;
+        return (
+            <div className="state state--error" role="alert">
+                <span className="icon state__icon">error</span>
+                <div className="state__title">{t('state.crashed.title', { page: pageName })}</div>
+                <div className="state__text">{t('state.crashed.text')}</div>
+                {process.env.NODE_ENV === 'development' && this.state.error && (
+                    <details style={{ marginTop: 8, maxWidth: 640 }}>
+                        <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Details</summary>
+                        <pre className="mono" style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>
+                            {this.state.error.toString()}
+                            {this.state.errorInfo?.componentStack}
+                        </pre>
+                    </details>
+                )}
+                <div className="btn-group" style={{ marginTop: 8 }}>
+                    <button type="button" className="btn btn--primary" onClick={this.handleRetry}>
+                        <span className="icon">refresh</span>
+                        <span>{t('common.retry')}</span>
+                    </button>
+                    <button type="button" className="btn btn--secondary" onClick={this.handleGoHome}>
+                        <span>{t('state.goHome')}</span>
+                    </button>
                 </div>
-            );
-        }
-
-        return this.props.children;
+            </div>
+        );
     }
 }
 

@@ -1,6 +1,6 @@
 // Tests for the shared API-shape helpers.
 
-import { unwrapList, flatAddress } from '../../types/domain';
+import { unwrapList, flatAddress, flatLabel } from '../../types/domain';
 
 describe('unwrapList', () => {
     it('returns a bare array as-is', () => {
@@ -23,5 +23,16 @@ describe('flatAddress', () => {
         expect(flatAddress({ adres: 'Teststraat', huisNummer: '12', toevoeging: 'A' })).toBe('Teststraat 12A');
         expect(flatAddress({ adres: 'Teststraat', huisNummer: '12' })).toBe('Teststraat 12');
         expect(flatAddress({})).toBe('');
+    });
+});
+
+describe('flatLabel', () => {
+    it('does not repeat the house number when the address already ends with it', () => {
+        expect(flatLabel({ adres: 'Lindenlaan 10', huisNummer: '10', toevoeging: 'H' })).toBe('Lindenlaan 10 – H');
+        expect(flatLabel({ adres: 'Kastanjestraat', huisNummer: '14', toevoeging: '3' })).toBe('Kastanjestraat 14 – 3');
+        expect(flatLabel({ adres: 'Rijnkade 12', huisNummer: '1' })).toBe('Rijnkade 12 1');
+        expect(flatLabel({ adres: 'Zuidas 1001', huisNummer: '1001', toevoeging: 'A' })).toBe('Zuidas 1001 – A');
+        expect(flatLabel({ huisNummer: '7' })).toBe('7');
+        expect(flatLabel({})).toBe('');
     });
 });

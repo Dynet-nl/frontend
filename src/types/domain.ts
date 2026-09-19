@@ -85,6 +85,24 @@ export const unwrapList = <T>(payload: PaginatedResponse<T> | T[] | null | undef
     return [];
 };
 
+/** Street + number, without repeating the number when `adres` already ends with it
+ *  (the weekly Excel's "Volledig adres" column usually does). */
+export const streetAndNumber = (flat: Pick<Flat, 'adres' | 'huisNummer'>): string => {
+    const adres = (flat.adres ?? '').trim();
+    const nr = (flat.huisNummer ?? '').trim();
+    if (!nr) return adres;
+    if (!adres) return nr;
+    return new RegExp(`(^|\\s)${nr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i').test(adres) ? adres : `${adres} ${nr}`;
+};
+
 /** Full address line for a flat: "Straat 12A" */
 export const flatAddress = (flat: Pick<Flat, 'adres' | 'huisNummer' | 'toevoeging'>): string =>
-    `${flat.adres ?? ''} ${flat.huisNummer ?? ''}${flat.toevoeging ?? ''}`.trim();
+    `${streetAndNumber(flat)}${flat.toevoeging ?? ''}`.trim();
+
+/** Display name with the addition set off: "Straat 12 – 3" */
+export const flatLabel = (flat: Pick<Flat, 'adres' | 'huisNummer' | 'toevoeging'>): string => {
+    const base = streetAndNumber(flat);
+    const add = (flat.toevoeging ?? '').trim();
+    if (!add) return base;
+    return base ? `${base} – ${add}` : add;
+};

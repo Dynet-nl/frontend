@@ -1,7 +1,7 @@
-// React context provider for the signed-in user's roles and sign-out.
+// Signed-in user (roles, name, e-mail) and sign-out.
 //
-// The access/refresh tokens live in httpOnly cookies managed by the API; the client only
-// remembers the role list (localStorage) to decide which routes and menus to show.
+// Tokens are httpOnly cookies managed by the API; the client only remembers who is signed
+// in (localStorage) to decide which routes and menus to show.
 
 import React, { createContext, useCallback, useState, useEffect, useMemo, ReactNode } from 'react';
 import { axiosPublic, setUnauthorizedHandler } from '../api/axios';
@@ -20,11 +20,8 @@ export interface AuthContextType {
     logout: () => void;
 }
 
-interface AuthProviderProps {
-    children: ReactNode;
-}
-
 const ROLES_KEY = 'roles';
+const USER_KEY = 'dynet.user';
 const LOGIN_PATH = `${process.env.PUBLIC_URL || ''}/login`;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,19 +39,33 @@ const readStoredRoles = (): number[] => {
     return [];
 };
 
-const getInitialAuth = (): AuthState => {
-    const roles = readStoredRoles();
-    return roles.length > 0 ? { isAuthenticated: true, roles } : {};
+const readStoredUser = (): { name?: string; email?: string } => {
+    try {
+        const raw = localStorage.getItem(USER_KEY);
+        return raw ? (JSON.parse(raw) as { name?: string; email?: string }) : {};
+    } catch {
+        return {};
+    }
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+const getInitialAuth = (): AuthState => {
+    const roles = readStoredRoles();
+    return roles.length > 0 ? { isAuthenticated: true, roles, ...readStoredUser() } : {};
+};
+
+/** Called by the login page after a successful sign-in. */
+export const persistSession = (roles: number[], user: { name?: string; email?: string }): void => {
+    localStorage.setItem(ROLES_KEY, JSON.stringify(roles));
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+};
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
 
     const logout = useCallback((): void => {
         localStorage.removeItem(ROLES_KEY);
+        localStorage.removeItem(USER_KEY);
         setAuth({});
-        // Revoke the session server-side (best effort), then hard-navigate so every
-        // in-memory cache from the previous user is dropped.
         axiosPublic
             .post('/logout')
             .catch((error) => logger.warn('Logout request failed:', error))
@@ -63,13 +74,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             });
     }, []);
 
-    // The axios interceptor calls this when the session cannot be refreshed.
     useEffect(() => {
         setUnauthorizedHandler(logout);
         return () => setUnauthorizedHandler(null);
     }, [logout]);
 
-    // Sync auth state across browser tabs (login/logout in another tab).
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent): void => {
             if (event.key !== ROLES_KEY && event.key !== null) return;

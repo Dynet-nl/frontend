@@ -1,6 +1,6 @@
-// Regression guard for the building floor-plan renderer. The snapshots were taken when
-// BuildingSchema was proven DOM-identical to the 24 hand-written legacy schema components
-// (the only intended difference: the left "flat layout" no longer nests a second `.flat` box).
+// Regression guard for the building floor-plan renderer: one column of floor slots per
+// block (top floor first, basement last), stairs beside or between the columns, and an
+// editor only on slots that hold a flat.
 
 import React from 'react';
 import { render } from '@testing-library/react';
@@ -49,21 +49,39 @@ describe('BuildingSchema', () => {
         expect(container.querySelector('#flat2-1')).not.toBeNull();
     });
 
+    it('draws floors top-first with the basement last', () => {
+        const { container } = render(<BuildingSchema shape="leftWing" form={formFor(3, 'leftWing')} />);
+        const labels = Array.from(container.querySelectorAll('.floor-slot__label')).map((el) => el.textContent);
+        expect(labels).toEqual(['2e', '1e', 'BG', 'KB']);
+    });
+
     it('double wings render two columns around the stairs and pick the ground floor per side', () => {
         const form = formFor(3, 'doubleNoLeftBGWing');
         const { container } = render(<BuildingSchema shape="doubleNoLeftBGWing" form={form} />);
         const columns = container.querySelectorAll('.flatsContainer');
         expect(columns).toHaveLength(2);
-        expect(columns[0].firstElementChild?.className).toBe('emptyFlat');
-        expect(columns[1].firstElementChild?.className).toBe('flat');
+        // Ground floor is the last floor slot before the basement row.
+        const groundLeft = columns[0].querySelector('[data-floor="0"]');
+        const groundRight = columns[1].querySelector('[data-floor="0"]');
+        expect(groundLeft?.classList.contains('floor-slot--empty')).toBe(true);
+        expect(groundRight?.querySelector('.emptyFlat')?.textContent).toContain('Zelfde verdieping');
         expect(container.querySelector('.stairs')?.previousElementSibling).toBe(columns[0]);
+    });
+
+    it('puts the stairs on the side the shape says', () => {
+        const left = render(<BuildingSchema shape="leftWing" form={formFor(2, 'leftWing')} />).container;
+        expect(left.querySelector('.plan__wing')?.firstElementChild?.classList.contains('stairs')).toBe(true);
+        const right = render(<BuildingSchema shape="rightWing" form={formFor(2, 'rightWing')} />).container;
+        expect(right.querySelector('.plan__wing')?.lastElementChild?.classList.contains('stairs')).toBe(true);
+        const none = render(<BuildingSchema shape="noStairs" form={formFor(2, 'noStairs')} />).container;
+        expect(none.querySelector('.stairs')).toBeNull();
     });
 
     it('mockupFor returns a preview component bound to the shape', () => {
         const Preview = mockupFor('rightWing');
         const { container } = render(<Preview form={formFor(2, 'rightWing')} />);
-        expect(container.querySelector('.mainPart')?.className).toBe('mainPart');
-        expect(container.querySelectorAll('.rightFlatLineStairs, .rightFlatLineStairsLast')).toHaveLength(2);
+        expect(container.querySelector('.plan__wing')?.getAttribute('data-shape')).toBe('rightWing');
+        expect(container.querySelectorAll('.flat')).toHaveLength(2);
         expect(container.querySelector('select')).toBeNull();
     });
 });

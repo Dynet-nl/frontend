@@ -1,9 +1,9 @@
-// React context provider for managing global notification system with toast messages.
+// Toasts: bottom-right, 6 seconds, at most three at once; errors stay until dismissed.
 
 import React, { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, ReactNode } from 'react';
-import { UI_CONFIG } from '../utils/constants';
+import Icon from '../components/ui/Icon';
+import { t } from '../i18n';
 
-// Types
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
 export interface Notification {
@@ -28,39 +28,28 @@ export interface NotificationContextType {
     showInfo: (message: string, options?: NotificationOptions) => string;
 }
 
-interface NotificationProviderProps {
-    children: ReactNode;
-}
-
-interface NotificationItemProps {
-    notification: Notification;
-    onClose: () => void;
-}
+const MAX_VISIBLE = 3;
+const DEFAULT_DURATION = 6000;
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const useNotification = (): NotificationContextType => {
     const context = useContext(NotificationContext);
-    if (!context) {
-        throw new Error('useNotification must be used within a NotificationProvider');
-    }
+    if (!context) throw new Error('useNotification must be used within a NotificationProvider');
     return context;
 };
 
-export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
+export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const timeoutRefs = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
-    // Cleanup timeouts on unmount
     useEffect(() => {
         const refs = timeoutRefs.current;
-        return () => {
-            Object.values(refs).forEach(clearTimeout);
-        };
+        return () => { Object.values(refs).forEach(clearTimeout); };
     }, []);
 
     const removeNotification = useCallback((id: string): void => {
-        setNotifications(prev => prev.filter(notification => notification.id !== id));
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
         if (timeoutRefs.current[id]) {
             clearTimeout(timeoutRefs.current[id]);
             delete timeoutRefs.current[id];
@@ -68,119 +57,53 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }, []);
 
     const addNotification = useCallback((notification: Partial<Notification> & { message: string }): string => {
-        const id = Date.now().toString(36) + Math.random().toString(36).substring(2);
-        const newNotification: Notification = {
-            id,
-            type: 'info',
-            duration: UI_CONFIG.TOAST_DURATION,
-            ...notification
-        };
-        setNotifications(prev => [...prev, newNotification]);
-        if (newNotification.duration > 0) {
+        const id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+        const item: Notification = { id, type: 'info', duration: DEFAULT_DURATION, ...notification };
+        setNotifications((prev) => [...prev, item].slice(-MAX_VISIBLE));
+        if (item.duration > 0) {
             timeoutRefs.current[id] = setTimeout(() => {
-                setNotifications(prev => prev.filter(n => n.id !== id));
+                setNotifications((prev) => prev.filter((n) => n.id !== id));
                 delete timeoutRefs.current[id];
-            }, newNotification.duration);
+            }, item.duration);
         }
         return id;
     }, []);
 
-    const clearAll = useCallback((): void => {
-        setNotifications([]);
-    }, []);
+    const clearAll = useCallback((): void => setNotifications([]), []);
+    const showSuccess = useCallback((message: string, options: NotificationOptions = {}) => addNotification({ type: 'success', message, ...options }), [addNotification]);
+    const showError = useCallback((message: string, options: NotificationOptions = {}) => addNotification({ type: 'error', message, duration: 0, ...options }), [addNotification]);
+    const showWarning = useCallback((message: string, options: NotificationOptions = {}) => addNotification({ type: 'warning', message, ...options }), [addNotification]);
+    const showInfo = useCallback((message: string, options: NotificationOptions = {}) => addNotification({ type: 'info', message, ...options }), [addNotification]);
 
-    const showSuccess = useCallback((message: string, options: NotificationOptions = {}): string => {
-        return addNotification({
-            type: 'success',
-            message,
-            ...options
-        });
-    }, [addNotification]);
-
-    const showError = useCallback((message: string, options: NotificationOptions = {}): string => {
-        return addNotification({
-            type: 'error',
-            message,
-            duration: 5000,
-            ...options
-        });
-    }, [addNotification]);
-
-    const showWarning = useCallback((message: string, options: NotificationOptions = {}): string => {
-        return addNotification({
-            type: 'warning',
-            message,
-            duration: 4000,
-            ...options
-        });
-    }, [addNotification]);
-
-    const showInfo = useCallback((message: string, options: NotificationOptions = {}): string => {
-        return addNotification({
-            type: 'info',
-            message,
-            ...options
-        });
-    }, [addNotification]);
-
-    const value = useMemo<NotificationContextType>(() => ({
-        notifications,
-        addNotification,
-        removeNotification,
-        clearAll,
-        showSuccess,
-        showError,
-        showWarning,
-        showInfo
-    }), [notifications, addNotification, removeNotification, clearAll, showSuccess, showError, showWarning, showInfo]);
+    const value = useMemo<NotificationContextType>(
+        () => ({ notifications, addNotification, removeNotification, clearAll, showSuccess, showError, showWarning, showInfo }),
+        [notifications, addNotification, removeNotification, clearAll, showSuccess, showError, showWarning, showInfo]
+    );
 
     return (
         <NotificationContext.Provider value={value}>
             {children}
-            <NotificationContainer />
+            <ToastContainer />
         </NotificationContext.Provider>
     );
 };
 
-const NotificationContainer: React.FC = () => {
+const ICONS: Record<NotificationType, string> = { success: 'check_circle', error: 'block', warning: 'warning', info: 'info' };
+
+const ToastContainer: React.FC = () => {
     const { notifications, removeNotification } = useNotification();
     if (notifications.length === 0) return null;
     return (
-        <div className="notification-container">
-            {notifications.map((notification) => (
-                <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                    onClose={() => removeNotification(notification.id)}
-                />
+        <div className="toasts" role="region" aria-label="Meldingen">
+            {notifications.map((n) => (
+                <div key={n.id} className={`toast toast--${n.type}`} role={n.type === 'error' ? 'alert' : 'status'}>
+                    <Icon name={ICONS[n.type]} />
+                    <span>{n.message}</span>
+                    <button type="button" className="toast__close" onClick={() => removeNotification(n.id)} aria-label={t('common.close')}>
+                        <Icon name="close" size="dense" />
+                    </button>
+                </div>
             ))}
-        </div>
-    );
-};
-
-const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClose }) => {
-    const getIcon = (): string => {
-        switch (notification.type) {
-            case 'success': return '✅';
-            case 'error': return '❌';
-            case 'warning': return '⚠️';
-            default: return 'ℹ️';
-        }
-    };
-
-    return (
-        <div className={`notification notification-${notification.type}`}>
-            <div className="notification-content">
-                <span className="notification-icon">{getIcon()}</span>
-                <span className="notification-message">{notification.message}</span>
-            </div>
-            <button
-                className="notification-close"
-                onClick={onClose}
-                aria-label="Close notification"
-            >
-                ✕
-            </button>
         </div>
     );
 };

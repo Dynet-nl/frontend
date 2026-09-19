@@ -1,112 +1,52 @@
-// Global error handling context for user-friendly error messages across the application.
+// API error handling: turns an axios error into a readable Dutch message and shows it as a toast.
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useCallback, ReactNode, useMemo } from 'react';
 import { AxiosError } from 'axios';
-
-interface ErrorState {
-    message: string;
-    type: 'error' | 'warning' | 'info';
-    id: string;
-}
+import { useNotification } from './NotificationProvider';
 
 interface ErrorContextType {
-    errors: ErrorState[];
-    addError: (message: string, type?: 'error' | 'warning' | 'info') => void;
-    removeError: (id: string) => void;
-    clearErrors: () => void;
     handleApiError: (error: unknown, fallbackMessage?: string) => void;
+    messageFor: (error: unknown, fallbackMessage?: string) => string;
 }
 
 const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
 
-interface ErrorProviderProps {
-    children: ReactNode;
-}
-
-// Helper to extract user-friendly message from API errors
-const getErrorMessage = (error: unknown, fallbackMessage: string): string => {
+export const getErrorMessage = (error: unknown, fallbackMessage = 'Er ging iets mis.'): string => {
     if (error instanceof AxiosError) {
         const status = error.response?.status;
-        const serverMessage = error.response?.data?.message;
-
-        if (serverMessage) {
-            return serverMessage;
-        }
-
+        const serverMessage = (error.response?.data as { message?: string } | undefined)?.message;
+        if (!error.response) return 'De server reageert niet. Controleer je verbinding.';
+        if (serverMessage && status !== 500) return serverMessage;
         switch (status) {
-            case 400:
-                return 'Invalid request. Please check your input and try again.';
-            case 401:
-                return 'Your session has expired. Please log in again.';
-            case 403:
-                return 'You do not have permission to perform this action.';
-            case 404:
-                return 'The requested resource was not found.';
-            case 409:
-                return 'A conflict occurred. The resource may already exist.';
-            case 422:
-                return 'The provided data is invalid. Please check and try again.';
-            case 429:
-                return 'Too many requests. Please wait a moment and try again.';
-            case 500:
-                return 'A server error occurred. Please try again later.';
-            case 502:
-            case 503:
-            case 504:
-                return 'The server is temporarily unavailable. Please try again later.';
-            default:
-                if (!error.response) {
-                    return 'Unable to connect to the server. Please check your internet connection.';
-                }
-                return fallbackMessage;
+            case 400: return 'Ongeldige invoer. Controleer de velden en probeer het opnieuw.';
+            case 401: return 'Je sessie is verlopen. Log opnieuw in.';
+            case 403: return 'Je hebt geen rechten voor deze actie.';
+            case 404: return 'Niet gevonden.';
+            case 409: return serverMessage || 'Conflict: dit bestaat al.';
+            case 429: return 'Te veel verzoeken. Wacht even en probeer het opnieuw.';
+            case 500: case 502: case 503: case 504: return 'De server gaf een fout. Probeer het later opnieuw.';
+            default: return fallbackMessage;
         }
     }
-
-    if (error instanceof Error) {
-        return error.message || fallbackMessage;
-    }
-
+    if (error instanceof Error) return error.message || fallbackMessage;
     return fallbackMessage;
 };
 
-export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
-    const [errors, setErrors] = useState<ErrorState[]>([]);
+export const ErrorProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const { showError } = useNotification();
 
-    const addError = useCallback((message: string, type: 'error' | 'warning' | 'info' = 'error') => {
-        const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        setErrors(prev => [...prev, { message, type, id }]);
+    const messageFor = useCallback((error: unknown, fallbackMessage?: string) => getErrorMessage(error, fallbackMessage), []);
+    const handleApiError = useCallback((error: unknown, fallbackMessage?: string) => {
+        showError(getErrorMessage(error, fallbackMessage));
+    }, [showError]);
 
-        // Auto-remove after 8 seconds
-        setTimeout(() => {
-            setErrors(prev => prev.filter(e => e.id !== id));
-        }, 8000);
-    }, []);
-
-    const removeError = useCallback((id: string) => {
-        setErrors(prev => prev.filter(e => e.id !== id));
-    }, []);
-
-    const clearErrors = useCallback(() => {
-        setErrors([]);
-    }, []);
-
-    const handleApiError = useCallback((error: unknown, fallbackMessage = 'An unexpected error occurred.') => {
-        const message = getErrorMessage(error, fallbackMessage);
-        addError(message, 'error');
-    }, [addError]);
-
-    return (
-        <ErrorContext.Provider value={{ errors, addError, removeError, clearErrors, handleApiError }}>
-            {children}
-        </ErrorContext.Provider>
-    );
+    const value = useMemo(() => ({ handleApiError, messageFor }), [handleApiError, messageFor]);
+    return <ErrorContext.Provider value={value}>{children}</ErrorContext.Provider>;
 };
 
 export const useError = (): ErrorContextType => {
     const context = useContext(ErrorContext);
-    if (!context) {
-        throw new Error('useError must be used within an ErrorProvider');
-    }
+    if (!context) throw new Error('useError must be used within an ErrorProvider');
     return context;
 };
 

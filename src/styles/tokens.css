@@ -1,0 +1,128 @@
+/* ==========================================================================
+   Dynet — design tokens (from design/redesign-2026-09-20/handoff/tokens.css)
+   Light is the default. Dark is applied with [data-theme="dark"] on <html>,
+   persisted in localStorage under "dynet.theme".
+   ========================================================================== */
+
+:root {
+  --font-sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-icon: "Material Symbols Rounded";
+
+  --text-display-size: 28px;   --text-display-lh: 34px;
+  --text-title-l-size: 22px;   --text-title-l-lh: 28px;
+  --text-title-m-size: 18px;   --text-title-m-lh: 24px;
+  --text-title-s-size: 15px;   --text-title-s-lh: 20px;
+  --text-body-size: 14px;      --text-body-lh: 20px;
+  --text-small-size: 13px;     --text-small-lh: 18px;
+  --text-caption-size: 12px;   --text-caption-lh: 16px;
+  --text-overline-size: 11px;  --text-overline-lh: 14px;
+  --text-mono-size: 12px;      --text-mono-lh: 16px;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+
+  --r-xs: 3px; --r-s: 5px; --r-m: 8px; --r-l: 12px; --r-full: 999px;
+
+  --control-h: 32px;
+  --control-h-dense: 28px;
+  --control-h-touch: 44px;
+  --icon-dense: 16px; --icon-default: 20px; --icon-nav: 24px;
+
+  --shell-sidebar-w: 232px;
+  --shell-sidebar-collapsed-w: 56px;
+  --shell-topbar-h: 56px;
+  --shell-bottombar-h: 60px;
+  --content-max: 1360px;
+  --gutter: 24px;
+
+  --shadow-1: 0 1px 2px rgba(20, 28, 22, 0.06);
+  --shadow-2: 0 2px 6px rgba(20, 28, 22, 0.10);
+  --shadow-3: 0 12px 32px rgba(20, 28, 22, 0.16);
+
+  --bg-canvas: #F4F6F4;
+  --bg-surface: #FFFFFF;
+  --bg-inset: #FAFBFA;
+  --bg-subtle: #EEF1EE;
+  --bg-hover: #E6EAE6;
+  --border: #DDE2DD;
+  --border-strong: #C3CAC4;
+
+  --text-primary: #1C211D;
+  --text-secondary: #59615B;
+  --text-muted: #636B65;
+  --text-inverse: #FFFFFF;
+
+  --ink: #232925;
+  --ink-hover: #343C37;
+  --accent: #167A4B;
+  --accent-hover: #12643D;
+  --accent-fill: #1E9457;
+  --accent-tint: #E2F2E8;
+  --accent-tint-border: #BFE0CC;
+  --brand-fibre: #00C000;
+
+  --focus-ring: #167A4B;
+
+  --status-none-fg: #5C645E;      --status-none-bg: #EEF1EE;
+  --status-progress-fg: #8A5A06;  --status-progress-bg: #FBEFD8;
+  --status-done-fg: #167A4B;      --status-done-bg: #E2F2E8;
+  --status-planned-fg: #1A6597;   --status-planned-bg: #E3EFF8;
+  --status-blocked-fg: #A63220;   --status-blocked-bg: #FAE6E2;
+  --status-fault-fg: #6A4AA8;     --status-fault-bg: #EDE8F9;
+  --status-complaint-fg: #9A4E1B; --status-complaint-bg: #F8EADF;
+
+  --danger: #A63220; --warning: #8A5A06; --success: #167A4B; --info: #1A6597;
+
+  --person-1: #1A6597; --person-2: #167A4B; --person-3: #6A4AA8; --person-4: #A63220;
+  --person-5: #8A5A06; --person-6: #2E7D7A; --person-7: #7A4A8A; --person-8: #4A5A6B;
+
+  --floor-done: #1E9457; --floor-progress: #E5A93C; --floor-none: #DDE2DD;
+
+  --overlay: rgba(20, 28, 22, 0.42);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #101311;
+  --bg-surface: #191D1A;
+  --bg-inset: #151916;
+  --bg-subtle: #212622;
+  --bg-hover: #2A302C;
+  --border: #2E3530;
+  --border-strong: #465049;
+
+  --text-primary: #E7EBE8;
+  --text-secondary: #A3ACA6;
+  --text-muted: #8A938C;
+  --text-inverse: #161A17;
+
+  --ink: #E7EBE8;
+  --ink-hover: #FFFFFF;
+  --accent: #46BE81;
+  --accent-hover: #63CE97;
+  --accent-fill: #2E9E64;
+  --accent-tint: #14301F;
+  --accent-tint-border: #1E4630;
+
+  --focus-ring: #46BE81;
+
+  --status-none-fg: #9AA39C;      --status-none-bg: #212622;
+  --status-progress-fg: #D9A43C;  --status-progress-bg: #332810;
+  --status-done-fg: #46BE81;      --status-done-bg: #14301F;
+  --status-planned-fg: #6BB0DE;   --status-planned-bg: #12293A;
+  --status-blocked-fg: #E8806C;   --status-blocked-bg: #38201B;
+  --status-fault-fg: #A78BE8;     --status-fault-bg: #241D3A;
+  --status-complaint-fg: #D99257; --status-complaint-bg: #33220F;
+
+  --danger: #E8806C; --warning: #D9A43C; --success: #46BE81; --info: #6BB0DE;
+
+  --floor-done: #2E9E64; --floor-progress: #D9A43C; --floor-none: #2E3530;
+
+  --shadow-1: none;
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  --overlay: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}

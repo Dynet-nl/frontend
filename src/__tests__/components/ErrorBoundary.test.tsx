@@ -40,7 +40,7 @@ describe('ErrorBoundary', () => {
             </ErrorBoundary>
         );
 
-        expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+        expect(screen.getByText('Er ging iets mis')).toBeInTheDocument();
     });
 
     it('should display generic error message', () => {
@@ -51,7 +51,7 @@ describe('ErrorBoundary', () => {
         );
 
         // The ErrorBoundary shows a generic message, not the actual error
-        expect(screen.getByText(/something unexpected happened/i)).toBeInTheDocument();
+        expect(screen.getByText(/De app kon niet worden weergegeven/)).toBeInTheDocument();
     });
 
     it('should provide a way to recover', () => {
@@ -62,8 +62,8 @@ describe('ErrorBoundary', () => {
         );
 
         // Check for reload or retry buttons
-        const tryAgainButton = screen.getByRole('button', { name: /try again/i });
-        const reloadButton = screen.getByRole('button', { name: /reload page/i });
+        const tryAgainButton = screen.getByRole('button', { name: /opnieuw proberen/i });
+        const reloadButton = screen.getByRole('button', { name: /pagina herladen/i });
         expect(tryAgainButton).toBeInTheDocument();
         expect(reloadButton).toBeInTheDocument();
     });

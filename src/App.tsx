@@ -1,154 +1,119 @@
-// Main React application component with routing configuration and global providers.
-// Uses React.lazy for code splitting to improve initial load performance.
+// Routes and global providers. Pages are lazy-loaded.
 
-import './App.css';
 import React, { Suspense } from 'react';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { NotificationProvider } from './context/NotificationProvider';
 import { ThemeProvider } from './context/ThemeProvider';
-import { BreadcrumbProvider } from './context/BreadcrumbProvider';
 import { ErrorProvider } from './context/ErrorProvider';
+import { ShellProvider } from './components/shell/ShellContext';
+import AppShell, { lastArea } from './components/shell/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
-import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import RouteErrorBoundary from './components/RouteErrorBoundary';
-import Layout from './components/Layout';
 import NotFound from './components/NotFound';
 import Unauthorized from './components/Unauthorized';
 import RequireAuth from './components/RequireAuth';
+import { TopProgress } from './components/ui/StateDisplay';
 import { ROLES } from './utils/constants';
 
-// Lazy load pages for better initial load performance
-const DashboardHomePage = React.lazy(() => import('./pages/DashboardHomePage'));
-const DistrictSelectionPage = React.lazy(() => import('./pages/DistrictSelectionPage'));
-const BuildingListPage = React.lazy(() => import('./pages/BuildingListPage'));
-const CitySelectionPage = React.lazy(() => import('./pages/CitySelectionPage'));
-const AreaSelectionPage = React.lazy(() => import('./pages/AreaSelectionPage'));
-const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
-const AdminDistrictManagementPage = React.lazy(() => import('./pages/AdminDistrictManagementPage'));
-const DistrictManagementPage = React.lazy(() => import('./pages/DistrictManagementPage'));
-const OptimizedApartmentDetails = React.lazy(() => import('./components/OptimizedApartmentDetails'));
-const AppointmentSystemValidator = React.lazy(() => import('./components/AppointmentSystemValidator'));
-const AgendaCalendarPage = React.lazy(() => import('./pages/AgendaCalendarPage'));
-const UserLoginPage = React.lazy(() => import('./pages/UserLoginPage'));
-const UnifiedAppointmentPage = React.lazy(() => import('./pages/UnifiedAppointmentPage'));
-const AdminSchedulingSelectionPage = React.lazy(() => import('./pages/AdminSchedulingSelectionPage'));
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const HomePage = React.lazy(() => import('./pages/HomePage'));
+const CitiesPage = React.lazy(() => import('./pages/CitiesPage'));
+const AreasPage = React.lazy(() => import('./pages/AreasPage'));
+const DistrictPage = React.lazy(() => import('./pages/DistrictPage'));
+const BuildingPage = React.lazy(() => import('./pages/BuildingPage'));
+const ApartmentPage = React.lazy(() => import('./pages/ApartmentPage'));
+const AgendaPage = React.lazy(() => import('./pages/AgendaPage'));
+const SchedulerPage = React.lazy(() => import('./pages/SchedulerPage'));
+const UsersPage = React.lazy(() => import('./pages/UsersPage'));
+const PriorityPage = React.lazy(() => import('./pages/PriorityPage'));
+const ImportPage = React.lazy(() => import('./pages/ImportPage'));
+const ValidatorPage = React.lazy(() => import('./pages/ValidatorPage'));
 
-const ALL_ROLES = [
-    ROLES.ADMIN,
-    ROLES.TECHNICAL_PLANNING,
-    ROLES.TECHNICAL_INSPECTOR,
-    ROLES.WERKVOORBEREIDER,
-    ROLES.HAS_PLANNING,
-    ROLES.HAS_MONTEUR,
-];
-
-// Loading fallback component
-const PageLoader: React.FC = () => (
-    <div
-        style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-            fontSize: '18px',
-            color: '#666',
-        }}
-    >
-        <div style={{ textAlign: 'center' }}>
-            <div
-                style={{
-                    width: '40px',
-                    height: '40px',
-                    border: '4px solid #f3f3f3',
-                    borderTop: '4px solid #3498db',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                    margin: '0 auto 16px',
-                }}
-            />
-            Loading page...
-        </div>
-        <style>{`
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `}</style>
-    </div>
-);
-
-// The old per-role schedule pages were replaced by the unified scheduler; keep their URLs working.
-const LegacyScheduleRedirect: React.FC<{ to: 'has-appointment-scheduler' | 'appointment-scheduler'; type: 'HAS' | 'Technical' }> = ({ to, type }) => {
-    const { id } = useParams<{ id: string }>();
-    return <Navigate to={`/${to}/${id}?mode=building&type=${type}`} replace />;
-};
+const ALL_ROLES = [ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.TECHNICAL_INSPECTOR, ROLES.WERKVOORBEREIDER, ROLES.HAS_PLANNING, ROLES.HAS_MONTEUR];
+const PLANNERS = [ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.WERKVOORBEREIDER, ROLES.TECHNICAL_INSPECTOR];
+const HAS_ROLES = [ROLES.ADMIN, ROLES.HAS_PLANNING, ROLES.HAS_MONTEUR];
 
 const page = (name: string, element: React.ReactNode): React.ReactElement => (
     <RouteErrorBoundary pageName={name}>{element}</RouteErrorBoundary>
 );
 
-const App: React.FC = () => {
-    return (
-        <ErrorBoundary>
-            <ThemeProvider>
-                <NotificationProvider>
-                    <ErrorProvider>
-                        <BreadcrumbProvider>
-                            <GlobalErrorDisplay />
-                            <div className="App">
-                                <Suspense fallback={<PageLoader />}>
-                                    <Routes>
-                                        <Route element={<UserLoginPage />} path="/login" />
-                                        <Route element={<Unauthorized />} path="/unauthorized" />
-                                        <Route element={<Layout />}>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
-                                                <Route element={page('Admin Dashboard', <AdminDashboardPage />)} path="/admin" />
-                                                <Route element={page('District Management', <AdminDistrictManagementPage />)} path="/dashboard" />
-                                                <Route element={page('District Management', <DistrictManagementPage />)} path="/district-management/:areaId" />
-                                                <Route element={page('Apartment Details', <OptimizedApartmentDetails />)} path="/admin-apartment/:id" />
-                                                <Route element={page('Scheduling', <AdminSchedulingSelectionPage />)} path="/admin-scheduling-selection/:id" />
-                                                <Route element={page('Appointment Validator', <AppointmentSystemValidator />)} path="/appointment-validator" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING, ROLES.WERKVOORBEREIDER, ROLES.ADMIN]} />}>
-                                                <Route element={page('Planning Apartment', <OptimizedApartmentDetails />)} path="/planning-apartment/:id" />
-                                                <Route element={page('Appointment Scheduler', <UnifiedAppointmentPage />)} path="/appointment-scheduler/:id" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING, ROLES.ADMIN]} />}>
-                                                <Route element={page('HAS Planning', <OptimizedApartmentDetails />)} path="/has-planning-apartment/:id" />
-                                                <Route element={<LegacyScheduleRedirect to="has-appointment-scheduler" type="HAS" />} path="/has-planning-apartment-schedule/:id" />
-                                                <Route element={page('Appointment Scheduler', <UnifiedAppointmentPage />)} path="/has-appointment-scheduler/:id" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_INSPECTOR, ROLES.ADMIN]} />}>
-                                                <Route element={page('Technical Inspector', <OptimizedApartmentDetails />)} path="/ts-apartment/:id" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.HAS_MONTEUR, ROLES.ADMIN, ROLES.HAS_PLANNING, ROLES.TECHNICAL_INSPECTOR]} />}>
-                                                <Route element={page('HAS Monteur', <OptimizedApartmentDetails />)} path="/hm-apartment/:id" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.HAS_PLANNING, ROLES.ADMIN, ROLES.TECHNICAL_INSPECTOR, ROLES.HAS_MONTEUR]} />}>
-                                                <Route element={page('HAS Agenda', <AgendaCalendarPage calendarType="HAS" />)} path="/has-agenda" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={[ROLES.TECHNICAL_PLANNING, ROLES.ADMIN]} />}>
-                                                <Route element={<LegacyScheduleRedirect to="appointment-scheduler" type="Technical" />} path="/planning-apartment-schedule/:id" />
-                                                <Route element={page('Agenda', <AgendaCalendarPage calendarType="TECHNICAL" />)} path="/agenda" />
-                                            </Route>
-                                            <Route element={<RequireAuth allowedRoles={ALL_ROLES} />}>
-                                                <Route element={page('Dashboard', <DashboardHomePage />)} path="/" />
-                                                <Route element={page('City Selection', <CitySelectionPage />)} path="/city" />
-                                                <Route element={page('Area Selection', <AreaSelectionPage />)} path="/area/:cityId" />
-                                                <Route element={page('District Selection', <DistrictSelectionPage />)} path="/district/:areaId" />
-                                                <Route element={page('Building List', <BuildingListPage />)} path="/building/:id" />
-                                            </Route>
+/** /districts -> the last viewed area's district page, else the cities list. */
+const DistrictsRedirect: React.FC = () => {
+    const area = lastArea();
+    return <Navigate to={area ? `/district/${area}` : '/city'} replace />;
+};
+
+/** Old per-role schedule URLs keep working. */
+const LegacyScheduleRedirect: React.FC<{ type: 'HAS' | 'Technical' }> = ({ type }) => {
+    const { id } = useParams<{ id: string }>();
+    return <Navigate to={`/schedule/${id}?mode=building&type=${type}`} replace />;
+};
+const LegacySchedulerRedirect: React.FC<{ type: 'HAS' | 'Technical' }> = ({ type }) => {
+    const { id } = useParams<{ id: string }>();
+    const search = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+    const mode = search.get('mode') || 'building';
+    return <Navigate to={`/schedule/${id}?mode=${mode}&type=${type}`} replace />;
+};
+
+const App: React.FC = () => (
+    <ErrorBoundary>
+        <ThemeProvider>
+            <NotificationProvider>
+                <ErrorProvider>
+                    <ShellProvider>
+                        <Suspense fallback={<TopProgress />}>
+                            <Routes>
+                                <Route element={<LoginPage />} path="/login" />
+                                <Route element={<Unauthorized />} path="/unauthorized" />
+                                <Route element={<RequireAuth allowedRoles={ALL_ROLES} />}>
+                                    <Route element={<AppShell />}>
+                                        <Route element={page('Home', <HomePage />)} path="/" />
+                                        <Route element={page('Steden', <CitiesPage />)} path="/city" />
+                                        <Route element={page('Gebieden', <AreasPage />)} path="/area/:cityId" />
+                                        <Route element={<DistrictsRedirect />} path="/districts" />
+                                        <Route element={page('Districten', <DistrictPage />)} path="/district/:areaId" />
+                                        <Route element={page('Gebouw', <BuildingPage />)} path="/building/:id" />
+                                        {/* Apartment detail: one page, role-gated sections. Old role-specific URLs stay valid. */}
+                                        <Route element={page('Flat', <ApartmentPage />)} path="/apartment/:id" />
+                                        <Route element={page('Flat', <ApartmentPage />)} path="/admin-apartment/:id" />
+                                        <Route element={page('Flat', <ApartmentPage />)} path="/planning-apartment/:id" />
+                                        <Route element={page('Flat', <ApartmentPage />)} path="/has-planning-apartment/:id" />
+                                        <Route element={page('Flat', <ApartmentPage />)} path="/ts-apartment/:id" />
+                                        <Route element={page('Flat', <ApartmentPage />)} path="/hm-apartment/:id" />
+
+                                        <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN, ROLES.TECHNICAL_PLANNING]} inline />}>
+                                            <Route element={page('Planningsagenda', <AgendaPage calendarType="TECHNICAL" />)} path="/agenda" />
+                                        </Route>
+                                        <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN, ROLES.HAS_PLANNING, ROLES.TECHNICAL_INSPECTOR, ROLES.HAS_MONTEUR]} inline />}>
+                                            <Route element={page('HAS-agenda', <AgendaPage calendarType="HAS" />)} path="/has-agenda" />
+                                        </Route>
+
+                                        <Route element={<RequireAuth allowedRoles={[...PLANNERS, ...HAS_ROLES]} inline />}>
+                                            <Route element={page('Inplannen', <SchedulerPage />)} path="/schedule/:id" />
+                                            <Route element={<LegacySchedulerRedirect type="Technical" />} path="/appointment-scheduler/:id" />
+                                            <Route element={<LegacySchedulerRedirect type="HAS" />} path="/has-appointment-scheduler/:id" />
+                                            <Route element={<LegacyScheduleRedirect type="Technical" />} path="/planning-apartment-schedule/:id" />
+                                            <Route element={<LegacyScheduleRedirect type="HAS" />} path="/has-planning-apartment-schedule/:id" />
+                                            <Route element={<LegacySchedulerRedirect type="Technical" />} path="/admin-scheduling-selection/:id" />
+                                        </Route>
+
+                                        <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} inline />}>
+                                            <Route element={page('Gebruikers', <UsersPage />)} path="/admin" />
+                                            <Route element={page('Districtprioriteit', <PriorityPage />)} path="/dashboard" />
+                                            <Route element={page('Districtimport', <ImportPage />)} path="/district-management" />
+                                            <Route element={page('Districtimport', <ImportPage />)} path="/district-management/:areaId" />
+                                            <Route element={page('Afsprakenvalidatie', <ValidatorPage />)} path="/appointment-validator" />
                                         </Route>
                                         <Route element={<NotFound />} path="*" />
-                                    </Routes>
-                                </Suspense>
-                            </div>
-                        </BreadcrumbProvider>
-                    </ErrorProvider>
-                </NotificationProvider>
-            </ThemeProvider>
-        </ErrorBoundary>
-    );
-};
+                                    </Route>
+                                </Route>
+                            </Routes>
+                        </Suspense>
+                    </ShellProvider>
+                </ErrorProvider>
+            </NotificationProvider>
+        </ThemeProvider>
+    </ErrorBoundary>
+);
 
 export default App;

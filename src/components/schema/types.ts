@@ -3,6 +3,7 @@
 import { ChangeEvent } from 'react';
 
 export interface Floor {
+    floor?: number;
     flat?: string;
     cableNumber?: number | string;
     cableLength?: number | string;

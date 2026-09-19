@@ -1,153 +1,74 @@
-// Standardized loading and error states for consistent UX across the app
-// Usage: <LoadingState message="Loading buildings..." /> or <ErrorState error={error} onRetry={refetch} />
+// Loading, empty, error and forbidden states.
 
-import React, { ReactNode } from 'react';
+import React from 'react';
+import Icon from './Icon';
 import Button from './Button';
-import './StateDisplay.css';
+import { t } from '../../i18n';
 
-type StateSize = 'small' | 'medium' | 'large';
+export const Skeleton: React.FC<{ width?: number | string; height?: number | string; className?: string; style?: React.CSSProperties }> = ({ width = '100%', height = 12, className = '', style }) => (
+    <span className={`skeleton ${className}`.trim()} style={{ display: 'block', width, height, ...style }} aria-hidden="true" />
+);
 
-// Loading State Component
-interface LoadingStateProps {
-    message?: string;
-    size?: StateSize;
-    fullPage?: boolean;
-    className?: string;
-}
-
-const LoadingState: React.FC<LoadingStateProps> = ({
-    message = 'Loading...',
-    size = 'medium',
-    fullPage = false,
-    className = '',
-}) => {
-    const containerClasses = ['ui-state', 'ui-state--loading', `ui-state--${size}`, fullPage && 'ui-state--full-page', className]
-        .filter(Boolean)
-        .join(' ');
-
-    return (
-        <div className={containerClasses} role="status" aria-live="polite">
-            <div className="ui-state__spinner">
-                <svg viewBox="0 0 50 50" className="ui-state__spinner-icon">
-                    <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="31.4 31.4" />
-                </svg>
+export const SkeletonRows: React.FC<{ rows?: number; label?: string }> = ({ rows = 4, label }) => (
+    <div className="skeleton-rows" role="status" aria-live="polite" aria-label={label ?? t('state.loading')}>
+        {Array.from({ length: rows }).map((_, i) => (
+            <div className="skeleton-row" key={i}>
+                <Skeleton width={18} height={18} />
+                <Skeleton width={`${30 + ((i * 17) % 40)}%`} />
+                <Skeleton width={60} className="ml-auto" />
+                <Skeleton width={90} height={22} />
             </div>
-            {message && <p className="ui-state__message">{message}</p>}
-        </div>
-    );
-};
+        ))}
+    </div>
+);
 
-// Error State Component
-interface ErrorStateProps {
+interface StateProps {
     title?: string;
-    message?: string;
-    error?: Error | null;
-    onRetry?: () => void;
-    retryText?: string;
-    fullPage?: boolean;
-    className?: string;
+    text?: string;
+    icon?: string;
+    action?: React.ReactNode;
+    center?: boolean;
 }
 
-const ErrorState: React.FC<ErrorStateProps> = ({
-    title = 'Something went wrong',
-    message,
-    error,
-    onRetry,
-    retryText = 'Try Again',
-    fullPage = false,
-    className = '',
-}) => {
-    const containerClasses = ['ui-state', 'ui-state--error', fullPage && 'ui-state--full-page', className]
-        .filter(Boolean)
-        .join(' ');
+export const EmptyState: React.FC<StateProps> = ({ title, text, icon = 'inbox', action, center }) => (
+    <div className={`state ${center ? 'state--center' : ''}`.trim()}>
+        <Icon name={icon} className="state__icon" />
+        {title && <div className="state__title">{title}</div>}
+        {text && <div className="state__text">{text}</div>}
+        {action && <div style={{ marginTop: 4 }}>{action}</div>}
+    </div>
+);
 
-    const errorMessage = message || error?.message || 'An unexpected error occurred. Please try again.';
+export const ErrorState: React.FC<StateProps & { onRetry?: () => void; message?: string }> = ({ title, text, message, onRetry, center }) => (
+    <div className={`state state--error ${center ? 'state--center' : ''}`.trim()} role="alert">
+        <Icon name="cloud_off" className="state__icon" />
+        <div className="state__title">{title ?? message ?? t('state.error.title')}</div>
+        <div className="state__text">{text ?? (message ? undefined : t('state.error.text'))}</div>
+        {onRetry && (
+            <Button variant="secondary" icon="refresh" onClick={onRetry} style={{ marginTop: 4 }}>
+                {t('common.retry')}
+            </Button>
+        )}
+    </div>
+);
 
-    return (
-        <div className={containerClasses} role="alert">
-            <div className="ui-state__icon ui-state__icon--error">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <circle cx="12" cy="16" r="0.5" fill="currentColor" />
-                </svg>
-            </div>
-            <h3 className="ui-state__title">{title}</h3>
-            <p className="ui-state__message">{errorMessage}</p>
-            {onRetry && (
-                <Button variant="primary" onClick={onRetry} className="ui-state__action">
-                    {retryText}
-                </Button>
-            )}
-        </div>
-    );
-};
+export const ForbiddenState: React.FC<{ text?: string }> = ({ text }) => (
+    <div className="state" role="alert">
+        <Icon name="lock" className="state__icon" />
+        <div className="state__title">{t('state.forbidden.title')}</div>
+        <div className="state__text">{text ?? t('state.forbidden.text')}</div>
+    </div>
+);
 
-// Empty State Component
-interface EmptyStateProps {
-    title?: string;
-    message?: string;
-    icon?: ReactNode;
-    action?: string;
-    actionText?: string;
-    onAction?: () => void;
-    className?: string;
-}
+/** Kept for existing call sites: a quiet inline loading row. */
+export const LoadingState: React.FC<{ message?: string }> = ({ message }) => (
+    <div className="row gap-2 muted t-small" role="status" aria-live="polite" style={{ padding: 16 }}>
+        <Skeleton width={16} height={16} style={{ borderRadius: 999 }} />
+        {message ?? t('state.loading')}
+    </div>
+);
 
-const EmptyState: React.FC<EmptyStateProps> = ({
-    title = 'No data found',
-    message,
-    icon = '📭',
-    action,
-    actionText,
-    onAction,
-    className = '',
-}) => {
-    const containerClasses = ['ui-state', 'ui-state--empty', className].filter(Boolean).join(' ');
+/** Thin bar at the very top while a page navigation is in flight. */
+export const TopProgress: React.FC = () => <div className="topbar-progress" role="progressbar" aria-label={t('state.loading')} />;
 
-    return (
-        <div className={containerClasses}>
-            <div className="ui-state__icon ui-state__icon--empty">{icon}</div>
-            <h3 className="ui-state__title">{title}</h3>
-            {message && <p className="ui-state__message">{message}</p>}
-            {(action || onAction) && (
-                <Button variant="primary" onClick={onAction} className="ui-state__action">
-                    {actionText || action}
-                </Button>
-            )}
-        </div>
-    );
-};
-
-// Success State Component
-interface SuccessStateProps {
-    title?: string;
-    message?: string;
-    action?: string;
-    onAction?: () => void;
-    className?: string;
-}
-
-const SuccessState: React.FC<SuccessStateProps> = ({ title = 'Success!', message, action, onAction, className = '' }) => {
-    const containerClasses = ['ui-state', 'ui-state--success', className].filter(Boolean).join(' ');
-
-    return (
-        <div className={containerClasses}>
-            <div className="ui-state__icon ui-state__icon--success">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M8 12l2.5 2.5L16 9" />
-                </svg>
-            </div>
-            <h3 className="ui-state__title">{title}</h3>
-            {message && <p className="ui-state__message">{message}</p>}
-            {onAction && (
-                <Button variant="primary" onClick={onAction} className="ui-state__action">
-                    {action}
-                </Button>
-            )}
-        </div>
-    );
-};
-
-export { LoadingState, ErrorState, EmptyState, SuccessState };
+export const SuccessState = EmptyState;

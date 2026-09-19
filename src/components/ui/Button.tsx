@@ -1,69 +1,71 @@
-// Reusable Button component with consistent styling and loading states
-// Usage: <Button variant="primary" loading={isLoading}>Save</Button>
+// Buttons. One primary per view (ink); the recurring "Inplannen" verb uses the accent variant.
 
-import React, { ReactNode, ButtonHTMLAttributes } from 'react';
-import './Button.css';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Icon from './Icon';
 
-type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'link';
-type ButtonSize = 'small' | 'medium' | 'large';
+export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost' | 'link';
+export type ButtonSize = 'default' | 'dense' | 'touch';
 
-interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
-    children: ReactNode;
+interface BaseProps {
     variant?: ButtonVariant;
     size?: ButtonSize;
-    type?: 'button' | 'submit' | 'reset';
+    icon?: string;
+    iconRight?: string;
     loading?: boolean;
-    disabled?: boolean;
-    fullWidth?: boolean;
-    icon?: ReactNode;
+    block?: boolean;
     className?: string;
+    children?: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({
-    children,
-    variant = 'primary',
-    size = 'medium',
-    type = 'button',
-    loading = false,
-    disabled = false,
-    fullWidth = false,
-    icon = null,
-    onClick,
-    className = '',
-    ...props
-}) => {
-    const buttonClasses = [
-        'ui-button',
-        `ui-button--${variant}`,
-        `ui-button--${size}`,
-        fullWidth && 'ui-button--full-width',
-        loading && 'ui-button--loading',
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+type ButtonProps = BaseProps & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'children'>;
 
-    return (
-        <button type={type} className={buttonClasses} disabled={disabled || loading} onClick={onClick} {...props}>
-            {loading && (
-                <span className="ui-button__spinner" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" className="ui-button__spinner-icon">
-                        <circle
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                            fill="none"
-                            strokeDasharray="31.4 31.4"
-                        />
-                    </svg>
-                </span>
-            )}
-            {icon && !loading && <span className="ui-button__icon">{icon}</span>}
-            <span className="ui-button__text">{children}</span>
-        </button>
-    );
-};
+const classes = ({ variant = 'secondary', size = 'default', loading, block, className = '', iconOnly = false }: BaseProps & { iconOnly?: boolean }) =>
+    [
+        'btn',
+        `btn--${variant}`,
+        size !== 'default' ? `btn--${size}` : '',
+        loading ? 'btn--loading' : '',
+        block ? 'btn--block' : '',
+        iconOnly ? 'btn--icon' : '',
+        className,
+    ].filter(Boolean).join(' ');
+
+const Button: React.FC<ButtonProps> = ({ variant, size, icon, iconRight, loading, block, className, children, type = 'button', disabled, ...rest }) => (
+    <button
+        type={type}
+        className={classes({ variant, size, loading, block, className, iconOnly: !children })}
+        disabled={disabled || loading}
+        aria-busy={loading || undefined}
+        {...rest}
+    >
+        {icon && <Icon name={icon} />}
+        {children && <span>{children}</span>}
+        {iconRight && <Icon name={iconRight} />}
+    </button>
+);
+
+type LinkButtonProps = BaseProps & { to: string; state?: unknown; title?: string };
+
+export const LinkButton: React.FC<LinkButtonProps> = ({ to, state, variant, size, icon, iconRight, block, className, children, title }) => (
+    <Link to={to} state={state} className={classes({ variant, size, block, className, iconOnly: !children })} title={title}>
+        {icon && <Icon name={icon} />}
+        {children && <span>{children}</span>}
+        {iconRight && <Icon name={iconRight} />}
+    </Link>
+);
+
+interface IconButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+    icon: string;
+    label: string;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+}
+
+export const IconButton: React.FC<IconButtonProps> = ({ icon, label, variant = 'ghost', size = 'default', className = '', type = 'button', ...rest }) => (
+    <button type={type} className={classes({ variant, size, className, iconOnly: true })} aria-label={label} title={label} {...rest}>
+        <Icon name={icon} />
+    </button>
+);
 
 export default Button;

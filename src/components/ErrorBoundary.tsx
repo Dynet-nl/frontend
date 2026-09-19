@@ -1,4 +1,4 @@
-// React error boundary component for catching and handling application errors gracefully.
+// App-level error boundary: last resort when the shell itself fails to render.
 
 import React, { Component, ReactNode, ErrorInfo, ComponentType } from 'react';
 
@@ -18,57 +18,27 @@ interface ErrorBoundaryState {
     hasError: boolean;
     error: Error | null;
     errorInfo: ErrorInfo | null;
-    errorId: string | null;
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     constructor(props: ErrorBoundaryProps) {
         super(props);
-        this.state = {
-            hasError: false,
-            error: null,
-            errorInfo: null,
-            errorId: null,
-        };
+        this.state = { hasError: false, error: null, errorInfo: null };
     }
 
-    static getDerivedStateFromError(_error: Error): Partial<ErrorBoundaryState> {
-        return {
-            hasError: true,
-            errorId: Date.now().toString(36),
-        };
+    static getDerivedStateFromError(): Partial<ErrorBoundaryState> {
+        return { hasError: true };
     }
 
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-        const errorDetails = {
-            error: error.toString(),
-            errorInfo: errorInfo.componentStack,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-        };
-
-        this.setState({
-            error: error,
-            errorInfo: errorInfo,
-        });
-
+        this.setState({ error, errorInfo });
         if (process.env.NODE_ENV === 'development') {
-            console.group('🚨 Error Boundary Caught an Error');
-            console.error('Error:', error);
-            console.error('Error Info:', errorInfo);
-            console.error('Error Details:', errorDetails);
-            console.groupEnd();
+            console.error('Error boundary:', error, errorInfo);
         }
     }
 
     handleRetry = (): void => {
-        this.setState({
-            hasError: false,
-            error: null,
-            errorInfo: null,
-            errorId: null,
-        });
+        this.setState({ hasError: false, error: null, errorInfo: null });
     };
 
     handleReload = (): void => {
@@ -76,55 +46,39 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     };
 
     render(): ReactNode {
-        if (this.state.hasError) {
-            const Fallback = this.props.fallback;
-            if (Fallback) {
-                return (
-                    <Fallback
-                        error={this.state.error}
-                        errorInfo={this.state.errorInfo}
-                        onRetry={this.handleRetry}
-                        onReload={this.handleReload}
-                    />
-                );
-            }
+        if (!this.state.hasError) return this.props.children;
 
-            return (
-                <div className="error-boundary">
-                    <div className="error-boundary-content">
-                        <div className="error-boundary-icon">⚠️</div>
-                        <h1 className="error-boundary-title">Oops! Something went wrong</h1>
-                        <p className="error-boundary-message">
-                            We're sorry, but something unexpected happened. Our team has been notified.
-                        </p>
-                        {process.env.NODE_ENV === 'development' && (
-                            <details className="error-boundary-details">
-                                <summary>Error Details (Development Only)</summary>
-                                <div className="error-boundary-stack">
-                                    <strong>Error:</strong>
-                                    <pre>{this.state.error && this.state.error.toString()}</pre>
-                                    <strong>Component Stack:</strong>
-                                    <pre>{this.state.errorInfo?.componentStack}</pre>
-                                </div>
-                            </details>
-                        )}
-                        <div className="error-boundary-actions">
-                            <button onClick={this.handleRetry} className="modern-button modern-button-primary">
-                                Try Again
-                            </button>
-                            <button onClick={this.handleReload} className="modern-button modern-button-secondary">
-                                Reload Page
-                            </button>
-                        </div>
-                        <div className="error-boundary-footer">
-                            <small>Error ID: {this.state.errorId}</small>
-                        </div>
-                    </div>
-                </div>
-            );
+        const Fallback = this.props.fallback;
+        if (Fallback) {
+            return <Fallback error={this.state.error} errorInfo={this.state.errorInfo} onRetry={this.handleRetry} onReload={this.handleReload} />;
         }
 
-        return this.props.children;
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                <div className="state state--error" style={{ maxWidth: 520 }} role="alert">
+                    <span className="icon state__icon">error</span>
+                    <div className="state__title">Er ging iets mis</div>
+                    <div className="state__text">De app kon niet worden weergegeven. Probeer het opnieuw of herlaad de pagina.</div>
+                    {process.env.NODE_ENV === 'development' && this.state.error && (
+                        <details style={{ marginTop: 8 }}>
+                            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Details</summary>
+                            <pre className="mono" style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>
+                                {this.state.error.toString()}
+                                {this.state.errorInfo?.componentStack}
+                            </pre>
+                        </details>
+                    )}
+                    <div className="btn-group" style={{ marginTop: 8 }}>
+                        <button type="button" className="btn btn--primary" onClick={this.handleRetry}>
+                            <span>Opnieuw proberen</span>
+                        </button>
+                        <button type="button" className="btn btn--secondary" onClick={this.handleReload}>
+                            <span>Pagina herladen</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 }
 
