@@ -122,6 +122,10 @@ const UnifiedAppointmentPage: React.FC = () => {
         navigate(-1);
     };
 
+    // Stable identity: the scheduler resets its selection when this array changes.
+    // Declared before the early returns below so the hook order never changes.
+    const preselectedApartments = useMemo(() => (mode === 'single' && apartments[0] ? [apartments[0]._id] : []), [mode, apartments]);
+
     if (loading) {
         return (
             <div
@@ -156,9 +160,6 @@ const UnifiedAppointmentPage: React.FC = () => {
         );
     }
 
-    // Stable identity: the scheduler resets its selection when this array changes.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const preselectedApartments = useMemo(() => (mode === 'single' && apartments[0] ? [apartments[0]._id] : []), [mode, apartments]);
 
     return (
         <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>

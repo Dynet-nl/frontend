@@ -209,7 +209,7 @@ const UserLoginPage: React.FC = () => {
                 }}
             >
                 <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                    <img src="/dynetLogo.png" alt="Dynet Logo" style={{ width: '80px', marginBottom: '20px' }} />
+                    <img src={`${process.env.PUBLIC_URL}/dynetLogo.png`} alt="Dynet Logo" style={{ width: '80px', marginBottom: '20px' }} />
                     <h1
                         style={{
                             color: '#2c3e50',

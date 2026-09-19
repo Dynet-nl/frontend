@@ -31,7 +31,7 @@ const DashboardHomePage: React.FC = () => {
             <div className="modern-card-body" style={{ textAlign: 'center', padding: '48px 24px' }}>
                 <div style={{ marginBottom: '40px' }}>
                     <img
-                        src="/dynetLogo.png"
+                        src={`${process.env.PUBLIC_URL}/dynetLogo.png`}
                         alt="Dynet Logo"
                         style={{
                             maxWidth: '120px',
