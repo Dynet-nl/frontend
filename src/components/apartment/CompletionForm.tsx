@@ -118,7 +118,7 @@ const CompletionForm: React.FC<CompletionFormProps> = ({ flatId, onSaved, onCanc
                         </button>
                     )}
                 </div>
-                <input ref={fileInput} type="file" accept="image/*" capture="environment" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
+                <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
             </div>
 
             <Field label={t('flat.notes')}>
