@@ -31,7 +31,6 @@ const RoleBasedLink: React.FC<RoleBasedLinkProps> = ({ children, flatId, buildin
                 title={`Building blocked: ${building.blockReason}`}
                 onClick={(e: MouseEvent<HTMLDivElement>) => {
                     e.preventDefault();
-                    alert(`This building is blocked: ${building.blockReason}`);
                 }}
             >
                 {children}
@@ -39,9 +38,7 @@ const RoleBasedLink: React.FC<RoleBasedLinkProps> = ({ children, flatId, buildin
         );
     }
 
-    const hasRole = (roleValue: number): boolean => {
-        return auth?.roles && Array.isArray(auth.roles) && auth.roles.includes(roleValue);
-    };
+    const hasRole = (roleValue: number): boolean => Array.isArray(auth?.roles) && auth.roles.includes(roleValue);
 
     const isAdmin = hasRole(ROLES.ADMIN);
     const isTechnischePlanning = hasRole(ROLES.TECHNICAL_PLANNING);

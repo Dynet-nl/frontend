@@ -12,6 +12,7 @@ jest.mock('../../api/axios', () => ({
     axiosPublic: {
         post: jest.fn(),
     },
+    setUnauthorizedHandler: jest.fn(),
 }));
 
 // Mock useNavigate

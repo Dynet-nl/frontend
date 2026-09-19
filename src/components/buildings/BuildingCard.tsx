@@ -7,36 +7,11 @@ import BuildingVisual from './BuildingVisual';
 import { categorizeBuilding, generateHBNumber } from '../../utils/buildingCategorization';
 import { hasAnyAppointment, isFlatCompleted, formatAppointmentInline } from '../../utils/completionUtils';
 
-interface Flat {
-    _id: string;
-    toevoeging?: string;
-    zoeksleutel?: string;
-    postcode?: string;
-    fcStatusHas?: string | number;
-    complexNaam?: string;
-    adres?: string;
-    huisNummer?: string;
-    technischePlanning?: {
-        appointmentBooked?: { date?: string; startTime?: string; endTime?: string };
-        technischeSchouwerName?: string;
-    };
-    hasMonteur?: {
-        appointmentBooked?: { date?: string; startTime?: string; endTime?: string; type?: string };
-        hasMonteurName?: string;
-    };
-}
+import type { Building, Flat } from '../../types/domain';
 
 interface BuildingType {
     type: string;
     prefix: string;
-}
-
-interface Building {
-    _id: string;
-    address: string;
-    flats?: Flat[];
-    isBlocked?: boolean;
-    blockReason?: string;
 }
 
 interface BuildingCardProps {

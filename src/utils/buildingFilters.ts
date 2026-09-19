@@ -4,35 +4,11 @@
 import { categorizeBuilding } from './buildingCategorization';
 import { hasAnyAppointment, isFlatCompleted } from './completionUtils';
 
-interface Flat {
-    complexNaam?: string;
-    fileUrl?: string;
-    fcStatusHas?: string | number;
-    technischePlanning?: {
-        signature?: { fileUrl?: string };
-        report?: { fileUrl?: string };
-        appointmentBooked?: { date?: string };
-    };
-    hasMonteur?: {
-        signature?: { fileUrl?: string };
-        report?: { fileUrl?: string };
-        appointmentBooked?: { date?: string };
-    };
-    toevoeging?: string;
-    zoeksleutel?: string;
-    postcode?: string;
-}
-
-interface Building {
-    address: string;
-    flats?: Flat[];
-    fileUrl?: string;
-    isBlocked?: boolean;
-}
+import type { Building } from '../types/domain';
 
 type FilterType = 'all' | 'fileUrl' | 'laagBouw' | 'HB' | 'duplex' | 'appointment' | 'done' | 'pending' | 'noappointment' | 'blocked';
 
-interface FilterCounts {
+export interface FilterCounts {
     all: number;
     fileUrl: number;
     laagBouw: number;
@@ -54,7 +30,7 @@ export const filterBuildings = (buildings: Building[], query: string, filter: Fi
 
     if (query) {
         filteredBuildings = buildings.filter((building) =>
-            building.address.toLowerCase().includes(query) ||
+            (building.address || '').toLowerCase().includes(query) ||
             (building.flats && building.flats.some((flat) =>
                 flat.complexNaam && flat.complexNaam.toLowerCase().includes(query)
             ))

@@ -110,32 +110,26 @@ export const calculateCompletionStatus = (buildings: Building[]): CompletionStat
 };
 
 /**
- * Formats an appointment's start/end times into an inline display string.
- * Returns e.g. "12 feb 09:00-11:00" using Dutch locale, or null if no times available.
+ * Formats an appointment as "12 feb 09:00-11:00" (Dutch month abbreviation).
+ * `date` is an ISO date, `startTime`/`endTime` are "HH:mm" strings.
+ * Returns null when there is no usable date.
  */
 export const formatAppointmentInline = (appointmentBooked?: AppointmentBooked): string | null => {
-    if (!appointmentBooked?.startTime) return null;
+    if (!appointmentBooked?.date) return null;
 
-    try {
-        const start = new Date(appointmentBooked.startTime);
-        if (isNaN(start.getTime())) return null;
+    const start = new Date(appointmentBooked.date);
+    if (isNaN(start.getTime())) return null;
 
-        const day = start.getDate();
-        const month = start.toLocaleString('nl-NL', { month: 'short' }).replace('.', '');
-        const startTime = start.toLocaleString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+    const day = start.getDate();
+    const month = start.toLocaleString('nl-NL', { month: 'short' }).replace('.', '');
+    let result = `${day} ${month}`;
 
-        let result = `${day} ${month} ${startTime}`;
-
+    if (appointmentBooked.startTime) {
+        result += ` ${appointmentBooked.startTime}`;
         if (appointmentBooked.endTime) {
-            const end = new Date(appointmentBooked.endTime);
-            if (!isNaN(end.getTime())) {
-                const endTime = end.toLocaleString('nl-NL', { hour: '2-digit', minute: '2-digit' });
-                result += `-${endTime}`;
-            }
+            result += `-${appointmentBooked.endTime}`;
         }
-
-        return result;
-    } catch {
-        return null;
     }
+
+    return result;
 };

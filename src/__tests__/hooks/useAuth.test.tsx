@@ -52,10 +52,12 @@ describe('useAuth', () => {
 
         const { result } = renderHook(() => useAuth(), { wrapper });
 
-        // Mock window.location.href
+        // Mock window.location so the hard redirect in logout() does not run in jsdom
         const originalLocation = window.location;
-        delete (window as { location?: Location }).location;
-        window.location = { ...originalLocation, href: '' } as Location;
+        Object.defineProperty(window, 'location', {
+            configurable: true,
+            value: { ...originalLocation, href: '' },
+        });
 
         act(() => {
             result.current.logout();
@@ -64,7 +66,7 @@ describe('useAuth', () => {
         expect(localStorage.getItem('roles')).toBeNull();
         expect(result.current.auth).toEqual({});
 
-        window.location = originalLocation;
+        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('should throw error when used outside AuthProvider', () => {

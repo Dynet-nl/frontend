@@ -30,21 +30,7 @@ describe('UI_CONFIG constant', () => {
         expect(UI_CONFIG.TIMER_INTERVAL).toBeGreaterThan(0);
     });
 
-    it('should have login delays defined', () => {
-        expect(UI_CONFIG.LOGIN_VALIDATION_DELAY).toBeDefined();
-        expect(UI_CONFIG.LOGIN_PROFILE_DELAY).toBeDefined();
-        expect(UI_CONFIG.LOGIN_REDIRECT_DELAY).toBeDefined();
-    });
-
-    it('should have reasonable delay values', () => {
-        // Delays should be positive numbers
-        expect(UI_CONFIG.LOGIN_VALIDATION_DELAY).toBeGreaterThanOrEqual(0);
-        expect(UI_CONFIG.LOGIN_PROFILE_DELAY).toBeGreaterThanOrEqual(0);
-        expect(UI_CONFIG.LOGIN_REDIRECT_DELAY).toBeGreaterThanOrEqual(0);
-
-        // Delays shouldn't be too long (under 5 seconds each)
-        expect(UI_CONFIG.LOGIN_VALIDATION_DELAY).toBeLessThan(5000);
-        expect(UI_CONFIG.LOGIN_PROFILE_DELAY).toBeLessThan(5000);
-        expect(UI_CONFIG.LOGIN_REDIRECT_DELAY).toBeLessThan(5000);
+    it('should keep the timer interval short enough for a smooth elapsed-time display', () => {
+        expect(UI_CONFIG.TIMER_INTERVAL).toBeLessThanOrEqual(1000);
     });
 });

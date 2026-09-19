@@ -6,6 +6,8 @@ import logger from '../utils/logger';
 import { BounceLoader } from 'react-spinners';
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import '../styles/dashboardPage.css';
+import type { PaginatedResponse } from '../types/domain';
+import { unwrapList } from '../types/domain';
 
 interface Area {
     _id: string;
@@ -55,15 +57,16 @@ const AdminDistrictManagementPage: React.FC = () => {
         scheduledAppointments: 0,
     });
     const [dashboardLoading, setDashboardLoading] = useState<boolean>(true);
+    const [dashboardError, setDashboardError] = useState<string | null>(null);
 
     const fetchAllDistricts = async (): Promise<void> => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axiosPrivate.get<{ data: District[]; pagination?: unknown } | District[]>('/api/district/all');
-            // Handle both paginated response { data: [...] } and legacy array response
-            const districtsData = Array.isArray(response.data) ? response.data : response.data.data;
-            setDistricts(districtsData);
+            const response = await axiosPrivate.get<PaginatedResponse<District> | District[]>('/api/district/all', {
+                params: { limit: 100, sortBy: 'priority', sortOrder: 'asc' },
+            });
+            setDistricts(unwrapList<District>(response.data));
         } catch (err) {
             logger.error('Error fetching all districts:', err);
             setError('Failed to fetch districts');
@@ -79,16 +82,7 @@ const AdminDistrictManagementPage: React.FC = () => {
             setDashboardLoading(false);
         } catch (err) {
             logger.error('Error fetching dashboard data:', err);
-            setDashboardData({
-                totalCities: 1,
-                totalAreas: 3,
-                totalDistricts: 8,
-                totalBuildings: 45,
-                totalFlats: 350,
-                completedInstallations: 89,
-                pendingInstallations: 261,
-                scheduledAppointments: 12,
-            });
+            setDashboardError('Could not load the network statistics.');
             setDashboardLoading(false);
         }
     };
@@ -110,9 +104,10 @@ const AdminDistrictManagementPage: React.FC = () => {
         setIsSaving(true);
 
         try {
-            await axiosPrivate.post('/api/district/priority', {
-                districts: items.map((district) => ({
+            await axiosPrivate.post('/api/district/reorder', {
+                districts: items.map((district, index) => ({
                     id: district._id,
+                    priority: index + 1,
                 })),
             });
         } catch (err) {
@@ -250,8 +245,9 @@ const AdminDistrictManagementPage: React.FC = () => {
 
     return (
         <div className="dashboard-container">
-            {!dashboardLoading && <ProcessFlowDiagram />}
+            {!dashboardLoading && !dashboardError && <ProcessFlowDiagram />}
             {dashboardLoading && <div className="dashboard-loading">Loading dashboard data...</div>}
+            {dashboardError && <div className="error-message">{dashboardError}</div>}
             <div className="district-management-section">
                 <div className="section-header">
                     <div className="header-content">

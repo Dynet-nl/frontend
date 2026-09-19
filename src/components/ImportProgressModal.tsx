@@ -1,18 +1,24 @@
-// Progress bar component for district import with real-time updates
+// Live progress for a district import: Server-Sent Events from the API, with polling as a
+// fallback when the event stream cannot be opened.
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../styles/importProgress.css';
 import logger from '../utils/logger';
+import axiosPrivate, { BASE_URL } from '../api/axios';
 
-interface ImportStats {
+export interface ImportStats {
     totalRows?: number;
     buildings?: number;
     flats?: number;
+    newBuildings?: number;
+    updatedBuildings?: number;
+    newFlats?: number;
+    updatedFlats?: number;
     processedBuildings?: number;
     errors?: number;
 }
 
-interface ProgressData {
+export interface ProgressData {
     stage: string;
     message: string;
     progress: number;
@@ -33,230 +39,178 @@ interface ImportProgressModalProps {
     onCancel?: () => void;
 }
 
+const INITIAL_PROGRESS: ProgressData = {
+    stage: 'initializing',
+    message: 'Preparing import...',
+    progress: 0,
+    currentStep: 0,
+    totalSteps: 10,
+    stats: {},
+    elapsed: 0,
+    completed: false,
+    failed: false,
+};
+
+const POLL_INTERVAL_MS = 1500;
+const IMPORT_TIMEOUT_MS = 10 * 60 * 1000;
+const COMPLETE_DELAY_MS = 1500;
+const FAIL_DELAY_MS = 3000;
+
+const STAGE_ICONS: Record<string, string> = {
+    connected: '🔗',
+    initializing: '🚀',
+    reading: '📖',
+    converting: '🔄',
+    creating_district: '🏗️',
+    processing_buildings: '🏢',
+    saving: '💾',
+    completed: '🎉',
+    failed: '❌',
+};
+
+const formatTime = (milliseconds: number): string => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    return minutes > 0 ? `${minutes}m ${seconds % 60}s` : `${seconds}s`;
+};
+
 const ImportProgressModal: React.FC<ImportProgressModalProps> = ({ importId, onComplete, onError, onCancel }) => {
-    const [progress, setProgress] = useState<ProgressData>({
-        stage: 'initializing',
-        message: 'Preparing import...',
-        progress: 0,
-        currentStep: 0,
-        totalSteps: 10,
-        stats: {},
-        elapsed: 0,
-        completed: false,
-        failed: false,
-    });
-
-    const [isVisible, setIsVisible] = useState<boolean>(true);
+    const [progress, setProgress] = useState<ProgressData>(INITIAL_PROGRESS);
     const [usePolling, setUsePolling] = useState<boolean>(false);
-    const eventSourceRef = useRef<EventSource | null>(null);
+    const [isVisible, setIsVisible] = useState<boolean>(true);
     const startTimeRef = useRef<number>(Date.now());
-    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const finishedRef = useRef<boolean>(false);
+    const eventSourceRef = useRef<EventSource | null>(null);
 
+    // Latest callbacks without re-subscribing the stream on every parent render.
+    const onCompleteRef = useRef(onComplete);
+    const onErrorRef = useRef(onError);
     useEffect(() => {
-        if (!importId) return;
+        onCompleteRef.current = onComplete;
+        onErrorRef.current = onError;
+    }, [onComplete, onError]);
 
-        logger.log('Connecting to import stream:', importId);
+    const applyUpdate = useCallback((data: Partial<ProgressData>): void => {
+        setProgress((prev) => {
+            const next: ProgressData = { ...prev, ...data, elapsed: Date.now() - startTimeRef.current };
+            if (!finishedRef.current && next.completed) {
+                finishedRef.current = true;
+                setTimeout(() => {
+                    setIsVisible(false);
+                    onCompleteRef.current?.(next);
+                }, COMPLETE_DELAY_MS);
+            } else if (!finishedRef.current && next.failed) {
+                finishedRef.current = true;
+                setTimeout(() => {
+                    setIsVisible(false);
+                    onErrorRef.current?.(next.error || 'Unknown error');
+                }, FAIL_DELAY_MS);
+            }
+            return next;
+        });
+    }, []);
 
-        // Use relative URL to match the current origin
-        const progressUrl = `/api/district/import-progress/${importId}`;
+    // Server-Sent Events (cookies are sent because withCredentials is set)
+    useEffect(() => {
+        if (!importId || usePolling) return;
 
-        logger.log('Using SSE URL:', progressUrl);
-        const eventSource = new EventSource(progressUrl);
+        const url = `${BASE_URL}/api/district/import-progress/${importId}`;
+        logger.log('Connecting to import stream:', url);
+        const eventSource = new EventSource(url, { withCredentials: true });
         eventSourceRef.current = eventSource;
 
         eventSource.onmessage = (event: MessageEvent) => {
             try {
-                const data = JSON.parse(event.data) as Partial<ProgressData>;
-                logger.log('Progress update:', data);
-
-                setProgress((prevProgress) => ({
-                    ...prevProgress,
-                    ...data,
-                    elapsed: Date.now() - startTimeRef.current,
-                }));
-
-                // Handle completion
-                if (data.completed) {
-                    logger.log('Import completed successfully');
-                    setTimeout(() => {
-                        setIsVisible(false);
-                        onComplete && onComplete({ ...progress, ...data } as ProgressData);
-                    }, 2000);
-                }
-
-                // Handle failure
-                if (data.failed) {
-                    logger.error('Import failed:', data.error);
-                    setTimeout(() => {
-                        setIsVisible(false);
-                        onError && onError(data.error || 'Unknown error');
-                    }, 3000);
-                }
+                applyUpdate(JSON.parse(event.data) as Partial<ProgressData>);
             } catch (error) {
                 logger.error('Error parsing progress data:', error);
             }
         };
 
-        eventSource.onopen = () => {
-            logger.log('EventSource connected successfully');
-        };
-
         eventSource.onerror = () => {
-            logger.error('EventSource error');
-
-            if (eventSource.readyState === EventSource.CONNECTING) {
-                logger.warn('Failed to connect - still trying...');
-            } else if (eventSource.readyState === EventSource.CLOSED) {
-                logger.warn('Connection closed by server - switching to polling');
+            if (finishedRef.current) {
+                eventSource.close();
+                return;
+            }
+            if (eventSource.readyState === EventSource.CLOSED) {
+                logger.warn('Progress stream closed - switching to polling');
                 eventSource.close();
                 setUsePolling(true);
             }
         };
 
-        // Add timeout fallback in case connection never works
-        timeoutRef.current = setTimeout(() => {
-            logger.warn('Import timeout reached (10 minutes)');
-            setProgress((prev) => ({
-                ...prev,
-                failed: true,
-                message: 'Import timed out - please check backend logs',
-            }));
-
-            setTimeout(() => {
-                setIsVisible(false);
-                onError && onError('Import timed out');
-            }, 3000);
-        }, 10 * 60 * 1000); // 10 minutes
-
         return () => {
-            if (eventSource) {
-                eventSource.close();
-            }
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            if (pollingRef.current) {
-                clearInterval(pollingRef.current);
-            }
+            eventSource.close();
         };
-    }, [importId, onComplete, onError]);
+    }, [importId, usePolling, applyUpdate]);
 
-    // Polling fallback when SSE fails
+    // Polling fallback
     useEffect(() => {
         if (!usePolling || !importId) return;
 
-        logger.log('Starting polling fallback for:', importId);
-
-        const pollProgress = async (): Promise<void> => {
+        let cancelled = false;
+        const poll = async (): Promise<void> => {
             try {
-                const response = await fetch(`/api/district/import-status/${importId}`);
-                if (response.ok) {
-                    const data = (await response.json()) as Partial<ProgressData>;
-                    logger.log('Polled update:', data);
-
-                    setProgress((prevProgress) => ({
-                        ...prevProgress,
-                        ...data,
-                        elapsed: Date.now() - startTimeRef.current,
-                    }));
-
-                    // Handle completion
-                    if (data.completed) {
-                        logger.log('Import completed via polling');
-                        if (pollingRef.current) clearInterval(pollingRef.current);
-                        setTimeout(() => {
-                            setIsVisible(false);
-                            onComplete && onComplete({ ...progress, ...data } as ProgressData);
-                        }, 2000);
-                    }
-
-                    // Handle failure
-                    if (data.failed) {
-                        logger.error('Import failed via polling:', data.error);
-                        if (pollingRef.current) clearInterval(pollingRef.current);
-                        setTimeout(() => {
-                            setIsVisible(false);
-                            onError && onError(data.error || 'Unknown error');
-                        }, 3000);
-                    }
-                } else if (response.status === 404) {
-                    // Import not found - might be completed
-                    logger.log('Import not found - assuming completed');
-                    if (pollingRef.current) clearInterval(pollingRef.current);
-                    setProgress((prev) => ({ ...prev, completed: true, progress: 100 }));
-                    setTimeout(() => {
-                        setIsVisible(false);
-                        onComplete &&
-                            onComplete({
-                                ...progress,
-                                completed: true,
-                                progress: 100,
-                                message: 'Import completed',
-                            });
-                    }, 2000);
-                }
+                const response = await axiosPrivate.get<Partial<ProgressData>>(`/api/district/import-status/${importId}`);
+                if (!cancelled) applyUpdate(response.data);
             } catch (error) {
-                logger.error('Polling error:', error);
+                const status = (error as { response?: { status?: number } }).response?.status;
+                if (status === 404 && !cancelled) {
+                    // Finished imports are only kept for a minute; treat "gone" as done.
+                    applyUpdate({ completed: true, progress: 100, stage: 'completed', message: 'Import completed' });
+                } else {
+                    logger.error('Polling error:', error);
+                }
             }
         };
 
-        pollingRef.current = setInterval(pollProgress, 1000); // Poll every second
-        pollProgress(); // Initial poll
-
+        poll();
+        const interval = setInterval(poll, POLL_INTERVAL_MS);
         return () => {
-            if (pollingRef.current) {
-                clearInterval(pollingRef.current);
-            }
+            cancelled = true;
+            clearInterval(interval);
         };
-    }, [usePolling, importId, onComplete, onError, progress]);
+    }, [usePolling, importId, applyUpdate]);
+
+    // Hard timeout
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (!finishedRef.current) {
+                applyUpdate({ failed: true, error: 'Import timed out after 10 minutes', message: 'Import timed out' });
+            }
+        }, IMPORT_TIMEOUT_MS);
+        return () => clearTimeout(timeout);
+    }, [applyUpdate]);
 
     const handleCancel = (): void => {
-        if (eventSourceRef.current) {
-            eventSourceRef.current.close();
-        }
+        eventSourceRef.current?.close();
         setIsVisible(false);
-        onCancel && onCancel();
-    };
-
-    const formatTime = (milliseconds: number): string => {
-        const seconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(seconds / 60);
-        if (minutes > 0) {
-            return `${minutes}m ${seconds % 60}s`;
-        }
-        return `${seconds}s`;
-    };
-
-    const getStageIcon = (stage: string): string => {
-        const icons: Record<string, string> = {
-            connected: '🔗',
-            initializing: '🚀',
-            validating: '✅',
-            reading: '📖',
-            converting: '🔄',
-            creating_district: '🏗️',
-            processing_buildings: '🏢',
-            validating_data: '🔍',
-            saving: '💾',
-            completed: '🎉',
-            failed: '❌',
-        };
-        return icons[stage] || '⚙️';
+        onCancel?.();
     };
 
     if (!isVisible) return null;
 
+    const stageIcon = STAGE_ICONS[progress.stage] || '⚙️';
+    const stats = progress.stats || {};
+    const statItems: Array<{ icon: string; label: string; value?: number; error?: boolean }> = [
+        { icon: '📊', label: 'Rows', value: stats.totalRows },
+        { icon: '🏢', label: 'Buildings', value: stats.buildings },
+        { icon: '🏠', label: 'Apartments', value: stats.flats },
+        { icon: '✨', label: 'New apartments', value: stats.newFlats },
+        { icon: '🔁', label: 'Updated apartments', value: stats.updatedFlats },
+        { icon: '❌', label: 'Errors', value: stats.errors, error: true },
+    ].filter((item) => item.value !== undefined && item.value > 0);
+
     return (
         <div className="progress-modal-overlay">
-            <div className="progress-modal">
+            <div className="progress-modal" role="dialog" aria-modal="true" aria-label="District import progress">
                 <div className="progress-header">
                     <h3>
-                        <span className="progress-icon">{getStageIcon(progress.stage)}</span>
+                        <span className="progress-icon">{stageIcon}</span>
                         District Import Progress
                     </h3>
                     {!progress.completed && !progress.failed && (
-                        <button className="cancel-btn" onClick={handleCancel} title="Cancel import">
+                        <button className="cancel-btn" onClick={handleCancel} title="Close (the import keeps running on the server)">
                             ✕
                         </button>
                     )}
@@ -268,13 +222,13 @@ const ImportProgressModal: React.FC<ImportProgressModalProps> = ({ importId, onC
                             <div
                                 className={`progress-fill ${progress.failed ? 'error' : progress.completed ? 'success' : ''}`}
                                 style={{ width: `${progress.progress || 0}%` }}
-                            ></div>
+                            />
                         </div>
                         <div className="progress-percentage">{Math.round(progress.progress || 0)}%</div>
                     </div>
 
                     <div className="progress-message">
-                        <span className="stage-icon">{getStageIcon(progress.stage)}</span>
+                        <span className="stage-icon">{stageIcon}</span>
                         <span className="message-text">{progress.message}</span>
                     </div>
 
@@ -283,55 +237,26 @@ const ImportProgressModal: React.FC<ImportProgressModalProps> = ({ importId, onC
                             <span>Stage:</span>
                             <span className="detail-value">
                                 {progress.stage?.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                                {progress.totalSteps && (
-                                    <span className="step-indicator">
-                                        ({progress.currentStep}/{progress.totalSteps})
-                                    </span>
-                                )}
                             </span>
                         </div>
-
                         {progress.elapsed > 0 && (
                             <div className="detail-row">
                                 <span>Elapsed:</span>
                                 <span className="detail-value">{formatTime(progress.elapsed)}</span>
                             </div>
                         )}
-
-                        {progress.stats && Object.keys(progress.stats).length > 0 && (
+                        {statItems.length > 0 && (
                             <div className="progress-stats">
                                 <h4>Import Statistics:</h4>
                                 <div className="stats-grid">
-                                    {progress.stats.totalRows && progress.stats.totalRows > 0 && (
-                                        <div className="stat-item">
-                                            <span className="stat-icon">📊</span>
-                                            <span>Total Rows: {progress.stats.totalRows}</span>
+                                    {statItems.map((item) => (
+                                        <div key={item.label} className={`stat-item ${item.error ? 'error' : ''}`}>
+                                            <span className="stat-icon">{item.icon}</span>
+                                            <span>
+                                                {item.label}: {item.value}
+                                            </span>
                                         </div>
-                                    )}
-                                    {progress.stats.buildings && progress.stats.buildings > 0 && (
-                                        <div className="stat-item">
-                                            <span className="stat-icon">🏢</span>
-                                            <span>Buildings: {progress.stats.buildings}</span>
-                                        </div>
-                                    )}
-                                    {progress.stats.flats && progress.stats.flats > 0 && (
-                                        <div className="stat-item">
-                                            <span className="stat-icon">🏠</span>
-                                            <span>Apartments: {progress.stats.flats}</span>
-                                        </div>
-                                    )}
-                                    {progress.stats.processedBuildings && progress.stats.processedBuildings > 0 && (
-                                        <div className="stat-item">
-                                            <span className="stat-icon">✅</span>
-                                            <span>Processed: {progress.stats.processedBuildings}</span>
-                                        </div>
-                                    )}
-                                    {progress.stats.errors && progress.stats.errors > 0 && (
-                                        <div className="stat-item error">
-                                            <span className="stat-icon">❌</span>
-                                            <span>Errors: {progress.stats.errors}</span>
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
                             </div>
                         )}

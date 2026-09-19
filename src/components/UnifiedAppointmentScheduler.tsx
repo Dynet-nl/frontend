@@ -1,6 +1,6 @@
 // Comprehensive appointment scheduling component handling both technical and HAS planning appointments.
 
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, ChangeEvent, FormEvent } from 'react';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { AppointmentList, AppointmentForm } from './appointment';
 import '../styles/unifiedAppointmentScheduler.css';
@@ -119,28 +119,26 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
         return date.toISOString().split('T')[0];
     };
 
-    const fetchAvailablePersonnel = async (): Promise<void> => {
+    const fetchAvailablePersonnel = useCallback(async (): Promise<void> => {
         try {
-            const response = await axiosPrivate.get<{ data: Personnel[]; pagination?: unknown } | Personnel[]>('/api/users');
+            const response = await axiosPrivate.get<{ data: Personnel[]; pagination?: unknown } | Personnel[]>('/api/users', { params: { limit: 500 } });
             // Handle both paginated response { data: [...] } and legacy array response
             const users = Array.isArray(response.data) ? response.data : response.data.data;
-            let filteredUsers: Personnel[] = [];
-            if (isHASScheduling) {
-                filteredUsers = users.filter(user =>
-                    user.roles && typeof user.roles === 'object' &&
-                    user.roles.HASMonteur === 2023
-                );
-            } else {
-                filteredUsers = users.filter(user =>
-                    user.roles && typeof user.roles === 'object' &&
-                    user.roles.TechnischeSchouwer === 8687
-                );
-            }
+            const filteredUsers = users.filter(user =>
+                user.roles && typeof user.roles === 'object' &&
+                (isHASScheduling ? user.roles.HASMonteur === 2023 : user.roles.TechnischeSchouwer === 8687)
+            );
             setAvailablePersonnel(filteredUsers);
         } catch (error) {
             logger.error('Error fetching personnel:', error);
+            showWarning('Could not load the list of available personnel.');
         }
-    };
+    }, [axiosPrivate, isHASScheduling, showWarning]);
+
+    // Personnel only depends on the schedule type, not on the apartment selection.
+    useEffect(() => {
+        fetchAvailablePersonnel();
+    }, [fetchAvailablePersonnel]);
 
     const loadExistingAppointments = (): void => {
         const appointments: Record<string, FlatAppointment> = {};
@@ -196,9 +194,10 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
         }
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Seed selection + form from the apartments passed in. loadExistingAppointments /
+    // loadSingleApartmentData are plain functions of `apartments` and `isHASScheduling`,
+    // which are already in the dependency list.
     useEffect(() => {
-        fetchAvailablePersonnel();
         loadExistingAppointments();
         if (isSingleApartment) {
             setSelectedApartments([apartments[0]._id]);
@@ -233,6 +232,7 @@ const UnifiedAppointmentScheduler: React.FC<UnifiedAppointmentSchedulerProps> = 
                 }
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [apartments, scheduleType, preselectedApartments, isHASScheduling]);
 
     const selectAll = (): void => {

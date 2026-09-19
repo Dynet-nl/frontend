@@ -13,6 +13,8 @@ import { fetchUserColors, getUserColor, darkenColor } from '../utils/userColors'
 import { ConfirmModal } from '../components/ui';
 import { useNotification } from '../context/NotificationProvider';
 import logger from '../utils/logger';
+import useAuth from '../hooks/useAuth';
+import { ROLES } from '../utils/constants';
 
 interface CalendarEventResource {
     address: string;
@@ -90,6 +92,8 @@ interface PaginatedResponse<T> {
     };
 }
 
+const APPOINTMENT_PAGE_SIZE = 1000;
+
 interface AgendaCalendarPageProps {
     calendarType: 'HAS' | 'TECHNICAL';
 }
@@ -157,7 +161,9 @@ const AgendaCalendarPage: React.FC<AgendaCalendarPageProps> = ({ calendarType })
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
     const { showError } = useNotification();
+    const { auth } = useAuth();
     const config = CONFIG[calendarType];
+    const isAdmin = !!auth?.roles?.includes(ROLES.ADMIN);
 
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [originalEvents, setOriginalEvents] = useState<CalendarEvent[]>([]);
@@ -172,7 +178,7 @@ const AgendaCalendarPage: React.FC<AgendaCalendarPageProps> = ({ calendarType })
 
     const fetchPersonnel = useCallback(async (): Promise<void> => {
         try {
-            const response = await axiosPrivate.get<PaginatedResponse<PersonnelUser> | PersonnelUser[]>('/api/users');
+            const response = await axiosPrivate.get<PaginatedResponse<PersonnelUser> | PersonnelUser[]>('/api/users', { params: { limit: 500 } });
             const users = Array.isArray(response.data) ? response.data : response.data.data;
             const filtered = users.filter((user) => {
                 if (!user.roles || typeof user.roles !== 'object') return false;
@@ -248,7 +254,7 @@ const AgendaCalendarPage: React.FC<AgendaCalendarPageProps> = ({ calendarType })
                         personName: flat.technischePlanning?.technischeSchouwerName,
                         resource: {
                             address: `${flat.adres} ${flat.huisNummer}${flat.toevoeging || ''}`,
-                            phone: flat.technischePlanning?.telephone || 'Not provided',
+                            phone: flat.technischePlanning?.telephone || undefined,
                             notes: flat.technischePlanning?.additionalNotes || 'No notes',
                             flatId: flat._id,
                             complexNaam: flat.complexNaam || 'N/A',
@@ -262,7 +268,7 @@ const AgendaCalendarPage: React.FC<AgendaCalendarPageProps> = ({ calendarType })
         try {
             setLoading(true);
             const response = await axiosPrivate.get(config.endpoint, {
-                params: { limit: 500 },
+                params: { limit: APPOINTMENT_PAGE_SIZE, sortBy: 'appointmentBooked.date', sortOrder: 'asc' },
             });
             const calendarEvents = parseAppointments(response.data);
             setOriginalEvents(calendarEvents);
@@ -313,7 +319,9 @@ const AgendaCalendarPage: React.FC<AgendaCalendarPageProps> = ({ calendarType })
     const handleViewApartment = (): void => {
         const event = eventDetailsModal.event;
         if (event?.resource?.flatId) {
-            navigate(`${config.apartmentRoute}/${event.resource.flatId}`);
+            // Admins have their own apartment route; other roles use the calendar's route.
+            const route = isAdmin ? '/admin-apartment' : config.apartmentRoute;
+            navigate(`${route}/${event.resource.flatId}`);
         }
         setEventDetailsModal({ isOpen: false, event: null });
     };
@@ -496,7 +504,7 @@ const AgendaCalendarPage: React.FC<AgendaCalendarPageProps> = ({ calendarType })
                                     - Currently showing: {selectedPerson} ({events.length} appointments)
                                     {events.length > 0 && (
                                         <span style={{ marginLeft: '8px', color: '#1976d2' }}>
-                                            Auto-navigated to {currentDisplayMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                            Auto-navigated to {currentDisplayMonth.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })}
                                         </span>
                                     )}
                                 </span>

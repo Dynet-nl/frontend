@@ -5,7 +5,8 @@ import { useParams } from 'react-router-dom';
 import logger from '../utils/logger';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { BounceLoader } from 'react-spinners';
-import SimpleProgressModal from '../components/SimpleProgressModal';
+import ImportProgressModal, { ProgressData } from '../components/ImportProgressModal';
+import { useNotification } from '../context/NotificationProvider';
 import '../styles/districtManagement.css';
 
 interface ValidationResult {
@@ -15,11 +16,10 @@ interface ValidationResult {
 }
 
 interface BuildingPreview {
-    buildingIdentifier: string;
+    keyName: string;
     address: string;
     houseNumber: string;
-    flatCount: number;
-    sampleFlats: Array<{ zoeksleutel: string }>;
+    flats: number;
 }
 
 interface DataPreviewStats {
@@ -46,20 +46,18 @@ interface DataPreview {
 
 interface Conflict {
     address: string;
+    zoeksleutel?: string;
     changedFields: string[];
+    conflictReason?: string;
 }
 
 interface ImportHistoryItem {
-    districtName: string;
-    operation: string;
-    timestamp: string;
-    status: string;
-}
-
-interface ImportProgress {
-    message: string;
-    progress: number;
-    stage: string;
+    _id: string;
+    name: string;
+    createdAt?: string;
+    updatedAt?: string;
+    area?: { name?: string };
+    stats?: { buildings?: number; flats?: number };
 }
 
 const validateExcelFile = (file: File): ValidationResult => {
@@ -90,16 +88,13 @@ const DistrictManagementPage: React.FC = () => {
     const [districtName, setDistrictName] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [validationResults, setValidationResults] = useState<ValidationResult | null>(null);
-    const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
     const [importHistory, setImportHistory] = useState<ImportHistoryItem[]>([]);
     const [dataPreview, setDataPreview] = useState<DataPreview | null>(null);
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
     const [operationType, setOperationType] = useState<'create' | 'update'>('create');
 
-    // Simple progress states
-    const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
-    const [progressPercent, setProgressPercent] = useState<number>(0);
-    const [progressMessage, setProgressMessage] = useState<string>('Starting import...');
+    const [activeImportId, setActiveImportId] = useState<string | null>(null);
+    const { showSuccess, showError } = useNotification();
 
     const fetchImportHistory = useCallback(async (): Promise<void> => {
         try {
@@ -148,7 +143,7 @@ const DistrictManagementPage: React.FC = () => {
     const checkForConflicts = async (previewData: DataPreview): Promise<void> => {
         try {
             const response = await axiosPrivate.post<{ conflicts: Conflict[] }>('/api/district/check-conflicts', {
-                data: previewData,
+                flats: previewData.preview || [],
                 areaId,
             });
             setConflicts(response.data.conflicts || []);
@@ -172,79 +167,75 @@ const DistrictManagementPage: React.FC = () => {
         }
     };
 
+    const resetForm = useCallback((): void => {
+        setSelectedFile(null);
+        setDistrictName('');
+        setValidationResults(null);
+        setDataPreview(null);
+        setConflicts([]);
+    }, []);
+
     const handleImport = async (): Promise<void> => {
         if (!selectedFile || !validationResults?.isValid) {
             return;
         }
         if (operationType === 'create' && !districtName.trim()) {
-            alert('Please enter a district name');
+            showError('Please enter a district name');
             return;
         }
 
-        // Show progress modal and simulate progress
-        setShowProgressModal(true);
-        setProgressPercent(0);
-        setProgressMessage('Starting import...');
         setIsProcessing(true);
-
         try {
-            // Simulate progress steps
-            const progressSteps = [
-                { percent: 10, message: 'Uploading file...' },
-                { percent: 30, message: 'Validating data...' },
-                { percent: 50, message: 'Processing buildings...' },
-                { percent: 80, message: 'Saving to database...' },
-                { percent: 100, message: 'Import completed!' },
-            ];
-
-            // Show progress updates
-            for (let i = 0; i < progressSteps.length - 1; i++) {
-                setProgressPercent(progressSteps[i].percent);
-                setProgressMessage(progressSteps[i].message);
-                await new Promise((resolve) => setTimeout(resolve, 500));
-            }
-
             const formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('areaId', areaId || '');
             formData.append('operationType', operationType);
-            if (operationType === 'create') {
-                formData.append('currentDistrict', districtName);
-            }
+            formData.append('currentDistrict', districtName);
 
-            logger.log('🚀 [Import] Starting enhanced import with progress tracking...');
-
-            const response = await axiosPrivate.post('/api/district/import-enhanced', formData, {
+            // The API validates the spreadsheet, starts the import in the background and
+            // answers 202 with an importId; progress arrives through ImportProgressModal.
+            const response = await axiosPrivate.post<{ importId: string }>('/api/district/import-enhanced', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-
-            // Final progress step
-            setProgressPercent(100);
-            setProgressMessage('Import completed successfully!');
-
-            logger.log('✅ [Import] Import completed:', response.data);
-
-            // Reset form state after delay
-            setTimeout(() => {
-                setSelectedFile(null);
-                setDistrictName('');
-                setValidationResults(null);
-                setDataPreview(null);
-                setShowProgressModal(false);
-                setIsProcessing(false);
-                fetchImportHistory(); // Refresh history
-            }, 2000);
+            setActiveImportId(response.data.importId);
         } catch (error) {
-            const err = error as { response?: { data?: { error?: string } }; message?: string };
-            logger.error('❌ [Import] Error during import:', error);
-            setProgressMessage(`Import failed: ${err.response?.data?.error || err.message}`);
-
-            setTimeout(() => {
-                setShowProgressModal(false);
-                setIsProcessing(false);
-            }, 3000);
+            const err = error as { response?: { data?: { error?: string; errors?: string[]; message?: string } }; message?: string };
+            logger.error('Error starting import:', error);
+            const details = err.response?.data?.errors?.join(' ') || err.response?.data?.error || err.response?.data?.message || err.message;
+            showError(`Import could not start: ${details}`);
+            setIsProcessing(false);
         }
     };
+
+    const handleImportComplete = useCallback(
+        (data: ProgressData): void => {
+            setActiveImportId(null);
+            setIsProcessing(false);
+            resetForm();
+            fetchImportHistory();
+            const stats = data.stats || {};
+            showSuccess(
+                `Import completed: ${stats.newFlats ?? 0} new apartments, ${stats.updatedFlats ?? 0} updated, ${stats.newBuildings ?? 0} new buildings`
+            );
+        },
+        [fetchImportHistory, resetForm, showSuccess]
+    );
+
+    const handleImportError = useCallback(
+        (message: string): void => {
+            setActiveImportId(null);
+            setIsProcessing(false);
+            showError(`Import failed: ${message}`);
+        },
+        [showError]
+    );
+
+    const handleImportCancel = useCallback((): void => {
+        // The server keeps running the import; only the progress view closes.
+        setActiveImportId(null);
+        setIsProcessing(false);
+        fetchImportHistory();
+    }, [fetchImportHistory]);
 
     const renderValidationResults = (): React.ReactNode => {
         if (!validationResults) return null;
@@ -282,8 +273,6 @@ const DistrictManagementPage: React.FC = () => {
     const renderDataPreview = (): React.ReactNode => {
         if (!dataPreview) return null;
 
-        logger.log('🔍 Rendering preview with data:', dataPreview);
-
         // Extract data from backend response structure
         const stats = dataPreview.stats || {};
         const preview = dataPreview.preview || [];
@@ -293,21 +282,6 @@ const DistrictManagementPage: React.FC = () => {
         const totalBuildings = stats.totalBuildings || 0;
         const totalFlats = stats.totalFlats || stats.validRows || 0;
         const buildingsWithMultiple = stats.buildingsWithMultipleFlats || 0;
-
-        logger.log('📊 [Frontend] Accurate building statistics from backend:');
-        logger.log(`🏢 Total buildings: ${totalBuildings}`);
-        logger.log(`🏠 Total flats: ${totalFlats}`);
-        logger.log(`🏢+ Buildings with multiple flats: ${buildingsWithMultiple}`);
-        logger.log(`📊 Average flats per building: ${totalBuildings > 0 ? Math.round(totalFlats / totalBuildings) : 0}`);
-
-        if (buildingPreview.length > 0) {
-            logger.log(
-                '🏢 Sample buildings:',
-                buildingPreview
-                    .slice(0, 5)
-                    .map((b) => `${b.buildingIdentifier} → ${b.address} ${b.houseNumber} (${b.flatCount} flats)`)
-            );
-        }
 
         // Get available columns from the first preview item
         const columns =
@@ -334,27 +308,19 @@ const DistrictManagementPage: React.FC = () => {
                                     <th>Building ID</th>
                                     <th>Address</th>
                                     <th>Apartments</th>
-                                    <th>Sample Units</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {buildingPreview.slice(0, 5).map((building, index) => (
                                     <tr key={index}>
                                         <td>
-                                            <code>{building.buildingIdentifier}</code>
+                                            <code>{building.keyName}</code>
                                         </td>
                                         <td>
                                             {building.address} {building.houseNumber}
                                         </td>
                                         <td>
-                                            <strong>{building.flatCount}</strong>
-                                        </td>
-                                        <td>
-                                            {building.sampleFlats.map((flat, i) => (
-                                                <div key={i} style={{ fontSize: '0.9em', color: '#666' }}>
-                                                    {flat.zoeksleutel}
-                                                </div>
-                                            ))}
+                                            <strong>{building.flats}</strong>
                                         </td>
                                     </tr>
                                 ))}
@@ -410,37 +376,15 @@ const DistrictManagementPage: React.FC = () => {
                 <div className="conflicts-list">
                     {conflicts.map((conflict, index) => (
                         <div key={index} className="conflict-item">
-                            <strong>{conflict.address}</strong>
-                            <span>Changes: {conflict.changedFields.join(', ')}</span>
+                            <strong>{conflict.address || conflict.zoeksleutel}</strong>
+                            <span>
+                                {conflict.changedFields.length > 0
+                                    ? `Changes: ${conflict.changedFields.join(', ')}`
+                                    : 'No changes (identical data)'}
+                            </span>
                         </div>
                     ))}
                 </div>
-            </div>
-        );
-    };
-
-    const renderImportProgress = (): React.ReactNode => {
-        if (!importProgress) return null;
-        return (
-            <div className="import-progress">
-                <div className="progress-header">
-                    <h3>{importProgress.message}</h3>
-                    <span>{importProgress.progress}%</span>
-                </div>
-                <div className="progress-bar">
-                    <div
-                        className="progress-fill"
-                        style={{
-                            width: `${importProgress.progress}%`,
-                            backgroundColor: importProgress.stage === 'error' ? '#dc3545' : '#28a745',
-                        }}
-                    />
-                </div>
-                {importProgress.stage === 'error' && (
-                    <div className="progress-error">
-                        <p>Please check the file format and try again.</p>
-                    </div>
-                )}
             </div>
         );
     };
@@ -451,14 +395,15 @@ const DistrictManagementPage: React.FC = () => {
             <div className="import-history">
                 <h3>📋 Recent Imports</h3>
                 <div className="history-list">
-                    {importHistory.slice(0, 5).map((item, index) => (
-                        <div key={index} className="history-item">
+                    {importHistory.slice(0, 5).map((item) => (
+                        <div key={item._id} className="history-item">
                             <div className="history-info">
-                                <strong>{item.districtName}</strong>
-                                <span>{item.operation}</span>
-                                <span>{new Date(item.timestamp).toLocaleString()}</span>
+                                <strong>{item.name}</strong>
+                                <span>
+                                    {item.stats?.buildings ?? 0} buildings · {item.stats?.flats ?? 0} apartments
+                                </span>
+                                {item.updatedAt && <span>{new Date(item.updatedAt).toLocaleString('nl-NL')}</span>}
                             </div>
-                            <div className={`history-status ${item.status}`}>{item.status}</div>
                         </div>
                     ))}
                 </div>
@@ -478,34 +423,28 @@ const DistrictManagementPage: React.FC = () => {
                 </button>
             </div>
 
-            {/* Simple Progress Modal */}
-            <SimpleProgressModal
-                isVisible={showProgressModal}
-                progress={progressPercent}
-                message={progressMessage}
-                onClose={() => {
-                    if (progressPercent >= 100 || progressMessage.includes('failed')) {
-                        setShowProgressModal(false);
-                        setIsProcessing(false);
-                    }
-                }}
-            />
+            {activeImportId && (
+                <ImportProgressModal
+                    importId={activeImportId}
+                    onComplete={handleImportComplete}
+                    onError={handleImportError}
+                    onCancel={handleImportCancel}
+                />
+            )}
             <div className="main-content">
                 <div className="upload-section">
                     <h2>{operationType === 'create' ? '📁 Create New District' : '🔄 Update District Data'}</h2>
-                    {operationType === 'create' && (
-                        <div className="district-name-input">
-                            <label htmlFor="districtName">District Name:</label>
-                            <input
-                                id="districtName"
-                                type="text"
-                                value={districtName}
-                                onChange={(e) => setDistrictName(e.target.value)}
-                                placeholder="Enter district name..."
-                                disabled={isProcessing}
-                            />
-                        </div>
-                    )}
+                    <div className="district-name-input">
+                        <label htmlFor="districtName">District Name:</label>
+                        <input
+                            id="districtName"
+                            type="text"
+                            value={districtName}
+                            onChange={(e) => setDistrictName(e.target.value)}
+                            placeholder={operationType === 'create' ? 'Name for the new district...' : 'Exact name of the district to update...'}
+                            disabled={isProcessing}
+                        />
+                    </div>
                     <div className="file-input-section">
                         <label htmlFor="fileInput">Select Excel File:</label>
                         <input
@@ -528,27 +467,16 @@ const DistrictManagementPage: React.FC = () => {
                     <div className="action-buttons">
                         <button
                             onClick={handleImport}
-                            disabled={!validationResults?.isValid || isProcessing || (operationType === 'create' && !districtName.trim())}
+                            disabled={!validationResults?.isValid || isProcessing || !districtName.trim()}
                             className="import-button"
                         >
                             {isProcessing && <BounceLoader size={16} color="#fff" />}
                             {operationType === 'create' ? 'Create District' : 'Update District'}
                         </button>
-                        <button
-                            onClick={() => {
-                                setSelectedFile(null);
-                                setValidationResults(null);
-                                setDataPreview(null);
-                                setConflicts([]);
-                                setDistrictName('');
-                            }}
-                            disabled={isProcessing}
-                            className="reset-button"
-                        >
+                        <button onClick={resetForm} disabled={isProcessing} className="reset-button">
                             Reset
                         </button>
                     </div>
-                    {renderImportProgress()}
                 </div>
                 <div className="sidebar">
                     {renderImportHistory()}

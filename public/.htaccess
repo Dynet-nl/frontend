@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /tool/
+
+# If the request is for an existing file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Otherwise rewrite to index.html so React Router handles it
+RewriteRule ^ /tool/index.html [QSA,L]

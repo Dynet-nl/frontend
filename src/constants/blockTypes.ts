@@ -1,55 +1,59 @@
-// Block type configurations for building layouts
+// Block type catalogue for building layouts: label/description per shape plus a read-only
+// preview component (the picker) bound to that shape.
 
-import LeftWing from '../mockupSchemas/LeftWing';
-import RightWing from '../mockupSchemas/RightWing';
-import NoStairs from '../mockupSchemas/NoStairs';
-import LeftWingApart from '../mockupSchemas/LeftWingApart';
-import RightWingApart from '../mockupSchemas/RightWingApart';
-import LeftWingNoBG from '../mockupSchemas/LeftWingNoBG';
-import RightWingNoBG from '../mockupSchemas/RightWingNoBG';
-import LeftWingFlat from '../mockupSchemas/LeftWingFlat';
-import RightWingFlat from '../mockupSchemas/RightWingFlat';
-import DoubleNoBGsWing from '../mockupSchemas/DoubleNoBGsWing';
-import DoubleNoLeftBGWing from '../mockupSchemas/DoubleNoLeftBGWing';
-import DoubleNoRightBGWing from '../mockupSchemas/DoubleNoRightBGWing';
+import { mockupFor } from '../components/schema/BuildingSchema';
+import { ShapeKey } from '../components/schema/shapes';
 import { BlockTypeCategory, BlockTypeInfo } from '../types/building';
+
+const type = (value: ShapeKey, label: string, description: string, icon: string): BlockTypeInfo => ({
+    value,
+    label,
+    description,
+    icon,
+    Component: mockupFor(value),
+});
 
 export const BLOCK_TYPE_CATEGORIES: BlockTypeCategory[] = [
     {
         name: 'Standard Wings',
+        description: 'Building sections with stairwell on one side',
         types: [
-            { value: 'leftWing', label: 'Left Wing', Component: LeftWing, icon: '⬅️' },
-            { value: 'rightWing', label: 'Right Wing', Component: RightWing, icon: '➡️' },
-            { value: 'noStairs', label: 'No Stairs', Component: NoStairs, icon: '🏢' },
+            type('leftWing', 'Left Wing', 'Stairs on the left, flats on the right', '⬅️'),
+            type('rightWing', 'Right Wing', 'Stairs on the right, flats on the left', '➡️'),
+            type('noStairs', 'No Stairs', 'Flats stacked vertically without a stairwell', '🏢'),
         ],
     },
     {
         name: 'Apartment Blocks',
+        description: 'Separate apartment-style units per floor',
         types: [
-            { value: 'leftWingApart', label: 'Left Apart', Component: LeftWingApart, icon: '🏠' },
-            { value: 'rightWingApart', label: 'Right Apart', Component: RightWingApart, icon: '🏠' },
+            type('leftWingApart', 'Left Apart', 'Left-side apartment block', '🏠'),
+            type('rightWingApart', 'Right Apart', 'Right-side apartment block', '🏠'),
         ],
     },
     {
-        name: 'No Background',
+        name: 'No Ground Floor',
+        description: 'Wings where the ground floor (BG) is excluded',
         types: [
-            { value: 'leftWingNoBG', label: 'Left No BG', Component: LeftWingNoBG, icon: '◀️' },
-            { value: 'rightWingNoBG', label: 'Right No BG', Component: RightWingNoBG, icon: '▶️' },
+            type('leftWingNoBG', 'Left No BG', 'Left wing, no ground floor unit', '◀️'),
+            type('rightWingNoBG', 'Right No BG', 'Right wing, no ground floor unit', '▶️'),
         ],
     },
     {
         name: 'Flat Layouts',
+        description: 'Straight/flat cable routing without angled connections',
         types: [
-            { value: 'leftWingFlat', label: 'Left Flat', Component: LeftWingFlat, icon: '📐' },
-            { value: 'rightWingFlat', label: 'Right Flat', Component: RightWingFlat, icon: '📐' },
+            type('leftWingFlat', 'Left Flat', 'Left wing with straight cable path', '📐'),
+            type('rightWingFlat', 'Right Flat', 'Right wing with straight cable path', '📐'),
         ],
     },
     {
         name: 'Double Wings',
+        description: 'Two wings sharing a stairwell',
         types: [
-            { value: 'doubleNoBGsWing', label: 'Double No BGs', Component: DoubleNoBGsWing, icon: '🔄' },
-            { value: 'doubleNoLeftBGWing', label: 'Double No Left', Component: DoubleNoLeftBGWing, icon: '↔️' },
-            { value: 'doubleNoRightBGWing', label: 'Double No Right', Component: DoubleNoRightBGWing, icon: '↔️' },
+            type('doubleNoBGsWing', 'Double No BGs', 'Both wings skip ground floor', '🔄'),
+            type('doubleNoLeftBGWing', 'Double No Left BG', 'Left wing skips ground floor', '↔️'),
+            type('doubleNoRightBGWing', 'Double No Right BG', 'Right wing skips ground floor', '↔️'),
         ],
     },
 ];

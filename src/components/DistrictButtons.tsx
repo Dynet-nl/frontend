@@ -3,17 +3,7 @@
 import React from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import '../styles/districtButtons.css';
-import logger from '../utils/logger';
-
-interface District {
-    _id: string;
-    name: string;
-    priority?: number;
-}
-
-interface Building {
-    district: string;
-}
+import type { Building, District } from '../types/domain';
 
 interface DistrictStats {
     buildingCount: number;
@@ -35,8 +25,6 @@ const DistrictButtons: React.FC<DistrictButtonsProps> = ({
     currentDistrict,
     buildings = []
 }) => {
-    logger.debug(`DistrictButtons rendered with ${districts.length} districts and ${buildings.length} buildings`);
-
     const handleDistrictClick = (district: District): void => {
         setCurrentDistrict(district);
         getBuildings(district._id);

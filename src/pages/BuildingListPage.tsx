@@ -12,145 +12,17 @@ import '../styles/buildingPage.css';
 import { useNotification } from '../context/NotificationProvider';
 import logger from '../utils/logger';
 
-// Import all mockup schemas for block type selection
-import LeftWing from '../mockupSchemas/LeftWing';
-import RightWing from '../mockupSchemas/RightWing';
-import NoStairs from '../mockupSchemas/NoStairs';
-import LeftWingApart from '../mockupSchemas/LeftWingApart';
-import RightWingApart from '../mockupSchemas/RightWingApart';
-import LeftWingNoBG from '../mockupSchemas/LeftWingNoBG';
-import RightWingNoBG from '../mockupSchemas/RightWingNoBG';
-import LeftWingFlat from '../mockupSchemas/LeftWingFlat';
-import RightWingFlat from '../mockupSchemas/RightWingFlat';
-import DoubleNoBGsWing from '../mockupSchemas/DoubleNoBGsWing';
-import DoubleNoLeftBGWing from '../mockupSchemas/DoubleNoLeftBGWing';
-import DoubleNoRightBGWing from '../mockupSchemas/DoubleNoRightBGWing';
-
-interface FloorConfig {
-    floor: number;
-    cableNumber?: number;
-    cableLength?: number;
-    flat?: string;
-}
-
-interface BlockConfig {
-    firstFloor: number;
-    topFloor: number | string;
-    blockType: string;
-    floors: FloorConfig[];
-}
-
-interface Flat {
-    _id: string;
-    adres?: string;
-    huisNummer?: string;
-    toevoeging?: string;
-    complexNaam?: string;
-}
-
-interface Schedule {
-    _id?: string;
-    cableNumber?: number;
-    date?: string;
-    from?: string;
-    till?: string;
-    flats?: string[];
-}
-
-interface Building {
-    _id: string;
-    address?: string;
-    name?: string;
-    postcode?: string;
-    flats?: Flat[];
-    layout?: {
-        blocks?: BlockConfig[];
-    };
-    schedules?: Schedule[];
-    isBlocked?: boolean;
-    blockReason?: string;
-}
-
-interface BlockTypeInfo {
-    value: string;
-    label: string;
-    description: string;
-    Component: React.ComponentType<{ form: BlockConfig }>;
-    icon: string;
-}
-
-interface BlockTypeCategory {
-    name: string;
-    description: string;
-    types: BlockTypeInfo[];
-}
-
-// Constants
-const FLOOR_OPTIONS = [
-    { value: '', label: 'Select floor' },
-    { value: 0, label: 'BG (Ground floor)' },
-    { value: 1, label: '1st floor' },
-    { value: 2, label: '2nd floor' },
-    { value: 3, label: '3rd floor' },
-    { value: 4, label: '4th floor' },
-    { value: 5, label: '5th floor' },
-];
-
-const INITIAL_BLOCK: BlockConfig = {
-    firstFloor: 0,
-    topFloor: '',
-    blockType: '',
-    floors: [],
-};
-
-// All available block types organized by category
-const BLOCK_TYPE_CATEGORIES: BlockTypeCategory[] = [
-    {
-        name: 'Standard Wings',
-        description: 'Building sections with stairwell on one side',
-        types: [
-            { value: 'leftWing', label: 'Left Wing', description: 'Stairs on the left, flats on the right', Component: LeftWing, icon: '⬅️' },
-            { value: 'rightWing', label: 'Right Wing', description: 'Stairs on the right, flats on the left', Component: RightWing, icon: '➡️' },
-            { value: 'noStairs', label: 'No Stairs', description: 'Flats stacked vertically without a stairwell', Component: NoStairs, icon: '🏢' },
-        ],
-    },
-    {
-        name: 'Apartment Blocks',
-        description: 'Separate apartment-style units per floor',
-        types: [
-            { value: 'leftWingApart', label: 'Left Apart', description: 'Left-side apartment block', Component: LeftWingApart, icon: '🏠' },
-            { value: 'rightWingApart', label: 'Right Apart', description: 'Right-side apartment block', Component: RightWingApart, icon: '🏠' },
-        ],
-    },
-    {
-        name: 'No Ground Floor',
-        description: 'Wings where the ground floor (BG) is excluded',
-        types: [
-            { value: 'leftWingNoBG', label: 'Left No BG', description: 'Left wing, no ground floor unit', Component: LeftWingNoBG, icon: '◀️' },
-            { value: 'rightWingNoBG', label: 'Right No BG', description: 'Right wing, no ground floor unit', Component: RightWingNoBG, icon: '▶️' },
-        ],
-    },
-    {
-        name: 'Flat Layouts',
-        description: 'Straight/flat cable routing without angled connections',
-        types: [
-            { value: 'leftWingFlat', label: 'Left Flat', description: 'Left wing with straight cable path', Component: LeftWingFlat, icon: '📐' },
-            { value: 'rightWingFlat', label: 'Right Flat', description: 'Right wing with straight cable path', Component: RightWingFlat, icon: '📐' },
-        ],
-    },
-    {
-        name: 'Double Wings',
-        description: 'Two wings sharing a stairwell',
-        types: [
-            { value: 'doubleNoBGsWing', label: 'Double No BGs', description: 'Both wings skip ground floor', Component: DoubleNoBGsWing, icon: '🔄' },
-            { value: 'doubleNoLeftBGWing', label: 'Double No Left BG', description: 'Left wing skips ground floor', Component: DoubleNoLeftBGWing, icon: '↔️' },
-            { value: 'doubleNoRightBGWing', label: 'Double No Right BG', description: 'Right wing skips ground floor', Component: DoubleNoRightBGWing, icon: '↔️' },
-        ],
-    },
-];
-
-// Flatten for easy lookup
-const ALL_BLOCK_TYPES = BLOCK_TYPE_CATEGORIES.flatMap((cat) => cat.types);
+import { BLOCK_TYPE_CATEGORIES, ALL_BLOCK_TYPES } from '../constants/blockTypes';
+import {
+    BlockConfig,
+    BlockTypeInfo,
+    Building,
+    Flat,
+    Schedule,
+    FLOOR_OPTIONS,
+    INITIAL_BLOCK,
+    buildFloors,
+} from '../types/building';
 
 const BuildingListPage: React.FC = () => {
     const params = useParams<{ id: string }>();
@@ -292,15 +164,8 @@ const BuildingListPage: React.FC = () => {
             prevFields.map((block, idx) => {
                 if (idx !== index) return block;
 
-                let floors = block.floors;
-                if (block.blockType && !isNaN(Number(block.topFloor))) {
-                    const tempArray: FloorConfig[] = [];
-                    for (let i = block.firstFloor; i <= Number(block.topFloor); i++) {
-                        tempArray.push({ floor: i });
-                    }
-                    floors = tempArray;
-                }
-
+                // Changing the layout type keeps flat/cable assignments for floors that still exist.
+                const floors = buildFloors(block.firstFloor, block.topFloor, block.floors);
                 return { ...block, [name]: value, floors };
             })
         );
@@ -315,19 +180,9 @@ const BuildingListPage: React.FC = () => {
             prevFields.map((block, idx) => {
                 if (idx !== index) return block;
 
-                const updatedBlock = { ...block, [name]: numValue };
                 const firstFloor = name === 'firstFloor' ? numValue : block.firstFloor;
-                const topFloor = name === 'topFloor' ? numValue : Number(block.topFloor);
-
-                if (!isNaN(topFloor) && !isNaN(firstFloor)) {
-                    const tempArray: FloorConfig[] = [];
-                    for (let i = firstFloor; i <= topFloor; i++) {
-                        tempArray.push({ floor: i });
-                    }
-                    updatedBlock.floors = tempArray;
-                }
-
-                return updatedBlock;
+                const topFloor = name === 'topFloor' ? (value === '' ? '' : numValue) : block.topFloor;
+                return { ...block, [name]: value === '' ? '' : numValue, floors: buildFloors(firstFloor, topFloor, block.floors) };
             })
         );
         setHasUnsavedChanges(true);
@@ -898,13 +753,13 @@ const BuildingListPage: React.FC = () => {
 
             {/* Confirm Remove Block Modal */}
             <ConfirmModal
-                isOpen={removeBlockModal.isOpen}
+                open={removeBlockModal.isOpen}
                 title="Remove Block"
                 message="Are you sure you want to remove this block? Any floor details for this block will be lost."
                 confirmText="Remove"
-                confirmVariant="danger"
+                variant="danger"
                 onConfirm={confirmRemoveBlock}
-                onCancel={() => setRemoveBlockModal({ isOpen: false, index: null })}
+                onClose={() => setRemoveBlockModal({ isOpen: false, index: null })}
             />
         </div>
     );

@@ -68,10 +68,7 @@ export const UI_CONFIG = {
     TOAST_DURATION: 3000,
     LOADING_TIMEOUT: 30000,
     AUTO_SAVE_INTERVAL: 5000,
-    // Login page timing
-    LOGIN_VALIDATION_DELAY: 300,
-    LOGIN_PROFILE_DELAY: 200,
-    LOGIN_REDIRECT_DELAY: 500,
+    // Login page elapsed-time ticker
     TIMER_INTERVAL: 100,
     // Animation durations
     TRANSITION_DURATION: 300,

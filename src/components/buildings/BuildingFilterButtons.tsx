@@ -1,15 +1,12 @@
 // Filter buttons component for filtering buildings by various criteria
 
 import React from 'react';
+import type { FilterCounts } from '../../utils/buildingFilters';
 
 interface FilterConfig {
     key: string;
     label: string;
     className?: string;
-}
-
-interface FilterCounts {
-    [key: string]: number;
 }
 
 interface BuildingFilterButtonsProps {
@@ -48,7 +45,7 @@ const BuildingFilterButtons: React.FC<BuildingFilterButtonsProps> = ({
                     onClick={() => onFilterChange(key)}
                     className={`${currentFilter === key ? 'active' : ''} ${className || ''}`}
                 >
-                    {label} <span className="filter-count">({filterCounts[key] || 0})</span>
+                    {label} <span className="filter-count">({filterCounts[key as keyof FilterCounts] || 0})</span>
                 </button>
             ))}
             {hasActiveFilters && (

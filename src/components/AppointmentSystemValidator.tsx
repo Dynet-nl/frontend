@@ -6,6 +6,7 @@ import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import useAuth from '../hooks/useAuth';
 import { ROLES } from '../utils/constants';
 import logger from '../utils/logger';
+import { unwrapList, PaginatedResponse } from '../types/domain';
 
 interface ValidationCheck {
     test: string;
@@ -116,18 +117,19 @@ const AppointmentSystemValidator: React.FC = () => {
         const checks: ValidationCheck[] = [];
 
         try {
-            const response = await axiosPrivate.get<TechnicalAppointment[]>('/api/apartment/appointments/all-technischeplanning', {
+            const response = await axiosPrivate.get<PaginatedResponse<TechnicalAppointment> | TechnicalAppointment[]>('/api/apartment/appointments/all-technischeplanning', {
                 params: { limit: 10 }
             });
+            const appointments = unwrapList<TechnicalAppointment>(response.data);
 
             checks.push({
                 test: 'Fetch Technical Appointments',
                 status: response.data ? 'PASS' : 'FAIL',
-                data: response.data?.length || 0
+                data: appointments.length
             });
 
-            if (response.data && response.data.length > 0) {
-                const appointment = response.data[0];
+            if (appointments.length > 0) {
+                const appointment = appointments[0];
                 const hasValidStructure =
                     appointment.technischePlanning?.appointmentBooked?.date &&
                     appointment.technischePlanning?.appointmentBooked?.startTime &&
@@ -162,18 +164,19 @@ const AppointmentSystemValidator: React.FC = () => {
         const checks: ValidationCheck[] = [];
 
         try {
-            const response = await axiosPrivate.get<HASAppointment[]>('/api/apartment/appointments/all-hasmonteur', {
+            const response = await axiosPrivate.get<PaginatedResponse<HASAppointment> | HASAppointment[]>('/api/apartment/appointments/all-hasmonteur', {
                 params: { limit: 10 }
             });
+            const appointments = unwrapList<HASAppointment>(response.data);
 
             checks.push({
                 test: 'Fetch HAS Appointments',
                 status: response.data ? 'PASS' : 'FAIL',
-                data: response.data?.length || 0
+                data: appointments.length
             });
 
-            if (response.data && response.data.length > 0) {
-                const appointment = response.data[0];
+            if (appointments.length > 0) {
+                const appointment = appointments[0];
                 const hasValidStructure =
                     appointment.hasMonteur?.appointmentBooked?.date &&
                     appointment.hasMonteur?.appointmentBooked?.startTime &&
@@ -209,12 +212,13 @@ const AppointmentSystemValidator: React.FC = () => {
         const checks: ValidationCheck[] = [];
 
         try {
-            const response = await axiosPrivate.get<Building[]>('/api/building', {
-                params: { limit: 5 }
+            const response = await axiosPrivate.get<PaginatedResponse<Building> | Building[]>('/api/building', {
+                params: { limit: 5, includeFlats: 'true' }
             });
+            const buildings = unwrapList<Building>(response.data);
 
-            if (response.data && response.data.length > 0) {
-                const building = response.data[0];
+            if (buildings.length > 0) {
+                const building = buildings[0];
                 if (building.flats && building.flats.length > 0) {
                     const flatsWithTechnicalAppointments = building.flats.filter(flat =>
                         flat.technischePlanning?.appointmentBooked?.date
@@ -254,11 +258,11 @@ const AppointmentSystemValidator: React.FC = () => {
 
         try {
             if (isAdmin || isTechnischePlanning) {
-                const response = await axiosPrivate.get<TechnicalAppointment[]>('/api/apartment/appointments/all-technischeplanning', {
+                const response = await axiosPrivate.get<PaginatedResponse<TechnicalAppointment> | TechnicalAppointment[]>('/api/apartment/appointments/all-technischeplanning', {
                     params: { limit: 50 }
                 });
 
-                const calendarEvents = response.data
+                const calendarEvents = unwrapList<TechnicalAppointment>(response.data)
                     .filter(flat =>
                         flat.technischePlanning?.appointmentBooked?.date &&
                         flat.technischePlanning?.appointmentBooked?.startTime
@@ -284,11 +288,11 @@ const AppointmentSystemValidator: React.FC = () => {
             }
 
             if (isAdmin || isHASPlanning) {
-                const response = await axiosPrivate.get<HASAppointment[]>('/api/apartment/appointments/all-hasmonteur', {
+                const response = await axiosPrivate.get<PaginatedResponse<HASAppointment> | HASAppointment[]>('/api/apartment/appointments/all-hasmonteur', {
                     params: { limit: 50 }
                 });
 
-                const calendarEvents = response.data
+                const calendarEvents = unwrapList<HASAppointment>(response.data)
                     .filter(flat =>
                         flat.hasMonteur?.appointmentBooked?.date &&
                         flat.hasMonteur?.appointmentBooked?.startTime

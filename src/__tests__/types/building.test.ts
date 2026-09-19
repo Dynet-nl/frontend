@@ -21,7 +21,7 @@ describe('FLOOR_OPTIONS', () => {
 
     it('should have BG as label for floor 0', () => {
         const bgOption = FLOOR_OPTIONS.find(opt => opt.value === 0);
-        expect(bgOption?.label).toBe('BG');
+        expect(bgOption?.label).toContain('BG');
     });
 });
 

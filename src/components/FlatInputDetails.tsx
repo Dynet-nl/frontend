@@ -23,7 +23,7 @@ interface Flat {
 }
 
 interface Building {
-    flats: Flat[];
+    flats?: Flat[];
 }
 
 interface FlatInputDetailsProps {
@@ -61,8 +61,8 @@ const FlatInputDetails: React.FC<FlatInputDetailsProps> = ({
                 value={`${currentFlat}`}
             >
                 <option value="">Flat</option>
-                {building.flats.length > 0 &&
-                    building.flats.map((flat, i) => (
+                {(building.flats ?? []).length > 0 &&
+                    (building.flats ?? []).map((flat, i) => (
                         <option value={flat._id} key={i}>
                             {getFlatLabel(flat)}
                         </option>

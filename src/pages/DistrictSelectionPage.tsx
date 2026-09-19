@@ -1,4 +1,4 @@
-// Page for selecting districts within an area for navigation and organization.
+// Districts of an area: drag-and-drop priority order plus the building list of the selected district.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -13,27 +13,29 @@ import Breadcrumb from '../components/Breadcrumb';
 import { useError } from '../context/ErrorProvider';
 import { DragDropContext, Droppable, DropResult, DroppableProvided } from 'react-beautiful-dnd';
 import { ROLES } from '../utils/constants';
+import type { Building, District, PaginatedResponse } from '../types/domain';
+import { unwrapList } from '../types/domain';
 
-interface District {
-    _id: string;
-    name: string;
-    priority?: number;
+interface DistrictsResponse extends PaginatedResponse<District> {
+    area?: { _id: string; name: string } | null;
 }
 
-interface Building {
-    _id: string;
-    address?: string;
-    name?: string;
+interface DistrictDetailResponse {
+    buildings?: Building[];
 }
 
+// Short-lived in-memory cache so navigating back to a district is instant. Logout does a
+// full page navigation, so nothing here survives a user switch.
 interface CacheData {
     districts: Map<string, District[]>;
+    areaNames: Map<string, string>;
     buildings: Map<string, Building[]>;
     timestamps: Map<string, number>;
 }
 
 const cache: CacheData = {
     districts: new Map(),
+    areaNames: new Map(),
     buildings: new Map(),
     timestamps: new Map(),
 };
@@ -56,7 +58,9 @@ const DistrictSelectionPage: React.FC = () => {
     const [buildings, setBuildings] = useState<Building[]>([]);
     const [isLoadingDistricts, setIsLoadingDistricts] = useState<boolean>(true);
     const [isLoadingBuildings, setIsLoadingBuildings] = useState<boolean>(false);
-    const [areaName, setAreaName] = useState<string>('');
+    const [areaName, setAreaName] = useState<string>(() => (areaId && cache.areaNames.get(areaId)) || '');
+
+    const isAdmin = !!auth?.roles?.includes(ROLES.ADMIN);
 
     const saveScrollPosition = useCallback((): void => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -77,9 +81,7 @@ const DistrictSelectionPage: React.FC = () => {
             const savedDistrictId = localStorage.getItem(`currentDistrict_${areaId}`);
             if (savedDistrictId && districtList.length > 0) {
                 const savedDistrict = districtList.find((d) => d._id === savedDistrictId);
-                if (savedDistrict) {
-                    return savedDistrict;
-                }
+                if (savedDistrict) return savedDistrict;
             }
             return districtList[0];
         },
@@ -91,44 +93,43 @@ const DistrictSelectionPage: React.FC = () => {
         if (savedPosition && savedPosition !== '0') {
             const position = parseInt(savedPosition, 10);
             if (!isNaN(position)) {
-                requestAnimationFrame(() => {
-                    window.scrollTo(0, position);
-                });
+                requestAnimationFrame(() => window.scrollTo(0, position));
             }
         }
     }, [areaId]);
 
     const fetchDistricts = useCallback(async (): Promise<void> => {
+        if (!areaId) return;
         const cacheKey = `districts_${areaId}`;
         if (isCacheValid(cacheKey) && cache.districts.has(cacheKey)) {
             const cachedDistricts = cache.districts.get(cacheKey)!;
             setDistricts(cachedDistricts);
             setIsLoadingDistricts(false);
-            if (!currentDistrict && cachedDistricts.length > 0) {
-                const restoredDistrict = restoreCurrentDistrict(cachedDistricts);
-                setCurrentDistrict(restoredDistrict);
-            }
+            setCurrentDistrict((current) => current ?? (cachedDistricts.length > 0 ? restoreCurrentDistrict(cachedDistricts) : null));
             return;
         }
         try {
             setIsLoadingDistricts(true);
-            const response = await axiosPrivate.get<{ data: District[]; pagination?: unknown } | District[]>(`/api/district/area/${areaId}`);
-            // Handle both paginated response { data: [...] } and legacy array response
-            const districtsData = Array.isArray(response.data) ? response.data : response.data.data;
+            const response = await axiosPrivate.get<DistrictsResponse | District[]>(`/api/district/area/${areaId}`, {
+                params: { limit: 100, sortBy: 'priority', sortOrder: 'asc' },
+            });
+            const districtsData = unwrapList<District>(response.data);
+            const name = !Array.isArray(response.data) ? response.data.area?.name : undefined;
+            if (name) {
+                cache.areaNames.set(areaId, name);
+                setAreaName(name);
+            }
             cache.districts.set(cacheKey, districtsData);
             cache.timestamps.set(cacheKey, Date.now());
             setDistricts(districtsData);
-            if (!currentDistrict && districtsData.length > 0) {
-                const restoredDistrict = restoreCurrentDistrict(districtsData);
-                setCurrentDistrict(restoredDistrict);
-            }
+            setCurrentDistrict((current) => current ?? (districtsData.length > 0 ? restoreCurrentDistrict(districtsData) : null));
         } catch (error) {
             logger.error('Error fetching districts:', error);
             handleApiError(error, 'Failed to load districts.');
         } finally {
             setIsLoadingDistricts(false);
         }
-    }, [areaId, axiosPrivate, currentDistrict, restoreCurrentDistrict]);
+    }, [areaId, axiosPrivate, restoreCurrentDistrict, handleApiError]);
 
     const fetchBuildings = useCallback(
         async (districtId: string): Promise<void> => {
@@ -138,15 +139,14 @@ const DistrictSelectionPage: React.FC = () => {
             }
             const cacheKey = `buildings_${districtId}`;
             if (isCacheValid(cacheKey) && cache.buildings.has(cacheKey)) {
-                const cachedBuildings = cache.buildings.get(cacheKey)!;
-                setBuildings(cachedBuildings);
+                setBuildings(cache.buildings.get(cacheKey)!);
                 setIsLoadingBuildings(false);
                 setTimeout(restoreScrollPosition, 10);
                 return;
             }
             try {
                 setIsLoadingBuildings(true);
-                const response = await axiosPrivate.get<{ buildings: Building[] }>(`/api/district/${districtId}`);
+                const response = await axiosPrivate.get<DistrictDetailResponse>(`/api/district/${districtId}`);
                 const buildingsData = response.data.buildings || [];
                 cache.buildings.set(cacheKey, buildingsData);
                 cache.timestamps.set(cacheKey, Date.now());
@@ -160,7 +160,7 @@ const DistrictSelectionPage: React.FC = () => {
                 setIsLoadingBuildings(false);
             }
         },
-        [axiosPrivate, restoreScrollPosition]
+        [axiosPrivate, restoreScrollPosition, handleApiError]
     );
 
     useEffect(() => {
@@ -185,43 +185,42 @@ const DistrictSelectionPage: React.FC = () => {
         [districts, saveScrollPosition, saveCurrentDistrict]
     );
 
-    useEffect(() => {
-        const handleCacheInvalidation = (): void => {
-            cache.buildings.clear();
-            cache.timestamps.clear();
-        };
-        window.addEventListener('invalidate-buildings-cache', handleCacheInvalidation);
-        return () => {
-            window.removeEventListener('invalidate-buildings-cache', handleCacheInvalidation);
-        };
-    }, []);
+    // Keep the list (and the cache) in sync after a building is blocked/unblocked.
+    const handleBuildingChanged = useCallback(
+        (updated: Building): void => {
+            setBuildings((prev) => {
+                const next = prev.map((b) => (b._id === updated._id ? { ...b, ...updated } : b));
+                if (currentDistrict?._id) cache.buildings.set(`buildings_${currentDistrict._id}`, next);
+                return next;
+            });
+        },
+        [currentDistrict?._id]
+    );
 
     const onDragEnd = async (result: DropResult): Promise<void> => {
-        if (!result.destination) return;
+        if (!result.destination || !isAdmin) return;
         const items = Array.from(districts);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
-        setDistricts(items);
+        const reprioritised = items.map((district, index) => ({ ...district, priority: index + 1 }));
+        setDistricts(reprioritised);
         try {
             await axiosPrivate.post('/api/district/reorder', {
-                districts: items.map((district, index) => ({
-                    id: district._id,
-                    priority: index + 1,
-                })),
+                districts: reprioritised.map((district) => ({ id: district._id, priority: district.priority })),
             });
             const cacheKey = `districts_${areaId}`;
-            cache.districts.set(cacheKey, items);
+            cache.districts.set(cacheKey, reprioritised);
             cache.timestamps.set(cacheKey, Date.now());
         } catch (error) {
             logger.error('Failed to reorder districts', error);
+            handleApiError(error, 'Failed to save the new district order.');
+            cache.timestamps.delete(`districts_${areaId}`);
             fetchDistricts();
         }
     };
 
     useEffect(() => {
-        const handleBeforeUnload = (): void => {
-            saveScrollPosition();
-        };
+        const handleBeforeUnload = (): void => saveScrollPosition();
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => {
             saveScrollPosition();
@@ -233,9 +232,7 @@ const DistrictSelectionPage: React.FC = () => {
 
     return (
         <div className="districtPageContainer" style={{ padding: '20px' }}>
-            {isLoading && (
-                <LoadingSpinner overlay size="large" text="Loading..." />
-            )}
+            {isLoading && <LoadingSpinner overlay size="large" text="Loading..." />}
             <Breadcrumb
                 items={[
                     { label: 'Cities', path: '/city' },
@@ -243,11 +240,10 @@ const DistrictSelectionPage: React.FC = () => {
                     { label: 'Districts' },
                 ]}
             />
-            <h1 style={{ marginBottom: '20px' }}>Districts Page</h1>
+            <h1 style={{ marginBottom: '20px' }}>{areaName ? `Districts in ${areaName}` : 'Districts'}</h1>
             <div className="cacheStatus">
-                <span>📊 Districts: {districts.length} loaded</span>
-                <span>🏢 Buildings: {buildings.length} loaded</span>
-                {!isLoadingDistricts && !isLoadingBuildings && <span>⚡ Cached - instant loading enabled</span>}
+                <span>📊 Districts: {districts.length}</span>
+                <span>🏢 Buildings: {buildings.length}</span>
                 {isLoadingBuildings && <span className="loadingIndicator">⟳ Loading buildings...</span>}
             </div>
 
@@ -262,19 +258,19 @@ const DistrictSelectionPage: React.FC = () => {
                     <div
                         style={{
                             display: 'grid',
-                            gridTemplateColumns: auth?.roles?.includes(ROLES.ADMIN) ? 'repeat(auto-fit, minmax(250px, 1fr))' : '1fr',
+                            gridTemplateColumns: isAdmin ? 'repeat(auto-fit, minmax(250px, 1fr))' : '1fr',
                             gap: '20px',
                             alignItems: 'start',
                         }}
                     >
-                        {auth?.roles?.includes(ROLES.ADMIN) && (
+                        {isAdmin && (
                             <div className="modern-action-card">
                                 <div className="modern-action-card-icon" style={{ backgroundColor: '#e8f5e8' }}>
                                     🚀
                                 </div>
-                                <h3 className="modern-action-card-title">Enhanced Management</h3>
+                                <h3 className="modern-action-card-title">Import & Update</h3>
                                 <p className="modern-action-card-description">
-                                    Advanced file validation, preview, conflict detection, and batch import features.
+                                    Create a district from an Excel export, or update an existing district with a new weekly file.
                                 </p>
                                 <div className="modern-action-card-features">
                                     <div className="modern-feature-tag">✅ File Validation</div>
@@ -287,7 +283,7 @@ const DistrictSelectionPage: React.FC = () => {
                                     className="modern-button modern-button-primary"
                                     style={{ width: '100%', justifyContent: 'center' }}
                                 >
-                                    Open Enhanced Manager
+                                    Open District Manager
                                 </Link>
                             </div>
                         )}
@@ -296,11 +292,11 @@ const DistrictSelectionPage: React.FC = () => {
                             <div className="modern-action-card-icon" style={{ backgroundColor: '#e8f4fd' }}>
                                 📋
                             </div>
-                            <h3 className="modern-action-card-title">Quick Actions</h3>
+                            <h3 className="modern-action-card-title">Overview</h3>
                             <p className="modern-action-card-description">
                                 {districts.length === 0
-                                    ? 'No districts found. Use the enhanced manager to create your first district.'
-                                    : `Manage ${districts.length} district${districts.length !== 1 ? 's' : ''} with drag & drop reordering.`}
+                                    ? 'No districts yet. An administrator can import one from an Excel file.'
+                                    : `${districts.length} district${districts.length !== 1 ? 's' : ''} in this area${isAdmin ? '. Drag to change the priority order.' : '.'}`}
                             </p>
                             <div className="modern-action-card-stats">
                                 <div className="modern-stat-item">
@@ -312,23 +308,14 @@ const DistrictSelectionPage: React.FC = () => {
                                     <span className="modern-stat-label">Buildings</span>
                                 </div>
                             </div>
-                            {auth?.roles?.includes(ROLES.ADMIN) ? (
-                                <div className="modern-info-note">
-                                    💡 As an admin, you have access to enhanced management features above.
-                                </div>
-                            ) : (
-                                <div className="modern-info-note">
-                                    ℹ️ Contact your administrator to create or import new districts.
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
             </div>
             <div style={{ marginTop: '20px' }}>
-                <h2 style={{ marginBottom: '15px' }}>Current District Name: {currentDistrict?.name || 'Loading...'}</h2>
+                <h2 style={{ marginBottom: '15px' }}>Current District: {currentDistrict?.name || (isLoadingDistricts ? 'Loading...' : '—')}</h2>
                 <DragDropContext onDragEnd={onDragEnd}>
-                    <Droppable droppableId="districts">
+                    <Droppable droppableId="districts" isDropDisabled={!isAdmin}>
                         {(provided: DroppableProvided) => (
                             <div {...provided.droppableProps} ref={provided.innerRef}>
                                 <DistrictButtons
@@ -343,7 +330,7 @@ const DistrictSelectionPage: React.FC = () => {
                         )}
                     </Droppable>
                 </DragDropContext>
-                <BuildingsList buildings={buildings} isLoading={isLoadingBuildings} />
+                <BuildingsList buildings={buildings} isLoading={isLoadingBuildings} onBuildingChanged={handleBuildingChanged} />
             </div>
         </div>
     );

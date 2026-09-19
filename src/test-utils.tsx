@@ -5,42 +5,18 @@ import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthProvider';
 import { NotificationProvider } from './context/NotificationProvider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-// Create a new QueryClient for each test
-const createTestQueryClient = () =>
-    new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false,
-                cacheTime: 0,
-                staleTime: 0,
-            },
-            mutations: {
-                retry: false,
-            },
-        },
-    });
 
 interface AllProvidersProps {
     children: ReactNode;
 }
 
-const AllProviders: React.FC<AllProvidersProps> = ({ children }) => {
-    const queryClient = createTestQueryClient();
-
-    return (
-        <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-                <AuthProvider>
-                    <NotificationProvider>
-                        {children}
-                    </NotificationProvider>
-                </AuthProvider>
-            </BrowserRouter>
-        </QueryClientProvider>
-    );
-};
+const AllProviders: React.FC<AllProvidersProps> = ({ children }) => (
+    <BrowserRouter>
+        <AuthProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+        </AuthProvider>
+    </BrowserRouter>
+);
 
 const customRender = (
     ui: ReactElement,

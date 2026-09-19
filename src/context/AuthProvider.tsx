@@ -1,13 +1,17 @@
-// React context provider for managing global authentication state and user information.
+// React context provider for the signed-in user's roles and sign-out.
+//
+// The access/refresh tokens live in httpOnly cookies managed by the API; the client only
+// remembers the role list (localStorage) to decide which routes and menus to show.
 
 import React, { createContext, useCallback, useState, useEffect, useMemo, ReactNode } from 'react';
+import { axiosPublic, setUnauthorizedHandler } from '../api/axios';
 import logger from '../utils/logger';
 
-// Types
 export interface AuthState {
     isAuthenticated?: boolean;
     roles?: number[];
     email?: string;
+    name?: string;
 }
 
 export interface AuthContextType {
@@ -20,75 +24,68 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-// Create context with undefined default (will be checked in useAuth hook)
+const ROLES_KEY = 'roles';
+const LOGIN_PATH = `${process.env.PUBLIC_URL || ''}/login`;
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const readStoredRoles = (): number[] => {
+    const stored = localStorage.getItem(ROLES_KEY);
+    if (!stored) return [];
+    try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.every((r) => typeof r === 'number')) return parsed;
+    } catch (error) {
+        logger.warn('Failed to parse stored roles:', error);
+    }
+    localStorage.removeItem(ROLES_KEY);
+    return [];
+};
+
 const getInitialAuth = (): AuthState => {
-    // Note: accessToken is now stored in httpOnly cookie by the backend
-    // We only check for roles in localStorage to determine if user was previously authenticated
-    let roles: number[] = [];
-    const storedRoles = localStorage.getItem('roles');
-
-    if (storedRoles) {
-        try {
-            roles = JSON.parse(storedRoles);
-        } catch (error) {
-            logger.warn('Failed to parse stored roles:', error);
-            localStorage.removeItem('roles');
-            roles = [];
-        }
-    }
-
-    if (Array.isArray(roles) && roles.length > 0) {
-        return { isAuthenticated: true, roles: roles };
-    }
-
-    if (storedRoles) {
-        localStorage.removeItem('roles');
-    }
-
-    return {};
+    const roles = readStoredRoles();
+    return roles.length > 0 ? { isAuthenticated: true, roles } : {};
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [auth, setAuth] = useState<AuthState>(getInitialAuth);
 
-    // Sync auth state across browser tabs
+    const logout = useCallback((): void => {
+        localStorage.removeItem(ROLES_KEY);
+        setAuth({});
+        // Revoke the session server-side (best effort), then hard-navigate so every
+        // in-memory cache from the previous user is dropped.
+        axiosPublic
+            .post('/logout')
+            .catch((error) => logger.warn('Logout request failed:', error))
+            .finally(() => {
+                window.location.href = LOGIN_PATH;
+            });
+    }, []);
+
+    // The axios interceptor calls this when the session cannot be refreshed.
+    useEffect(() => {
+        setUnauthorizedHandler(logout);
+        return () => setUnauthorizedHandler(null);
+    }, [logout]);
+
+    // Sync auth state across browser tabs (login/logout in another tab).
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent): void => {
-            if (event.key === 'roles') {
-                const newAuth = getInitialAuth();
-                setAuth(newAuth);
-
-                // If logged out in another tab, redirect to login
-                if (!newAuth.isAuthenticated && auth.isAuthenticated) {
-                    window.location.href = '/tool/login';
-                }
+            if (event.key !== ROLES_KEY && event.key !== null) return;
+            const next = getInitialAuth();
+            setAuth(next);
+            if (!next.isAuthenticated && auth.isAuthenticated) {
+                window.location.href = LOGIN_PATH;
             }
         };
-
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
     }, [auth.isAuthenticated]);
 
-    const logout = useCallback((): void => {
-        // Note: The httpOnly cookie will be cleared by the backend logout endpoint
-        // We only clear the roles from localStorage for UI state
-        localStorage.removeItem('roles');
-        setAuth({});
-        window.location.href = '/tool/login';
-    }, []);
+    const value = useMemo<AuthContextType>(() => ({ auth, setAuth, logout }), [auth, logout]);
 
-    const value = useMemo<AuthContextType>(
-        () => ({ auth, setAuth, logout }),
-        [auth, logout]
-    );
-
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;

@@ -41,7 +41,8 @@ interface LocationState {
 
 interface AuthResponse {
     roles: number[];
-    // Note: accessToken is now stored in httpOnly cookie by the backend
+    name?: string;
+    // The access/refresh tokens are httpOnly cookies set by the API.
 }
 
 const UserLoginPage: React.FC = () => {
@@ -58,7 +59,7 @@ const UserLoginPage: React.FC = () => {
     const [elapsedTime, setElapsedTime] = useState<number>(0);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const isLoading = ![LOGIN_STAGES.IDLE, LOGIN_STAGES.SUCCESS, LOGIN_STAGES.ERROR].includes(loginStage);
+    const isLoading = !([LOGIN_STAGES.IDLE, LOGIN_STAGES.SUCCESS, LOGIN_STAGES.ERROR] as LoginStage[]).includes(loginStage);
 
     useEffect(() => {
         userRef.current?.focus();
@@ -92,9 +93,7 @@ const UserLoginPage: React.FC = () => {
         e.preventDefault();
         setErrMsg('');
 
-        // Stage 1: Validating
         setLoginStage(LOGIN_STAGES.VALIDATING);
-        await new Promise((resolve) => setTimeout(resolve, UI_CONFIG.LOGIN_VALIDATION_DELAY));
 
         if (!email || !password) {
             setLoginStage(LOGIN_STAGES.ERROR);
@@ -118,21 +117,13 @@ const UserLoginPage: React.FC = () => {
                 }
             );
 
-            // Stage 4: Loading profile
-            setLoginStage(LOGIN_STAGES.LOADING_PROFILE);
-            await new Promise((resolve) => setTimeout(resolve, UI_CONFIG.LOGIN_PROFILE_DELAY));
-
-            const roles = response?.data?.roles;
-            // Note: accessToken is now stored in httpOnly cookie by the backend
-            // We only store roles in localStorage for UI purposes (role-based rendering)
-            // The actual auth token is managed via httpOnly cookies for security
+            const roles = Array.isArray(response?.data?.roles) ? response.data.roles : [];
+            // Only the role list is kept client-side (for menus and route guards);
+            // the tokens themselves are httpOnly cookies.
             localStorage.setItem('roles', JSON.stringify(roles));
-            setAuth({ email, roles, isAuthenticated: true });
+            setAuth({ email, roles, name: response.data.name, isAuthenticated: true });
 
-            // Stage 5: Redirecting
             setLoginStage(LOGIN_STAGES.REDIRECTING);
-            await new Promise((resolve) => setTimeout(resolve, UI_CONFIG.LOGIN_REDIRECT_DELAY));
-
             setEmail('');
             setPassword('');
             setLoginStage(LOGIN_STAGES.SUCCESS);
@@ -148,7 +139,7 @@ const UserLoginPage: React.FC = () => {
             } else if (error.response?.status === 401) {
                 setErrMsg('🚫 Invalid Credentials - Please check your email and password.');
             } else if (error.response?.status === 403) {
-                setErrMsg('⛔ Access Denied - Your account may be disabled.');
+                setErrMsg('⛔ Access Denied - This request was blocked. Reload the page and try again.');
             } else if (error.response?.status === 429) {
                 setErrMsg('⏳ Too Many Attempts - Please wait a few minutes before trying again.');
             } else if (error.response?.status && error.response.status >= 500) {

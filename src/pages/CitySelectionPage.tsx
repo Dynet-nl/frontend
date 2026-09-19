@@ -220,13 +220,13 @@ const CitySelectionPage: React.FC = () => {
 
             {/* Confirm Delete Modal */}
             <ConfirmModal
-                isOpen={deleteModal.isOpen}
+                open={deleteModal.isOpen}
                 title="Delete City"
                 message={`Are you sure you want to delete "${deleteModal.city?.name}"? This will also delete all associated areas and districts.`}
                 confirmText="Delete"
-                confirmVariant="danger"
+                variant="danger"
                 onConfirm={handleConfirmDelete}
-                onCancel={() => setDeleteModal({ isOpen: false, city: null })}
+                onClose={() => setDeleteModal({ isOpen: false, city: null })}
             />
         </div>
     );

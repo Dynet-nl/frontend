@@ -3,6 +3,7 @@
 import { AxiosInstance } from 'axios';
 import axiosPrivate from '../api/axios';
 import logger from './logger';
+import { unwrapList, PaginatedResponse } from '../types/domain';
 
 interface User {
     name?: string;
@@ -33,8 +34,8 @@ export const fetchUserColors = async (axiosInstance: AxiosInstance | null = null
 
         logger.log('Fetching user colors from API');
         const axiosToUse = axiosInstance || axiosPrivate;
-        const response = await axiosToUse.get<User[]>('/api/users');
-        const users = response.data;
+        const response = await axiosToUse.get<PaginatedResponse<User> | User[]>('/api/users', { params: { limit: 500 } });
+        const users = unwrapList(response.data);
 
         const colorMap: Record<string, string> = {};
         users.forEach(user => {

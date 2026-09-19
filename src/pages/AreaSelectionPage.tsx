@@ -69,7 +69,7 @@ const AreaSelectionPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [axiosPrivate, cityId]);
+    }, [axiosPrivate, cityId, handleApiError]);
 
     useEffect(() => {
         fetchAreas();
@@ -235,13 +235,13 @@ const AreaSelectionPage: React.FC = () => {
 
             {/* Confirm Delete Modal */}
             <ConfirmModal
-                isOpen={deleteModal.isOpen}
+                open={deleteModal.isOpen}
                 title="Delete Area"
                 message={`Are you sure you want to delete "${deleteModal.area?.name}"? This will also delete all associated districts.`}
                 confirmText="Delete"
-                confirmVariant="danger"
+                variant="danger"
                 onConfirm={handleConfirmDelete}
-                onCancel={() => setDeleteModal({ isOpen: false, area: null })}
+                onClose={() => setDeleteModal({ isOpen: false, area: null })}
             />
         </div>
     );

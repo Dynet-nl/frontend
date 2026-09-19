@@ -19,6 +19,7 @@ interface AppointmentBooked {
 
 interface TechnischePlanning {
     vveWocoName?: string;
+    telephone?: string;
     technischeSchouwerName?: string;
     readyForSchouwer?: boolean;
     timesCalled?: number;
@@ -45,10 +46,7 @@ interface Apartment {
     toevoeging?: string;
     zoeksleutel?: string;
     postcode?: string;
-    achternaam?: string;
-    tel1?: string;
-    tel2?: string;
-    eMail?: string;
+    email?: string;
     team?: string;
     ipVezelwaarde?: string;
     IPVezelwaarde?: string;
@@ -116,7 +114,7 @@ const OptimizedApartmentDetails: React.FC = () => {
             {/* Header Section */}
             <div className="apartment-header">
                 <div className="apartment-title">
-                    <h1>{apartment.complexNaam || `${apartment.adres} ${apartment.huisNummer}${apartment.toevoeging}`}</h1>
+                    <h1>{apartment.complexNaam || `${apartment.adres} ${apartment.huisNummer}${apartment.toevoeging || ''}`}</h1>
                     <div className="apartment-subtitle">
                         <span className="zoeksleutel">{apartment.zoeksleutel}</span>
                     </div>
@@ -124,10 +122,10 @@ const OptimizedApartmentDetails: React.FC = () => {
                 <div className="status-indicator">
                     <div
                         className="status-circle"
-                        style={{ backgroundColor: getStatusColor(apartment.fcStatusHas) }}
-                        title={`Status: ${getStatusText(apartment.fcStatusHas)}`}
+                        style={{ backgroundColor: getStatusColor(apartment.fcStatusHas ?? '') }}
+                        title={`Status: ${getStatusText(apartment.fcStatusHas ?? '')}`}
                     >
-                        {getStatusText(apartment.fcStatusHas)}
+                        {getStatusText(apartment.fcStatusHas ?? '')}
                     </div>
                 </div>
             </div>
@@ -170,24 +168,25 @@ const OptimizedApartmentDetails: React.FC = () => {
                     <div className="info-content">
                         <div className="info-row">
                             <span className="info-label">Address:</span>
-                            <span className="info-value">{apartment.adres} {apartment.huisNummer}{apartment.toevoeging}</span>
+                            <span className="info-value">{apartment.adres} {apartment.huisNummer}{apartment.toevoeging || ''}</span>
                         </div>
                         <div className="info-row">
                             <span className="info-label">Postcode:</span>
                             <span className="info-value">{apartment.postcode}</span>
                         </div>
-                        <div className="info-row">
-                            <span className="info-label">Resident:</span>
-                            <span className="info-value">{apartment.achternaam}</span>
-                        </div>
-                        <div className="info-row">
-                            <span className="info-label">Phone:</span>
-                            <span className="info-value">{apartment.tel1 || apartment.tel2 || 'N/A'}</span>
-                        </div>
-                        <div className="info-row">
-                            <span className="info-label">Email:</span>
-                            <span className="info-value">{apartment.eMail || 'N/A'}</span>
-                        </div>
+                        {/* Contact details are only returned by the API to roles that deal with residents */}
+                        {apartment.technischePlanning?.telephone && (
+                            <div className="info-row">
+                                <span className="info-label">Phone:</span>
+                                <span className="info-value">{apartment.technischePlanning.telephone}</span>
+                            </div>
+                        )}
+                        {apartment.email && (
+                            <div className="info-row">
+                                <span className="info-label">Email:</span>
+                                <span className="info-value">{apartment.email}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
