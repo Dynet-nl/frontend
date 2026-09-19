@@ -122,6 +122,7 @@ const Users: React.FC = () => {
                 setError(null);
                 const response = await axiosPrivate.get<{ data: User[]; pagination?: unknown } | User[]>('/api/users', {
                     signal: controller.signal,
+                    params: { limit: 500 },
                 });
                 // Handle both paginated response { data: [...] } and legacy array response
                 const usersData = Array.isArray(response.data) ? response.data : response.data.data;
@@ -176,11 +177,11 @@ const Users: React.FC = () => {
                 updateData.password = editingUser.password;
             }
 
-            await axiosPrivate.put(`/api/users/${editingUser._id}`, updateData);
+            const response = await axiosPrivate.put<User>(`/api/users/${editingUser._id}`, updateData);
 
             setUsers(users.map(user =>
                 user._id === editingUser._id
-                    ? { ...user, ...updateData, roles: { [editingUser.roleToEdit]: user.roles?.[getUserRole(user.roles)] || 0 } }
+                    ? { ...user, ...response.data }
                     : user
             ));
 
@@ -316,90 +317,92 @@ const Users: React.FC = () => {
                                 ×
                             </button>
                         </div>
-                        <form onSubmit={handleSaveEdit} className="modal-form">
-                            <div className="form-group">
-                                <label>Name</label>
-                                <input
-                                    type="text"
-                                    className="modern-input"
-                                    value={editingUser.name || ''}
-                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input
-                                    type="email"
-                                    className="modern-input"
-                                    value={editingUser.email}
-                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, email: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Password (leave empty to keep current)</label>
-                                <input
-                                    type="password"
-                                    className="modern-input"
-                                    value={editingUser.password}
-                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, password: e.target.value })}
-                                    placeholder="Enter new password or leave empty"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Role</label>
-                                <select
-                                    className="modern-select"
-                                    value={editingUser.roleToEdit}
-                                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setEditingUser({ ...editingUser, roleToEdit: e.target.value })}
-                                    required
-                                >
-                                    <option value="">Select a role</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="TechnischePlanning">Technische Planning</option>
-                                    <option value="TechnischeSchouwer">Technische Schouwer</option>
-                                    <option value="Werkvoorbereider">Werkvoorbereider</option>
-                                    <option value="HASPlanning">HAS Planning</option>
-                                    <option value="HASMonteur">HAS Monteur</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label>User Color</label>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <input
-                                        type="color"
-                                        className="color-picker"
-                                        value={editingUser.color || '#3498db'}
-                                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, color: e.target.value })}
-                                        style={{
-                                            width: '50px',
-                                            height: '40px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer'
-                                        }}
-                                    />
+                        <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }}>
+                            <div className="modal-form">
+                                <div className="form-group">
+                                    <label>Name</label>
                                     <input
                                         type="text"
                                         className="modern-input"
-                                        value={editingUser.color || '#3498db'}
-                                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, color: e.target.value })}
-                                        placeholder="#3498db"
-                                        pattern="^#[0-9A-Fa-f]{6}$"
-                                        title="Enter a valid hex color code (e.g., #3498db)"
-                                        style={{ flex: '1' }}
+                                        value={editingUser.name || ''}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, name: e.target.value })}
+                                        required
                                     />
-                                    <div
-                                        style={{
-                                            width: '30px',
-                                            height: '30px',
-                                            backgroundColor: editingUser.color || '#3498db',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px'
-                                        }}
-                                        title="Color preview"
+                                </div>
+                                <div className="form-group">
+                                    <label>Email</label>
+                                    <input
+                                        type="email"
+                                        className="modern-input"
+                                        value={editingUser.email}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, email: e.target.value })}
+                                        required
                                     />
+                                </div>
+                                <div className="form-group">
+                                    <label>Password (leave empty to keep current)</label>
+                                    <input
+                                        type="password"
+                                        className="modern-input"
+                                        value={editingUser.password}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, password: e.target.value })}
+                                        placeholder="Enter new password or leave empty"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Role</label>
+                                    <select
+                                        className="modern-select"
+                                        value={editingUser.roleToEdit}
+                                        onChange={(e: ChangeEvent<HTMLSelectElement>) => setEditingUser({ ...editingUser, roleToEdit: e.target.value })}
+                                        required
+                                    >
+                                        <option value="">Select a role</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="TechnischePlanning">Technische Planning</option>
+                                        <option value="TechnischeSchouwer">Technische Schouwer</option>
+                                        <option value="Werkvoorbereider">Werkvoorbereider</option>
+                                        <option value="HASPlanning">HAS Planning</option>
+                                        <option value="HASMonteur">HAS Monteur</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>User Color</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <input
+                                            type="color"
+                                            className="color-picker"
+                                            value={editingUser.color || '#3498db'}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, color: e.target.value })}
+                                            style={{
+                                                width: '50px',
+                                                height: '40px',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            className="modern-input"
+                                            value={editingUser.color || '#3498db'}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>) => setEditingUser({ ...editingUser, color: e.target.value })}
+                                            placeholder="#3498db"
+                                            pattern="^#[0-9A-Fa-f]{6}$"
+                                            title="Enter a valid hex color code (e.g., #3498db)"
+                                            style={{ flex: '1' }}
+                                        />
+                                        <div
+                                            style={{
+                                                width: '30px',
+                                                height: '30px',
+                                                backgroundColor: editingUser.color || '#3498db',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px'
+                                            }}
+                                            title="Color preview"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div className="modal-actions">
