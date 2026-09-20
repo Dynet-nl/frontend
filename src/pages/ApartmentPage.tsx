@@ -9,6 +9,7 @@ import { useIsPhone } from '../hooks/useMediaQuery';
 import { usePageChrome } from '../components/shell/ShellContext';
 import TechnicalPlanningDialog from '../components/apartment/TechnicalPlanningDialog';
 import CompletionForm from '../components/apartment/CompletionForm';
+import SurveyCompletionForm from '../components/apartment/SurveyCompletionForm';
 import AppointmentLine from '../components/AppointmentLine';
 import { ROLES } from '../utils/constants';
 import { t } from '../i18n';
@@ -93,6 +94,7 @@ const ApartmentPage: React.FC = () => {
     const hasRole = has(ROLES.ADMIN, ROLES.HAS_PLANNING, ROLES.HAS_MONTEUR);
     const fieldOnly = has(ROLES.TECHNICAL_INSPECTOR, ROLES.HAS_MONTEUR) && !has(ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.HAS_PLANNING, ROLES.WERKVOORBEREIDER);
     const isMonteur = has(ROLES.HAS_MONTEUR);
+    const isSchouwer = has(ROLES.TECHNICAL_INSPECTOR);
 
     const { data: flat, loading, error, status, reload, setData } = useApi<Apartment>(id ? `/api/apartment/${id}` : null);
     const title = flat ? name(flat) : '…';
@@ -160,7 +162,8 @@ const ApartmentPage: React.FC = () => {
     };
 
     const tel = telHref(tp?.telephone);
-    const subline = [flat.complexNaam, flat.postcode, flat.team, flat.toevoeging ? `toevoeging ${flat.toevoeging} (${floorLabel(flat.toevoeging).toLowerCase()})` : ''].filter(Boolean).join(' · ');
+    const floor = floorLabel(flat.toevoeging);
+    const subline = [flat.complexNaam, flat.postcode, flat.team, flat.toevoeging ? `toevoeging ${flat.toevoeging}${floor ? ` (${floor.toLowerCase()})` : ''}` : ''].filter(Boolean).join(' · ');
 
     return (
         <div className="page">
@@ -223,6 +226,12 @@ const ApartmentPage: React.FC = () => {
             {isMonteur && hm && !delivered && (isPhone || fieldOnly) && (
                 <Panel title={t('flat.completeTitle')} icon="task_alt">
                     <CompletionForm flatId={flat._id} onSaved={onSaved} existingPhotos={photos} />
+                </Panel>
+            )}
+
+            {isSchouwer && tpAppt?.date && !tp?.signed && (
+                <Panel title="Schouw afronden" icon="draw">
+                    <SurveyCompletionForm flatId={flat._id} initialNotes={tp?.additionalNotes} onSaved={onSaved} />
                 </Panel>
             )}
 

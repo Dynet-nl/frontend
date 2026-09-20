@@ -1,10 +1,13 @@
 // Home: one endpoint, role-aware. Admin sees the whole operation; a planner sees their
 // queue; a field worker sees today's route.
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { useApi } from '../hooks/useApi';
+import axiosPrivate from '../api/axios';
+import { useNotification } from '../context/NotificationProvider';
+import { useError } from '../context/ErrorProvider';
 import { usePageChrome } from '../components/shell/ShellContext';
 import { ROLES } from '../utils/constants';
 import { t } from '../i18n';
@@ -12,7 +15,7 @@ import { greeting, fmtDayMonth, fmtRange, fmtPhone, telHref, mapsHref, daysAgo, 
 import { personColor, hasTypeStatus } from '../utils/status';
 import { scheduleFlatHref } from '../utils/routes';
 import { flatLabel } from '../types/domain';
-import { Stat, Panel, Icon, LinkButton, KeyChip, Pill, ErrorState, SkeletonRows, EmptyState, ProgressBar } from '../components/ui';
+import { Stat, Panel, Icon, LinkButton, Button, KeyChip, Pill, ErrorState, SkeletonRows, EmptyState, ProgressBar } from '../components/ui';
 
 interface FlatRef {
     _id: string;
@@ -99,7 +102,24 @@ const HomePage: React.FC = () => {
     const fieldOnly = has(ROLES.TECHNICAL_INSPECTOR, ROLES.HAS_MONTEUR) && !has(ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.HAS_PLANNING, ROLES.WERKVOORBEREIDER);
     usePageChrome([{ label: fieldOnly ? t('nav.today') : t('nav.home') }], fieldOnly ? t('nav.today') : t('nav.home'));
 
-    const { data, loading, error, reload } = useApi<HomeData>('/api/dashboard/home');
+    const { data, loading, error, reload, setData } = useApi<HomeData>('/api/dashboard/home');
+    const { showSuccess } = useNotification();
+    const { handleApiError } = useError();
+    const [logging, setLogging] = useState<string | null>(null);
+
+    // One tap after a phone call: bump the call counter on the flat's planning record.
+    const logCall = async (flatId: string, current: number) => {
+        setLogging(flatId);
+        try {
+            await axiosPrivate.put(`/api/apartment/${flatId}/technische-planning`, { timesCalled: current + 1, calledAlready: true });
+            setData((prev) => prev && prev.callList ? { ...prev, callList: { ...prev.callList, calledNoAppointment: prev.callList.calledNoAppointment + (current === 0 ? 1 : 0), items: prev.callList.items.map((r) => (r.flat._id === flatId ? { ...r, timesCalled: current + 1, lastCalled: new Date().toISOString() } : r)) } } : prev);
+            showSuccess(`Gebeld geregistreerd (${current + 1}×)`);
+        } catch (err) {
+            handleApiError(err, 'Belpoging kon niet worden opgeslagen.');
+        } finally {
+            setLogging(null);
+        }
+    };
 
     if (loading && !data) return <SkeletonRows rows={6} />;
     if (error && !data) return <ErrorState onRetry={reload} />;
@@ -191,6 +211,7 @@ const HomePage: React.FC = () => {
                                     </td>
                                     <td>
                                         <div className="actions">
+                                            <Button variant="ghost" size="dense" icon="call" title="Belpoging vastleggen" loading={logging === row.flat._id} onClick={() => logCall(row.flat._id, row.timesCalled)}>+1</Button>
                                             <LinkButton to={scheduleFlatHref(row.flat._id, 'Technical')} variant="accent" size="dense" icon="event">{t('common.schedule')}</LinkButton>
                                         </div>
                                     </td>

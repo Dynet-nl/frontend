@@ -132,5 +132,5 @@ export const floorLabel = (toevoeging?: string): string => {
     if (!t || ['H', 'BG', 'GF', 'G', '0', '00'].includes(t)) return 'Begane grond';
     const n = parseInt(t, 10);
     if (!Number.isNaN(n)) return `${n}e verdieping`;
-    return t;
+    return '';
 };

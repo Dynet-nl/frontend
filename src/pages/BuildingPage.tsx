@@ -47,14 +47,17 @@ const TYPE_LABELS: Record<ShapeKey, string> = {
 /** Tiny glyph for the type picker: bars per column, stairs bar, hollow bottom for no ground floor. */
 const TypeGlyph: React.FC<{ shape: ShapeKey }> = ({ shape }) => {
     const spec = SHAPES[shape];
+    const bar = (key: string, hollow = false) => (
+        <span key={key} style={{ width: 14, height: 9, borderRadius: 2, background: hollow ? 'transparent' : 'var(--border-strong)', border: hollow ? '1.5px dashed var(--text-muted)' : undefined, boxSizing: 'border-box' }} />
+    );
     const col = (c: typeof spec.columns[number], key: string) => (
         <span key={key} style={{ display: 'flex', flexDirection: 'column-reverse', gap: 2 }}>
-            <span className={c.first?.empty ? 'hollow' : ''} style={{ width: 12, height: 8, borderRadius: 2, background: c.first?.empty ? 'transparent' : 'var(--border-strong)', border: c.first?.empty ? '1px dashed var(--border-strong)' : undefined }} />
-            <span style={{ width: 12, height: 8, borderRadius: 2, background: 'var(--border-strong)' }} />
-            <span style={{ width: 12, height: 8, borderRadius: 2, background: 'var(--border-strong)' }} />
+            {bar(`${key}-0`, !!c.first?.empty)}
+            {bar(`${key}-1`)}
+            {bar(`${key}-2`)}
         </span>
     );
-    const stairs = <span className="stairs" style={{ width: 8, height: 26, borderRadius: 2, background: 'var(--text-muted)', opacity: 0.5 }} />;
+    const stairs = <span className="stairs" style={{ width: 7, height: 31, borderRadius: 2, backgroundImage: 'repeating-linear-gradient(to bottom, var(--text-muted) 0 3px, transparent 3px 6px)', opacity: 0.7 }} />;
     return (
         <span className="type-glyph" aria-hidden="true">
             {spec.columns.length === 2 ? (
