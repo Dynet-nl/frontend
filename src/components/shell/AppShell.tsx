@@ -2,7 +2,7 @@
 // bottom bar on phones.
 
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigationType } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeProvider';
 import { useShell } from './ShellContext';
@@ -14,6 +14,7 @@ import { IconButton } from '../ui/Button';
 import { Avatar } from '../ui/Pill';
 import { fmtWeekday, isoWeek } from '../../utils/format';
 import { useIsPhone, useIsRail } from '../../hooks/useMediaQuery';
+import SearchDialog from './SearchDialog';
 
 interface NavItem {
     to: string;
@@ -41,17 +42,34 @@ const AppShell: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const { crumbs, actions, sidebarExtra } = useShell();
     const location = useLocation();
-    const navigate = useNavigate();
+    const navigationType = useNavigationType();
     const isPhone = useIsPhone();
     const isRail = useIsRail();
     const [expanded, setExpanded] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     const roles = auth.roles ?? [];
     const has = (...allowed: number[]) => allowed.some((r) => roles.includes(r));
-    const isAdmin = has(ROLES.ADMIN);
     const fieldRole = has(ROLES.TECHNICAL_INSPECTOR, ROLES.HAS_MONTEUR) && !has(ROLES.ADMIN, ROLES.TECHNICAL_PLANNING, ROLES.HAS_PLANNING);
 
     useEffect(() => { setExpanded(false); }, [location.pathname]);
+
+    // New page: start at the top. Back/forward keep the browser's scroll position.
+    useEffect(() => {
+        if (navigationType === 'PUSH') window.scrollTo(0, 0);
+    }, [location.key, navigationType]);
+
+    // ⌘K / Ctrl+K anywhere, "/" outside text fields.
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            const target = e.target as HTMLElement | null;
+            const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable);
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setSearchOpen(true); }
+            else if (e.key === '/' && !typing) { e.preventDefault(); setSearchOpen(true); }
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, []);
 
     const agendaPath = has(ROLES.TECHNICAL_PLANNING) && !has(ROLES.HAS_PLANNING, ROLES.HAS_MONTEUR, ROLES.TECHNICAL_INSPECTOR) ? '/agenda' : has(ROLES.ADMIN) && !has(ROLES.HAS_PLANNING) ? '/agenda' : '/has-agenda';
 
@@ -171,7 +189,7 @@ const AppShell: React.FC = () => {
                     <div className="topbar__actions">
                         {actions}
                         <span className="topbar__date">{fmtWeekday(now)} · wk {isoWeek(now)}</span>
-                        {isAdmin && !isPhone && <IconButton icon="search" label={t('nav.search')} onClick={() => navigate('/city')} />}
+                        <IconButton icon="search" label={`${t('nav.search')} (⌘K)`} onClick={() => setSearchOpen(true)} />
                         <IconButton icon={theme === 'dark' ? 'light_mode' : 'dark_mode'} label={t('nav.theme')} onClick={toggleTheme} />
                     </div>
                 </header>
@@ -179,6 +197,7 @@ const AppShell: React.FC = () => {
                     <Outlet />
                 </main>
             </div>
+            <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
             {isPhone && (
                 <nav className="bottombar" aria-label="Navigatie">
                     {bottomItems.map((item) => (

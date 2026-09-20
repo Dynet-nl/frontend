@@ -8,7 +8,7 @@ import { useApi } from '../hooks/useApi';
 import { usePageChrome } from '../components/shell/ShellContext';
 import { ROLES } from '../utils/constants';
 import { t } from '../i18n';
-import { greeting, fmtDayMonth, fmtRange, fmtPhone, telHref, mapsHref, daysAgo, fmtPercent, isoWeek } from '../utils/format';
+import { greeting, fmtDayMonth, fmtRange, fmtPhone, telHref, mapsHref, daysAgo, fmtPercent, isoWeek, plural } from '../utils/format';
 import { personColor, hasTypeStatus } from '../utils/status';
 import { scheduleFlatHref } from '../utils/routes';
 import { flatLabel } from '../types/domain';
@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
                         <span className="mono muted" style={{ width: 24 }}>#{d.priority || i + 1}</span>
                         <span className="list__body">
                             <span className="list__title">{d.name}</span>
-                            <span className="list__meta">{[d.area?.name, `${d.flats} flats`].filter(Boolean).join(' · ')}</span>
+                            <span className="list__meta">{[d.area?.name, plural(d.flats, 'flat')].filter(Boolean).join(' · ')}</span>
                         </span>
                         <span className="progress-inline" style={{ width: 120 }}>
                             <ProgressBar value={d.completionPercentage} size="sm" />
@@ -130,11 +130,13 @@ const HomePage: React.FC = () => {
         </Panel>
     );
 
-    const workloadPanel = data.workload && data.workload.length > 0 && (
-        <Panel title={`${t('home.workload')} · wk ${week}`} icon="groups">
+    const workloadRows = (data.workload ?? []).filter((w) => (has(ROLES.ADMIN) ? true : has(ROLES.TECHNICAL_PLANNING) ? w.kind === 'technical' : w.kind === 'has'));
+    const workloadTitle = has(ROLES.ADMIN) ? 'Bezetting' : has(ROLES.TECHNICAL_PLANNING) ? 'Bezetting schouwers' : t('home.workload');
+    const workloadPanel = workloadRows.length > 0 && (
+        <Panel title={`${workloadTitle} · wk ${week}`} icon="groups">
             <div className="workload">
-                {data.workload.slice(0, 8).map((w, i) => {
-                    const max = Math.max(...data.workload!.map((x) => x.count), 1);
+                {workloadRows.slice(0, 8).map((w, i) => {
+                    const max = Math.max(...workloadRows.map((x) => x.count), 1);
                     return (
                         <div key={`${w.kind}-${w.person}`} className="workload__row">
                             <span className="row" style={{ minWidth: 0 }}>
@@ -151,7 +153,7 @@ const HomePage: React.FC = () => {
     );
 
     const callListPanel = data.callList && (
-        <Panel title={t('home.toCall')} icon="call" flush actions={<span className="t-caption secondary">{data.callList.total} flats · {data.callList.calledNoAppointment} {t('home.calledNoAppointment').toLowerCase()}</span>}>
+        <Panel title={t('home.toCall')} icon="call" flush className="calls" actions={<span className="t-caption secondary">{plural(data.callList.total, 'flat')} · {data.callList.calledNoAppointment} {t('home.calledNoAppointment').toLowerCase()}</span>}>
             {data.callList.items.length === 0 ? (
                 <EmptyState icon="call" title="Niets te bellen" text="Elke flat heeft een technische afspraak." />
             ) : (
@@ -160,11 +162,11 @@ const HomePage: React.FC = () => {
                         <thead>
                             <tr>
                                 <th>Flat</th>
-                                <th className="hide-mobile">District</th>
+                                <th className="hide-narrow">District</th>
                                 <th>{t('flat.phone')}</th>
                                 <th className="hide-mobile">{t('flat.called')}</th>
-                                <th className="hide-mobile">{t('flat.smsSent')}</th>
-                                <th>{t('flat.readyForSurvey')}</th>
+                                <th className="hide-narrow">SMS</th>
+                                <th>Gereed</th>
                                 <th aria-label="Acties" />
                             </tr>
                         </thead>
@@ -172,15 +174,15 @@ const HomePage: React.FC = () => {
                             {data.callList.items.slice(0, 10).map((row) => (
                                 <tr key={row.flat._id}>
                                     <td>
-                                        <span className="col">
-                                            <Link to={`/apartment/${row.flat._id}`} style={{ color: 'inherit', fontWeight: 600 }}>{flatName(row.flat)}</Link>
+                                        <span className="col" style={{ alignItems: 'flex-start', gap: 2 }}>
+                                            <Link to={`/apartment/${row.flat._id}`} className="nowrap" style={{ color: 'inherit', fontWeight: 600 }}>{flatName(row.flat)}</Link>
                                             {row.flat.zoeksleutel && <KeyChip>{row.flat.zoeksleutel}</KeyChip>}
                                         </span>
                                     </td>
-                                    <td className="hide-mobile t-caption secondary">{row.districtPriority ? `#${row.districtPriority} · ` : ''}{row.districtName ?? '—'}</td>
+                                    <td className="hide-narrow t-caption secondary nowrap">{row.districtName ?? '—'}{row.districtPriority ? <span className="mono muted"> #{row.districtPriority}</span> : null}</td>
                                     <td className="mono">{row.telephone ? <a href={telHref(row.telephone)}>{fmtPhone(row.telephone)}</a> : <span className="muted">Onbekend</span>}</td>
-                                    <td className="hide-mobile t-caption">{row.timesCalled > 0 ? `${row.timesCalled}× · ${fmtDayMonth(row.lastCalled)}` : 'Nog niet'}</td>
-                                    <td className="hide-mobile t-caption">{row.smsSent ? 'Verstuurd' : '—'}</td>
+                                    <td className="hide-mobile t-caption nowrap">{row.timesCalled > 0 ? `${row.timesCalled}× · ${fmtDayMonth(row.lastCalled)}` : 'Nog niet'}</td>
+                                    <td className="hide-narrow t-caption">{row.smsSent ? 'Verstuurd' : '—'}</td>
                                     <td>
                                         <span className={`status-text status-text--${row.readyForSchouwer ? 'done' : 'none'}`}>
                                             <Icon name={row.readyForSchouwer ? 'check_circle' : 'radio_button_unchecked'} />
@@ -210,7 +212,7 @@ const HomePage: React.FC = () => {
                 <EmptyState icon="draw" title="Geen wachtrij" text="Elke getekende schouw heeft een HAS-afspraak." />
             ) : (
                 <div className="list">
-                    {data.signedWithoutHas.items.map((row) => (
+                    {data.signedWithoutHas.items.slice(0, 8).map((row) => (
                         <div key={row.flat._id} className="list__item">
                             <Icon name="door_front" className="muted" />
                             <span className="list__body">
@@ -220,6 +222,7 @@ const HomePage: React.FC = () => {
                             <LinkButton to={scheduleFlatHref(row.flat._id, 'HAS')} variant="accent" size="dense" icon="event">{t('flat.scheduleHas')}</LinkButton>
                         </div>
                     ))}
+                    {data.signedWithoutHas.total > 8 && <div className="table__footer"><span>Eerste 8 van {data.signedWithoutHas.total}</span><Link to="/has-agenda" className="ml-auto">{t('nav.hasAgenda')}</Link></div>}
                 </div>
             )}
         </Panel>
@@ -231,16 +234,17 @@ const HomePage: React.FC = () => {
                 <EmptyState icon="architecture" title="Alle gebouwen hebben een plattegrond" />
             ) : (
                 <div className="list">
-                    {data.buildingsWithoutLayout.items.map((b) => (
+                    {data.buildingsWithoutLayout.items.slice(0, 6).map((b) => (
                         <div key={b._id} className="list__item">
                             <Icon name="apartment" className="muted" />
                             <span className="list__body">
                                 <Link to={`/building/${b._id}`} className="list__title" style={{ color: 'inherit' }}>{b.address}</Link>
-                                <span className="list__meta">{[b.district, `${b.flats} flats`, b.postcode].filter(Boolean).join(' · ')}</span>
+                                <span className="list__meta">{[b.district, plural(b.flats, 'flat'), b.postcode].filter(Boolean).join(' · ')}</span>
                             </span>
                             <LinkButton to={`/building/${b._id}`} variant="secondary" size="dense" icon="architecture">{t('home.makeLayout')}</LinkButton>
                         </div>
                     ))}
+                    {data.buildingsWithoutLayout.total > 6 && <div className="table__footer"><span>Eerste 6 van {data.buildingsWithoutLayout.total} · op prioriteit van district</span><Link to="/districts" className="ml-auto">{t('common.showAll')}</Link></div>}
                 </div>
             )}
         </Panel>
@@ -273,7 +277,7 @@ const HomePage: React.FC = () => {
                 <header className="page__header">
                     <div className="page__title-block">
                         <h1 className="t-title-l">{t(greeting())}, {name}</h1>
-                        <p className="page__subtitle t-small">{mine.today.length} {mine.today.length === 1 ? 'afspraak' : 'afspraken'} vandaag · wk {week}</p>
+                        <p className="page__subtitle t-small">{plural(mine.today.length, 'afspraak', 'afspraken')} vandaag · wk {week}</p>
                     </div>
                 </header>
                 <section className="col gap-2">

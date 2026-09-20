@@ -108,6 +108,10 @@ export const telHref = (value?: string | null): string | undefined => {
 export const mapsHref = (address?: string, postcode?: string): string =>
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([address, postcode].filter(Boolean).join(', '))}`;
 
+/** "1 flat" / "3 flats" */
+export const plural = (n: number, singular: string, pluralForm: string = `${singular}s`): string =>
+    `${n} ${n === 1 ? singular : pluralForm}`;
+
 export const initials = (name?: string): string => {
     if (!name) return '?';
     const parts = name.trim().split(/\s+/);

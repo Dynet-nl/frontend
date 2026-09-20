@@ -107,6 +107,8 @@
   .shell__main { padding-bottom: calc(var(--shell-bottombar-h) + env(safe-area-inset-bottom)); }
   .topbar { padding: 0 var(--gutter); }
   .topbar__date { display: none; }
+  .topbar__actions .btn:not(.btn--icon) > span:not(.icon) { display: none; }
+  .topbar__actions .btn:not(.btn--icon) { width: var(--control-h); padding: 0; }
   .content { padding: 16px var(--gutter) 24px; }
   .bottombar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;

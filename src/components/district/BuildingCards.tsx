@@ -9,7 +9,7 @@ import { ProgressBar, FloorStack } from '../ui/Panel';
 import AppointmentLine from '../AppointmentLine';
 import BuildingActions from './BuildingActions';
 import { t } from '../../i18n';
-import { fmtPercent } from '../../utils/format';
+import { fmtPercent, plural } from '../../utils/format';
 import { hasTypeStatus, deliveryStatus } from '../../utils/status';
 import { isFlatCompleted } from '../../utils/completionUtils';
 import { apartmentHref } from '../../utils/routes';
@@ -42,7 +42,7 @@ const BuildingCards: React.FC<BuildingCardsProps> = ({ rows, roles, onBlock, onU
                             <div className="col grow" style={{ minWidth: 0 }}>
                                 <Link to={`/building/${b._id}`} className="card__title" style={{ color: 'inherit' }}>{b.address}</Link>
                                 <span className="card__sub">{[s.complexName, b.postcode].filter(Boolean).join(' · ')}</span>
-                                <span className="card__sub">{[s.typeLabel, `${s.total} flats`, s.hbNumber].filter(Boolean).join(' · ')}</span>
+                                <span className="card__sub">{[s.typeLabel, plural(s.total, 'flat'), s.hbNumber].filter(Boolean).join(' · ')}</span>
                             </div>
                             <span className="card__pct">
                                 {s.completed}/{s.total}
@@ -63,7 +63,7 @@ const BuildingCards: React.FC<BuildingCardsProps> = ({ rows, roles, onBlock, onU
                                     <Link key={f._id} to={apartmentHref(f._id)} className="card__flat">
                                         <span className="row" style={{ minWidth: 0 }}>
                                             <span className={`dot dot--${status.family}`} title={status.label} />
-                                            <span className="card__flat-name truncate">{flatDisplayName(f)}</span>
+                                            <span className="card__flat-name">{flatDisplayName(f)}</span>
                                         </span>
                                         <span className="row">
                                             {hm?.date ? (

@@ -42,7 +42,7 @@ const UsersPage: React.FC = () => {
     usePageChrome([{ label: t('users.title') }], t('users.title'));
 
     const { data, loading, error, reload } = useApi<PaginatedResponse<User> | User[]>('/api/users', { params: { limit: 500 } });
-    const users = useMemo(() => unwrapList<User>(data ?? undefined), [data]);
+    const users = useMemo(() => [...unwrapList<User>(data ?? undefined)].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'nl', { sensitivity: 'base' })), [data]);
 
     const [query, setQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState<RoleName | 'all'>('all');
@@ -210,11 +210,11 @@ const UsersPage: React.FC = () => {
                             <div className="col gap-2">
                                 <span className="field__label">{t('users.color')}</span>
                                 <div className="swatches" role="radiogroup" aria-label={t('users.color')}>
-                                    {PERSON_COLORS.map((c) => (
+                                    {[...(PERSON_COLORS.some((c) => c.toLowerCase() === form.color.toLowerCase()) ? [] : [form.color]), ...PERSON_COLORS].map((c) => (
                                         <button key={c} type="button" role="radio" aria-checked={form.color.toLowerCase() === c.toLowerCase()} className={`swatch ${form.color.toLowerCase() === c.toLowerCase() ? 'is-active' : ''}`.trim()} style={{ background: c }} onClick={() => setForm((f) => ({ ...f, color: c }))} title={c} />
                                     ))}
                                 </div>
-                                <span className="t-caption muted">{t('users.colorHint')}</span>
+                                <span className="t-caption muted">{t('users.colorHint')}{!PERSON_COLORS.some((c) => c.toLowerCase() === form.color.toLowerCase()) && ' De eerste stip is de huidige, vrije kleur van deze gebruiker.'}</span>
                                 <span className="row t-small"><Avatar name={form.name || '?'} color={form.color} size="md" /> <Icon name="event" className="muted" /> zo ziet deze persoon eruit in de agenda</span>
                             </div>
                         </div>

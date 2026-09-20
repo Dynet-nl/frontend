@@ -18,7 +18,7 @@ import BuildingTable from '../components/district/BuildingTable';
 import BuildingCards from '../components/district/BuildingCards';
 import { ROLES } from '../utils/constants';
 import { t } from '../i18n';
-import { fmtPercent } from '../utils/format';
+import { fmtPercent, plural } from '../utils/format';
 import { summarize, matchesFilter, matchesQuery, FILTERS, BuildingFilter, BuildingSummary } from '../utils/buildingSummary';
 import type { Building, District, PaginatedResponse } from '../types/domain';
 import { unwrapList } from '../types/domain';
@@ -217,7 +217,7 @@ const DistrictPage: React.FC = () => {
                             </div>
                             {detail && (
                                 <p className="page__subtitle t-small">
-                                    {summaries.length} gebouwen · {totals.flats} flats · {totals.completed} opgeleverd ({fmtPercent(totals.pct)})
+                                    {plural(summaries.length, 'gebouw', 'gebouwen')} · {plural(totals.flats, 'flat')} · {totals.completed} opgeleverd ({fmtPercent(totals.pct)})
                                     {totals.blocked > 0 && <> · <span style={{ color: 'var(--status-blocked-fg)' }}>{totals.blocked} geblokkeerd</span></>}
                                 </p>
                             )}

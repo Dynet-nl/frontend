@@ -115,7 +115,7 @@ const LoginPage: React.FC = () => {
         <div className="login">
             <form className="login__card" onSubmit={handleSubmit} noValidate>
                 <div className="login__brand">
-                    <img src={`${process.env.PUBLIC_URL}/dynetLogo.png`} alt="" width={28} />
+                    <img src={`${process.env.PUBLIC_URL}/dynetLogo.png`} alt="" width={48} />
                     <span>Dynet</span>
                 </div>
                 <div>

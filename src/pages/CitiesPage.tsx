@@ -123,7 +123,7 @@ const CitiesPage: React.FC = () => {
             ) : error && !cities ? (
                 <ErrorState onRetry={reload} />
             ) : (
-                <div className="table-wrap">
+                <div className="table-wrap table-wrap--scroll">
                     {cities && cities.length > 0 ? (
                         <table className="table">
                             <thead>

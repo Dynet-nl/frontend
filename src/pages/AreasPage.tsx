@@ -129,7 +129,7 @@ const AreasPage: React.FC = () => {
             ) : error && !data ? (
                 <ErrorState onRetry={reload} />
             ) : (
-                <div className="table-wrap">
+                <div className="table-wrap table-wrap--scroll">
                     {areas.length > 0 ? (
                         <table className="table">
                             <thead>

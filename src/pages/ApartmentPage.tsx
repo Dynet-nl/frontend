@@ -43,6 +43,8 @@ interface Apartment {
     tkNummer?: string;
     createdAt?: string;
     updatedAt?: string;
+    buildingRef?: { _id: string; address: string; postcode?: string; isBlocked?: boolean; blockReason?: string };
+    districtRef?: { _id: string; name: string; priority?: number; area?: { _id: string; name: string } };
     technischePlanning?: {
         _id?: string;
         telephone?: string;
@@ -94,11 +96,13 @@ const ApartmentPage: React.FC = () => {
 
     const { data: flat, loading, error, status, reload, setData } = useApi<Apartment>(id ? `/api/apartment/${id}` : null);
     const title = flat ? name(flat) : '…';
+    const districtHref = flat?.districtRef?.area ? `/district/${flat.districtRef.area._id}?district=${flat.districtRef._id}` : '/districts';
     usePageChrome(
         [
-            { label: t('nav.districts'), path: '/districts' },
-            ...(flat?.complexNaam ? [{ label: flat.complexNaam }] : []),
-            { label: title },
+            ...(flat?.districtRef?.area ? [{ label: flat.districtRef.area.name, path: `/district/${flat.districtRef.area._id}` }] : [{ label: t('nav.districts'), path: '/districts' }]),
+            ...(flat?.districtRef ? [{ label: flat.districtRef.name, path: districtHref }] : []),
+            ...(flat?.buildingRef ? [{ label: flat.complexNaam || flat.buildingRef.address, path: `/building/${flat.buildingRef._id}` }] : flat?.complexNaam ? [{ label: flat.complexNaam }] : []),
+            { label: flat?.toevoeging ? `${flat.huisNummer ?? ''} – ${flat.toevoeging}`.trim() : title },
         ],
         flat ? title : undefined
     );
@@ -194,6 +198,7 @@ const ApartmentPage: React.FC = () => {
                             <Menu
                                 items={[
                                     ...(flat.building ? [{ label: t('building.title'), icon: 'architecture', onSelect: () => navigate(`/building/${flat.building}`) }] : []),
+                                    ...(flat.districtRef ? [{ label: `${t('nav.districts')} · ${flat.districtRef.name}`, icon: 'grid_view', onSelect: () => navigate(districtHref) }] : []),
                                     { label: 'Route', icon: 'near_me', onSelect: () => window.open(mapsHref(name(flat), flat.postcode), '_blank', 'noopener') },
                                     ...(tel ? [{ label: `${t('home.call')} ${fmtPhone(tp?.telephone)}`, icon: 'call', onSelect: () => { window.location.href = tel; } }] : []),
                                 ]}

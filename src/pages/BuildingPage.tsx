@@ -74,7 +74,7 @@ const BuildingPage: React.FC = () => {
     const { id = '' } = useParams<{ id: string }>();
     const { showSuccess, showError } = useNotification();
     const { handleApiError } = useError();
-    const { data: building, loading, error, reload } = useApi<LayoutBuilding & { postcode?: string; district?: string; isBlocked?: boolean; blockReason?: string; flats?: Array<{ _id: string; adres?: string; huisNummer?: string; toevoeging?: string; complexNaam?: string; zoeksleutel?: string; postcode?: string }> }>(id ? `/api/building/${id}` : null);
+    const { data: building, loading, error, reload } = useApi<LayoutBuilding & { postcode?: string; district?: string; isBlocked?: boolean; blockReason?: string; districtRef?: { _id: string; name: string; priority?: number; area?: { _id: string; name: string } }; flats?: Array<{ _id: string; adres?: string; huisNummer?: string; toevoeging?: string; complexNaam?: string; zoeksleutel?: string; postcode?: string }> }>(id ? `/api/building/${id}` : null);
 
     const [blocks, setBlocks] = useState<BlockConfig[]>([{ ...INITIAL_BLOCK }]);
     const [active, setActive] = useState(0);
@@ -99,9 +99,12 @@ const BuildingPage: React.FC = () => {
 
     const complex = building?.flats?.find((f) => f.complexNaam)?.complexNaam;
     const title = building ? `${building.address ?? building.name ?? ''}${complex ? ` · ${complex}` : ''}` : '…';
+    const districtHref = building?.districtRef?.area ? `/district/${building.districtRef.area._id}?district=${building.districtRef._id}` : '/districts';
     usePageChrome(
         [
-            { label: t('nav.districts'), path: building?.district ? `/districts` : '/districts' },
+            { label: t('nav.districts'), path: '/districts' },
+            ...(building?.districtRef?.area ? [{ label: building.districtRef.area.name, path: `/district/${building.districtRef.area._id}` }] : []),
+            ...(building?.districtRef ? [{ label: building.districtRef.name, path: districtHref }] : []),
             { label: building?.address ?? '…' },
         ],
         building?.address
@@ -385,7 +388,7 @@ const BuildingPage: React.FC = () => {
             </div>
 
             <div className="row">
-                <LinkButton to="/districts" variant="ghost" icon="arrow_back">{t('common.back')}</LinkButton>
+                <LinkButton to={districtHref} variant="ghost" icon="arrow_back">{building?.districtRef ? t('building.back', { district: building.districtRef.name }) : t('common.back')}</LinkButton>
                 <Button className="ml-auto" variant="primary" icon="save" onClick={save} loading={saving}>{layoutExists ? t('building.saveLayoutExisting') : t('building.saveLayout')}</Button>
             </div>
 

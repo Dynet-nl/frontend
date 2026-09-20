@@ -13,7 +13,7 @@ import { useNotification } from '../context/NotificationProvider';
 import { usePageChrome } from '../components/shell/ShellContext';
 import AppointmentLine from '../components/AppointmentLine';
 import { t } from '../i18n';
-import { isoWeek, todayInputDate, toInputDate, fmtDayMonth, fmtRange } from '../utils/format';
+import { isoWeek, todayInputDate, toInputDate, fmtDayMonth, fmtRange, plural } from '../utils/format';
 import { deliveryStatus, hasTypeStatus } from '../utils/status';
 import { canScheduleHas, canScheduleTechnical, ScheduleType } from '../utils/routes';
 import { summarize, flatDisplayName, flatFloorLabel } from '../utils/buildingSummary';
@@ -49,8 +49,9 @@ const SchedulerPage: React.FC = () => {
     const type: ScheduleType = requestedType && ((requestedType === 'HAS' && canHas) || (requestedType === 'Technical' && canTech)) ? requestedType : canTech ? 'Technical' : 'HAS';
     const isHas = type === 'HAS';
 
-    const { data: building, loading: lb, error: eb, reload: rb } = useApi<Building>(mode === 'building' && id ? `/api/building/${id}` : null);
-    const { data: single, loading: ls, error: es, reload: rs } = useApi<Flat & { building?: string }>(mode === 'single' && id ? `/api/apartment/${id}` : null);
+    type Refs = { districtRef?: { _id: string; name: string; area?: { _id: string; name: string } }; buildingRef?: { _id: string; address: string } };
+    const { data: building, loading: lb, error: eb, reload: rb } = useApi<Building & Refs>(mode === 'building' && id ? `/api/building/${id}` : null);
+    const { data: single, loading: ls, error: es, reload: rs } = useApi<Flat & Refs & { building?: string }>(mode === 'single' && id ? `/api/apartment/${id}` : null);
     const { people } = usePersonnel(isHas ? 'HASMonteur' : 'TechnischeSchouwer');
 
     const flats: Flat[] = useMemo(() => {
@@ -60,11 +61,13 @@ const SchedulerPage: React.FC = () => {
     const blocked = !!building?.isBlocked;
 
     const titleName = mode === 'single' ? (single ? flatDisplayName(single) : '…') : building?.address ?? '…';
+    const refs: Refs | null = mode === 'single' ? single : building;
     usePageChrome(
         [
-            { label: t('nav.districts'), path: '/districts' },
-            ...(mode === 'single' && single?.building ? [{ label: building?.address || 'Gebouw', path: `/building/${single.building}` }] : []),
-            { label: `${t('common.schedule')} · ${titleName}` },
+            ...(refs?.districtRef?.area ? [{ label: refs.districtRef.area.name, path: `/district/${refs.districtRef.area._id}` }] : [{ label: t('nav.districts'), path: '/districts' }]),
+            ...(refs?.districtRef?.area ? [{ label: refs.districtRef.name, path: `/district/${refs.districtRef.area._id}?district=${refs.districtRef._id}` }] : []),
+            ...(mode === 'single' && single?.buildingRef ? [{ label: single.buildingRef.address, path: `/building/${single.buildingRef._id}` }] : mode === 'building' && building ? [{ label: building.address, path: `/building/${building._id}` }] : []),
+            { label: t('common.schedule') },
         ],
         `${t('common.schedule')} · ${titleName}`
     );
@@ -178,7 +181,7 @@ const SchedulerPage: React.FC = () => {
                         <h1 className="t-title-l">{mode === 'single' ? t('scheduler.titleFlat', { flat: titleName }) : t('scheduler.title', { building: titleName })}</h1>
                         {blocked && <Pill family="blocked" icon="block" size="md">{t('common.blocked')}</Pill>}
                     </div>
-                    <p className="page__subtitle t-small">{[complex, building?.postcode ?? flats[0]?.postcode, `${flats.length} ${flats.length === 1 ? 'flat' : 'flats'}`].filter(Boolean).join(' · ')}</p>
+                    <p className="page__subtitle t-small">{[complex, building?.postcode ?? flats[0]?.postcode, plural(flats.length, 'flat')].filter(Boolean).join(' · ')}</p>
                 </div>
                 <div className="page__actions">
                     {canTech && canHas && (
