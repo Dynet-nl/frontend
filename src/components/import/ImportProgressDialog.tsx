@@ -125,7 +125,7 @@ const ImportProgressDialog: React.FC<ImportProgressDialogProps> = ({ importId, o
             open
             onClose={() => onCancel?.()}
             title={progress.completed ? t('import.done') : progress.failed ? t('import.failed') : t('import.progress.title')}
-            subtitle={progress.message}
+            subtitle={progress.completed ? 'De import is afgerond en het district is bijgewerkt.' : progress.failed ? 'De import is teruggedraaid; het district is ongewijzigd.' : progress.message}
             closeOnOverlayClick={false}
             closeOnEscape={false}
             size="medium"

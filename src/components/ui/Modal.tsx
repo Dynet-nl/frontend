@@ -35,25 +35,38 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     const panelRef = useRef<HTMLDivElement>(null);
 
-    const handleEscape = useCallback(
+    const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    // Escape closes; Tab cycles inside the dialog so keyboard users cannot land behind it.
+    const handleKey = useCallback(
         (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && closeOnEscape) onClose();
+            if (e.key === 'Escape' && closeOnEscape) { onClose(); return; }
+            if (e.key !== 'Tab' || !panelRef.current) return;
+            const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null);
+            if (items.length === 0) return;
+            const first = items[0];
+            const last = items[items.length - 1];
+            const active = document.activeElement as HTMLElement | null;
+            if (e.shiftKey && (active === first || !panelRef.current.contains(active))) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && (active === last || !panelRef.current.contains(active))) { e.preventDefault(); first.focus(); }
         },
         [closeOnEscape, onClose]
     );
 
     useEffect(() => {
         if (!open) return undefined;
-        document.addEventListener('keydown', handleEscape);
+        const previouslyFocused = document.activeElement as HTMLElement | null;
+        document.addEventListener('keydown', handleKey);
         document.body.style.overflow = 'hidden';
-        // Move focus into the dialog
-        const first = panelRef.current?.querySelector<HTMLElement>('input, select, textarea, button:not(.dialog__close button)');
+        // Move focus into the dialog: first field, else the first button that is not the close button.
+        const first = panelRef.current?.querySelector<HTMLElement>('input, select, textarea, [role="switch"], [role="radio"]') ?? panelRef.current?.querySelector<HTMLElement>('.dialog__footer button, .dialog__body button');
         first?.focus();
         return () => {
-            document.removeEventListener('keydown', handleEscape);
+            document.removeEventListener('keydown', handleKey);
             document.body.style.overflow = '';
+            previouslyFocused?.focus?.();
         };
-    }, [open, handleEscape]);
+    }, [open, handleKey]);
 
     if (!open) return null;
 
